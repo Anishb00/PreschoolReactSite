@@ -1,0 +1,16 @@
+.styledbutton {
+  background-color: #e2b93b; /* gold */
+  color: #4b0082; /* purple */
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.styledbutton:hover {
+  background-color: #4b0082; /* purple */
+  color: #e2b93b; /* gold */
+}
