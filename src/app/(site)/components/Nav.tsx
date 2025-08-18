@@ -1,18 +1,36 @@
 // components/Navbar.jsx
 "use client";
+// React
+import { useEffect, useState } from "react";
+
+// Next.js
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+
+
+// Custom Components
 import styles from "@/app/(site)/rootlayout.module.css";
 
 export default function Navbar() {
   const [active, setActive] = useState(false);
+
+  var pathname = usePathname();
+  console.log(pathname);
 
   function userhasScrolled() {
     if (window.scrollY == 0) {
       setActive(false);
     } else {
       setActive(true);
+    }
+  }
+
+  function styleActive(href){
+    return {
+      fontWeight: pathname === `/${href}` ? 'bold' : 'normal',
+      color: pathname === `/${href}` ? '#0070f3' : 'inherit', // adjust highlight color
+      textDecoration: 'none'
     }
   }
 
@@ -45,11 +63,11 @@ export default function Navbar() {
 
         {/* Nav links */}
         <nav className="hidden space-x-8 text-sm font-semibold uppercase md:flex">
-          <Link href="AboutUs">About</Link>
-          <Link href="Programs">Programs</Link>
-          <Link href="Calendar">Calendar</Link>
-          <Link href="Curriculum">Curriculum</Link>
-          <Link href="Register">Admissions</Link>
+          <Link href="AboutUs" style={styleActive('AboutUs')}>About</Link>
+          <Link href="Programs" style={styleActive('Programs')}>Programs</Link>
+          <Link href="Calendar" style={styleActive('Calendar')}>Calendar</Link>
+          <Link href="Curriculum" style={styleActive('Curriculum')}>Curriculum</Link>
+          <Link href="Register" style={styleActive('Register')}>Admissions</Link>
         </nav>
 
         {/* "Schedule a Tour" button */}

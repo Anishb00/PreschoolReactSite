@@ -19,6 +19,9 @@ export default function WaitlistForm() {
     doctorPhone: "", // <-- added
   });
 
+  var pageName = "Register";
+  var pageDescription = "Register your child for the waitlist";
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -34,8 +37,8 @@ export default function WaitlistForm() {
     <>
       <Banner
         imagename="/herobg.jpeg"
-        title="Calendar"
-        subtitle="Stay up to date with important holidays, closures, and events throughout the school year."
+        title={pageName}
+        subtitle={pageDescription}
       />
 
       <section className="bg-gray-100 px-6 py-20 md:px-20">
