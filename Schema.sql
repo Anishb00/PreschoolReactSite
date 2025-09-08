@@ -22,9 +22,9 @@ CREATE TABLE Child (
   Fee INT DEFAULT NULL,
   Child_Pin INT NOT NULL,
   PRIMARY KEY (Child_ID),
-  UNIQUE KEY child_pin (Child_Pin),
-  CONSTRAINT uq_child UNIQUE (Child_name, DOB),
-  CONSTRAINT chk_doctor_phone_format CHECK (Doctor_phone REGEXP '^[0-9]{10}$')
+  UNIQUE KEY UNIQUE_PIN (Child_Pin),
+  CONSTRAINT DUPLICATE_CHILD UNIQUE (Child_name, DOB),
+  CONSTRAINT DOCTOR_PHONE_FORMAT CHECK (Doctor_phone REGEXP '^[0-9]{11}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE Parent (
@@ -34,8 +34,8 @@ CREATE TABLE Parent (
   Phone VARCHAR(19) NOT NULL,
   Email VARCHAR(50) NOT NULL,
   PRIMARY KEY (Parent_ID),
-  UNIQUE KEY uq_parent_identity (Name, Phone, Email),
-  CONSTRAINT chk_parent_phone_format CHECK (Phone REGEXP '^[0-9]{10}$')
+  UNIQUE KEY UQ_PARENT_IDENTITY (Name, Phone, Email),
+  CONSTRAINT PARENT_PHONE_FORMAT CHECK (Phone REGEXP '^[0-9]{11}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE Child_Parent (

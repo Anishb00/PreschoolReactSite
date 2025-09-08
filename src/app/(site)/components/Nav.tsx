@@ -16,7 +16,6 @@ export default function Navbar() {
   const [active, setActive] = useState(false);
 
   var pathname = usePathname();
-  console.log(pathname);
 
   function userhasScrolled() {
     if (window.scrollY == 0) {
@@ -49,8 +48,8 @@ export default function Navbar() {
           <Image
             src="/preschoollogo.png"
             alt="SSW"
-            width={120}
-            height={120}
+            width={95}
+            height={95}
             priority
           />
           <div className="leading-tight">
@@ -63,11 +62,11 @@ export default function Navbar() {
 
         {/* Nav links */}
         <nav className="hidden space-x-8 text-sm font-semibold uppercase md:flex">
-          <Link href="AboutUs" style={styleActive('AboutUs')}>About</Link>
-          <Link href="Programs" style={styleActive('Programs')}>Programs</Link>
-          <Link href="Calendar" style={styleActive('Calendar')}>Calendar</Link>
-          <Link href="Curriculum" style={styleActive('Curriculum')}>Curriculum</Link>
-          <Link href="Register" style={styleActive('Register')}>Admissions</Link>
+          <Link href="/AboutUs" style={styleActive('AboutUs')}>About</Link>
+          <Link href="/Programs" style={styleActive('Programs')}>Programs</Link>
+          <Link href="/Calendar" style={styleActive('Calendar')}>Calendar</Link>
+          <Link href="/Curriculum" style={styleActive('Curriculum')}>Curriculum</Link>
+          <Link href="/Register" style={styleActive('Register')}>Admissions</Link>
         </nav>
 
         {/* "Schedule a Tour" button */}

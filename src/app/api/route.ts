@@ -1,5 +1,6 @@
 
-import query from '@/lib/query';
+import {query} from '@/lib/dbOperations';
+
 
 export async function GET() {
   const rows = await query()

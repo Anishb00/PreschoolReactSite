@@ -1,0 +1,57 @@
+'use server';
+import * as helpers from "@/lib/server/registration-helpers";
+import type { RegistrationData, RegisterFormState, RegisterPageRenderCondition } from "@/lib/types/Registertypes";
+import {API_ERROR_CODES,DB_ERROR_CODES} from "@/lib/errorCodes";
+import { redirect } from "next/navigation";
+import {EndpointErrorResponse} from "@/lib/EndpointErrorResponse";
+import {registerWaitlist} from "@/lib/dbOperations";
+
+
+
+export default async function registerChild(
+  _prev: RegisterFormState,
+  formData: FormData
+): Promise<RegisterFormState> {
+  let errorStatus = new EndpointErrorResponse();
+
+  const registrationData: RegistrationData = {
+    childName: helpers.mustString(formData,"childName",errorStatus),
+    dob:       helpers.mustDOB(formData.get("dob") || "",errorStatus),
+    sex:       helpers.validateSex(String(formData.get('sex')),errorStatus),
+    Program:   helpers.validateProgram(helpers.mustString(formData, "Program",errorStatus),errorStatus),
+    Pin:       "1236",
+
+    parentOneName:    helpers.mustString(formData, "parentOneName",errorStatus),
+    parentOneAddress: helpers.mustString(formData, "parentOneAddress",errorStatus),
+    parentOnePhone:   helpers.normalizeAndValidatePhone(formData,'parentOnePhone',errorStatus,API_ERROR_CODES.P1_PHONE_INVALID,{required:true}),
+    parentOneEmail:   helpers.validateEmailAddress(formData, "parentOneEmail",errorStatus,API_ERROR_CODES.P1_EMAIL_INVALID,{required:true}),
+
+    // Only Parent 2 may be null:
+    parentTwoName:    helpers.optionalString(formData, "parentTwoName"),
+    parentTwoAddress: helpers.optionalString(formData, "parentTwoAddress"),
+    parentTwoPhone:   helpers.normalizeAndValidatePhone(formData,'parentTwoPhone',errorStatus,API_ERROR_CODES.P2_PHONE_INVALID,{required:false}),
+    parentTwoEmail:   helpers.validateEmailAddress(formData, "parentTwoEmail",errorStatus,API_ERROR_CODES.P2_EMAIL_INVALID,{required:false}),
+
+
+    doctorName:  helpers.mustString(formData, "doctorName",errorStatus),
+    doctorPhone: helpers.normalizeAndValidatePhone(formData,'doctorPhone',errorStatus,API_ERROR_CODES.DOC_PHONE_INVALID,{required:true}),
+  };
+
+  // run db procedure call pass error object to it
+  if (errorStatus.checkErrors() == 0){
+    await registerWaitlist(registrationData,errorStatus);
+  }
+  const params = new URLSearchParams({
+    childName: String(formData.get("childName"))
+  });
+  console.log(errorStatus);
+  if(errorStatus.uncaughtErrors.size>0 ){
+    redirect(`/Register/error?${params.toString()}`);
+  }else if(errorStatus.caughtErrors.has(DB_ERROR_CODES.DUPLICATE_CHILD)){
+    redirect(`/Register/duplicate?${params.toString()}`);
+  }else if(errorStatus.caughtErrors.size>0){
+    return {statusCodes:errorStatus.caughtErrors,values:registrationData};
+  }else{
+    redirect(`/Register/success?${params.toString()}`);
+  }
+}

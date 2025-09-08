@@ -1,2 +1,31 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");
 @import "tailwindcss";
+
+/* --- Your custom keyframes --- */
+@keyframes growCircle {
+  0%   { transform: scale(0) }
+  100% { transform: scale(1) }
+}
+
+@keyframes drawPath {
+  0%   { stroke-dashoffset: 1 }
+  100% { stroke-dashoffset: 0 }
+}
+
+@keyframes fadeUp {
+  0%   { opacity: 0; transform: translateY(12px) }
+  100% { opacity: 1; transform: translateY(0) }
+}
+
+/* --- Turn them into utilities --- */
+@utility animate-growCircle {
+  animation: growCircle .5s ease-out forwards;
+}
+
+@utility animate-drawPath {
+  animation: drawPath .6s ease-out forwards;
+}
+
+@utility animate-fadeUp {
+  animation: fadeUp .6s ease-out forwards;
+}
