@@ -129,3 +129,7 @@ call async function without await so it run the code but without slowing the mai
 [x] When there is an uncaughtError it should navigate use to error page
 [x] When procedure goes through should take the user to the success page
 
+
+
+## Set Allowed origins so that requests can only be run from website
+https://nextjs.org/docs/app/api-reference/config/next-config-js/serverActions#allowedorigins

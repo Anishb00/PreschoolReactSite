@@ -75,6 +75,11 @@ export default function Footer() {
                 Contact Us
               </Link>
             </li>
+            <li>
+              <Link href="/admin" className="hover:underline">
+                Admin Portal
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
