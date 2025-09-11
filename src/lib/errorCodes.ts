@@ -11,6 +11,7 @@ export const API_ERROR_CODES = {
   P1_EMAIL_INVALID:  "P1_EMAIL_INVALID",
   P2_EMAIL_INVALID:  "P2_EMAIL_INVALID",
   INVALID_CHILD_AGE: "INVALID_CHILD_AGE",
+  INVALID_LOGIN_CREDENTIALS: "INVALID_LOGIN_CREDENTIALS",
   
   UNKOWN_API_ERROR: "UNKOWN_API_ERROR"
 } as const;
@@ -39,6 +40,7 @@ export const ERROR_CLASSIFICATION: ErrorClassificationMap = {
   P1_EMAIL_INVALID:  "caught",
   P2_EMAIL_INVALID:  "caught",
   INVALID_CHILD_AGE: "caught",
+  INVALID_LOGIN_CREDENTIALS: "caught",
 
   UNKOWN_API_ERROR: "uncaught",
 
@@ -50,6 +52,4 @@ export const ERROR_CLASSIFICATION: ErrorClassificationMap = {
   PARENT_PHONE_FORMAT: "uncaught",
 
   UNKNOWN_DB_ERROR:  "uncaught",
-
-
 };
