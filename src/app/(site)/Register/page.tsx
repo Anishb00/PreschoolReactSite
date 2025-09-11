@@ -1,6 +1,6 @@
 'use client'
 import { useActionState } from 'react';
-import registerChild from '@/lib/server/registerChild';
+import registerChild from '@/lib/actions/registerChild';
 import type { RegisterFormState, RegistrationData, RegisterPageRenderCondition} from '@/lib/types/Registertypes'
 import RegisterForm from '@/app/(site)/Register/ui/registerFormUI';
 

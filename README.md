@@ -133,3 +133,6 @@ call async function without await so it run the code but without slowing the mai
 
 ## Set Allowed origins so that requests can only be run from website
 https://nextjs.org/docs/app/api-reference/config/next-config-js/serverActions#allowedorigins
+
+
+### Week of 9/7

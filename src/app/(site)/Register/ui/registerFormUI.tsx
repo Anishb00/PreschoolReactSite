@@ -2,8 +2,6 @@
 import  Form  from "next/form";
 import PhoneMask from "@/app/components/ui/phonenumber";
 import type { RegistrationData, RegisterFormState, registerSeverAction } from "@/lib/types/Registertypes";
-import APIRes from "@/lib/EndpointErrorResponse";
-
 
 
 export default function RegisterForm({serverAction,statusCodes,values}: {serverAction: registerSeverAction, statusCodes:Set<string>,values:RegistrationData}){

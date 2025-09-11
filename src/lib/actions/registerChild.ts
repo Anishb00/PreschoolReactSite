@@ -1,5 +1,5 @@
 'use server';
-import * as helpers from "@/lib/server/registration-helpers";
+import * as helpers from "@/lib/registration-helpers";
 import type { RegistrationData, RegisterFormState, RegisterPageRenderCondition } from "@/lib/types/Registertypes";
 import {API_ERROR_CODES,DB_ERROR_CODES} from "@/lib/errorCodes";
 import { redirect } from "next/navigation";
