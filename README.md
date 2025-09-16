@@ -136,3 +136,32 @@ https://nextjs.org/docs/app/api-reference/config/next-config-js/serverActions#al
 
 
 ### Week of 9/7
+
+[x] Setup Authentication
+    [x]setup user signup 
+    [x]setup user signin
+[] Setup Authorization
+    [] Manually Create Admin Users
+    [] Admin Users should be able to
+        [] Should be able to add Organization Teachers
+        [] Should be able to delete Organization Teachers
+        [] Should be able to add children
+        [] Should be able to remove children
+        [] Should be able to edit children data
+        [] Should be able to edit event calendar events
+        [] Should be able to generate reciepts
+    [] All organization members should be able to
+        [] Visit the Admin Dashboard
+        [] View Class Data
+        [] View Children Data
+        [] Print signin Sheet
+        [] Print Emergency Roster
+        [] Print Teacher Signin Sheet
+[] Enforce Access Control
+
+? What is the purpose of session: list revoke delete?
+
+- Create organization
+- delete users
+
+

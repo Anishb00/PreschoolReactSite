@@ -1,5 +1,5 @@
 'use server';
-import {auth} from "@/lib/auth/auth";
+import {auth} from "@/lib/auth";
 import {EndpointErrorResponse} from "@/lib/EndpointErrorResponse";
 import {API_ERROR_CODES,DB_ERROR_CODES} from "@/lib/errorCodes";
 import { redirect } from "next/navigation";

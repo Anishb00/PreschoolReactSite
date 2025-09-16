@@ -1,5 +1,5 @@
 'use client'
-import {auth} from "@/lib/auth/auth";
+import {auth} from "@/lib/auth";
 import { redirect } from "next/navigation";
 import {AdminSigninServerAction} from "@/lib/actions/AdminLogin";
 import { useFormStatus } from "react-dom";
