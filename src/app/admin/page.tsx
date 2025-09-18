@@ -1,18 +1,29 @@
 'use client'
 import {auth} from "@/lib/auth";
 import { redirect } from "next/navigation";
+import {useEffect} from "react";
 import {AdminSigninServerAction} from "@/lib/actions/AdminLogin";
 import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { authClient } from "@/lib/auth-client";
 
 export default function AdminLoginForm() {
 
-  const { pending } = useFormStatus();
+  const [state, formAction] = useActionState(AdminSigninServerAction, {status:null});
 
+  useEffect(() => {
+    if (state.status) {
+      (async () => {
+        await authClient.revokeOtherSessions(); // client-only follow-up
+        redirect("/admin/home");
+      })();
+    }
+  }, [state.status]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form
-        action={AdminSigninServerAction}
+        action={formAction}
         className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6"
       >
         <h2 className="text-2xl font-bold text-center text-gray-800">

@@ -10,7 +10,6 @@ export const statement = {
 
 export const ac = createAccessControl(statement);
 
-
 export const user = ac.newRole({ 
     project: USER_PRIVILEGES, 
     user: [],

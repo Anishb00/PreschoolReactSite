@@ -134,6 +134,13 @@ call async function without await so it run the code but without slowing the mai
 ## Set Allowed origins so that requests can only be run from website
 https://nextjs.org/docs/app/api-reference/config/next-config-js/serverActions#allowedorigins
 
+This isnt what your looking for you're looking for trusted origins which is a Next.js functionality
+
+Allowed origins does the following:
+ChatGPT said:
+
+In Next.js, allowedOrigins doesn’t make Server Actions into public endpoints you can call from tools like Postman. Instead, it simply lets you specify extra trusted domains where your app is running (like other subdomains or a proxy) so that those frontends can still invoke your Server Actions. By default only the same origin is allowed, and with allowedOrigins you extend that protection to multiple app origins while keeping CSRF safety intact.
+
 
 ### Week of 9/7
 
@@ -164,4 +171,9 @@ https://nextjs.org/docs/app/api-reference/config/next-config-js/serverActions#al
 - Create organization
 - delete users
 
+
+### Blockers
+
+What is the purpose of the API routes if you are just using serveractions?
+How did he find out that you can get the user data from session
 

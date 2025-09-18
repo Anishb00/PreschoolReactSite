@@ -6,6 +6,10 @@ import pool from "@/lib/db";
 import {ac,user,admin} from "@/lib/roles";
 
 export const auth = betterAuth({
+    session: {
+        expiresIn: 60 * 60 * 24 * 2, // 2 days
+        updateAge: 60 * 60 * 24 // 1 day (every 1 day the session expiration is updated)
+    },
     emailAndPassword: {  
         enabled: true,
         minPasswordLength:4,
@@ -13,13 +17,13 @@ export const auth = betterAuth({
     },
     database: pool,
     appName: "preschoolreactsite",
-    plugins: [adminPlugin({
+    plugins: [username(),
+        adminPlugin({
         ac,
         roles:{
             admin,
             user
         }
     }), 
-    username(), 
     nextCookies()],
 });

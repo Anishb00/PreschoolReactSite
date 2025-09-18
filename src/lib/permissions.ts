@@ -1,7 +1,7 @@
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements } from "better-auth/plugins/admin/access";
 
-const PROJECT_PERMISSION_CODES = {
+export const PROJECT_PERMISSION_CODES = {
     VIEW_DASHBOARD: "VIEW_DASHBOARD",
     CREATE_CHILD: "CREATE_CHILD",
     EDIT_CHILD: "EDIT_CHILD",
@@ -14,7 +14,7 @@ const PROJECT_PERMISSION_CODES = {
 } as const;
 
 type ProjectPermissionKey = keyof typeof PROJECT_PERMISSION_CODES;
-type ProjectPermission = typeof PROJECT_PERMISSION_CODES[ProjectPermissionKey];
+export type ProjectPermission = typeof PROJECT_PERMISSION_CODES[ProjectPermissionKey];
 
 export const PROJECT_PERMISSIONS: ProjectPermission[] = Object.values(PROJECT_PERMISSION_CODES);
 

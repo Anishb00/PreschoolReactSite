@@ -4,7 +4,13 @@ import {EndpointErrorResponse} from "@/lib/EndpointErrorResponse";
 import {API_ERROR_CODES,DB_ERROR_CODES} from "@/lib/errorCodes";
 import { redirect } from "next/navigation";
 
-const  AdminSigninServerAction = async function(formData: FormData)  {
+type loginres = {
+  status:boolean | null
+}
+
+const  AdminSigninServerAction = async function(state:loginres,formData: FormData) {
+
+  let res: loginres = {status:null}
 
   const username = String(formData.get("username"));
   const password = String(formData.get("password"));
@@ -28,17 +34,12 @@ const  AdminSigninServerAction = async function(formData: FormData)  {
     }
   }
   console.log(errorState);
-  if (errorState.checkUncaughtErrors()){
-    return
-  }else if (errorState.checkErrors() > 0){
-    return
+  if (errorState.checkUncaughtErrors() || errorState.checkErrors() > 0 ){
+    res.status= false;
   }else{
-    redirect("/admin/home");
+    res.status=true;
   }
-
-
-
-
+  return res;
 }
 
 export {AdminSigninServerAction};
