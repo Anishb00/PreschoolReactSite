@@ -2,36 +2,13 @@
 
 import React from "react";
 import {LogoutButton} from "@/app/admin/home/logout";
-import {auth} from "@/lib/auth";
-import { headers } from 'next/headers';
-import { redirect } from "next/navigation";
-import {PROJECT_PERMISSION_CODES} from "@/lib/permissions"
-
+import {authorizeUser} from "@/lib/authentication";
+import {MIN_ASSET_ROLE_ACCESS} from "@/lib/protectedassets";
 
 export default async function Dashboard() {
 
-  const session = await auth.api.getSession({
-      headers: await headers() // you need to pass the headers object.
-  })
 
-  if (!session){
-    redirect("/admin")
-  }
-  const user = session?.user;
-
-  // const data = await auth.api.userHasPermission({
-  //   body: {
-  //     userId: user.id, //the user id
-  //     permissions: {
-  //       project: [PROJECT_PERMISSION_CODES.VIEW_DASHBOARD], // This must match the structure in your access control
-  //     },
-  //   },
-  // });
-
-  // if (!data.success){
-  //   redirect("/admin")
-  // }
-
+  await authorizeUser(MIN_ASSET_ROLE_ACCESS.VIEW_DASHBOARD);
 
   // Hardcoded data
   const stats = [
@@ -51,7 +28,7 @@ export default async function Dashboard() {
           <a href="#" className="hover:text-gray-300">Analytics</a>
           <a href="#" className="hover:text-gray-300">Orders</a>
           <a href="#" className="hover:text-gray-300">Settings</a>
-          <a href="/admin/test" className="hover:text-gray-300">Test</a>
+          <a href="/admin/checkroles" className="hover:text-gray-300">checkroles</a>
         </nav>
       </aside>
 
