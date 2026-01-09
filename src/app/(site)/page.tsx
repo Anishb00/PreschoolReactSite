@@ -9,7 +9,6 @@ import Navigate from "./components/Navigate";
 import Location from "./components/Location";
 
 export default function Home() {
-  const carouselDir = path.join(process.cwd(), "public/photocarousel");
   const orderFilePath = path.join(
     process.cwd(),
     "src",
@@ -19,13 +18,6 @@ export default function Home() {
     "photocarousel.json"
   );
   const isImageFile = (file: string) => /\.(jpg|jpeg|png|webp)$/i.test(file);
-  const diskFiles = (() => {
-    try {
-      return fs.readdirSync(carouselDir).filter(isImageFile);
-    } catch {
-      return [];
-    }
-  })();
   const orderedFiles = (() => {
     if (!fs.existsSync(orderFilePath)) {
       return [];
@@ -41,13 +33,7 @@ export default function Home() {
       return [];
     }
   })();
-  const orderedSet = new Set(orderedFiles);
-  const carouselImageFilenames = [
-    ...orderedFiles.filter((file) => diskFiles.includes(file)),
-    ...diskFiles
-      .filter((file) => !orderedSet.has(file))
-      .sort((a, b) => a.localeCompare(b)),
-  ];
+  const carouselImageFilenames = orderedFiles;
 
   return (
     <>
