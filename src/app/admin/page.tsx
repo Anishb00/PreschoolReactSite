@@ -1,8 +1,7 @@
 'use client'
-import {auth} from "@/lib/auth";
 import { redirect } from "next/navigation";
-import {useEffect} from "react";
-import {AdminSigninServerAction} from "@/lib/actions/AdminLogin";
+import { useEffect } from "react";
+import { AdminSigninServerAction } from "@/lib/actions/AdminLogin";
 import { useFormStatus } from "react-dom";
 import { useActionState } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -14,6 +13,7 @@ export default function AdminLoginForm() {
   useEffect(() => {
     if (state.status) {
       (async () => {
+        // authClient.$store.notify("$sessionSignal"); // refresh client session atom after server-side sign-in
         await authClient.revokeOtherSessions(); // client-only follow-up
         redirect("/admin/home");
       })();
