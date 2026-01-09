@@ -1,18 +1,27 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Setup
 
-First, run the development server:
+
+
+
+1.install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+
 ```
+2. Set your environment variables
+Dev setup:
+- create a .env file from .env.example
+
+Production:
+-TODO
+
+3.
+
+
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
@@ -54,7 +63,7 @@ Show a clear confirmation message
 --possibly email confirmation
 
 
-### On invalid 
+### On invalid
 
 
 # Tests
@@ -72,7 +81,7 @@ So I wanted to create a structured method of getting reponses from all APIs from
 
 I am wondering if I was necessary to do this because the main purpose was for structured error hanlding so it might have just been a better idea to just keep the API data response separate for error object and return both of them to client.(not just error handling though also helps with conditional rendering and redirect direction)
 
--Better way to do return page   
+-Better way to do return page
 
 -Check for advice on whether I am managing Error Codes is a good and readable way and if the way I have delivering error code from backend to front
  -Also When should you be making a specific Error class
@@ -105,7 +114,7 @@ export const mustString = (fd: FormData, key: string,errorState:EndpointErrorRes
 returns a "" instead of aborting this does not seem like a clean way to do this even though it couldnt result in an issue
 
 
-instead try constructing the object in try catch blow throw error 
+instead try constructing the object in try catch blow throw error
 
 make error object work so that instead of .adding and .logging you just redefine throw and that way it will abort additional lines of code from running because Ideally after you caught an error you shouldn ever have to write additiona lines of code just to exit gracefully especially in a high level language like JS
 
@@ -120,7 +129,7 @@ call async function without await so it run the code but without slowing the mai
 
 
 # Waitlist Functionality Checklist
-[x] prevents duplicate entities 
+[x] prevents duplicate entities
     [x] doesn't create duplicate child entities
     [x] doesn't create duplicate parent entities if multiple children share parents
 [x] When provides invalid data in form it should just stay to form page
@@ -145,7 +154,7 @@ In Next.js, allowedOrigins doesn’t make Server Actions into public endpoints y
 ### Week of 9/7
 
 [x] Setup Authentication
-    [x]setup user signup 
+    [x]setup user signup
     [x]setup user signin
 [] Setup Authorization
     [] Manually Create Admin Users
