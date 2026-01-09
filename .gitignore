@@ -45,3 +45,7 @@ next-env.d.ts
 #app specific
 better-auth_migrations
 scripts
+
+# track directory, ignore contents
+public/photocarousel/*
+!public/photocarousel/.gitkeep
