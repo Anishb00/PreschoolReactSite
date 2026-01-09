@@ -5,7 +5,14 @@ import type { RegistrationData } from "@/lib/types/Registertypes";
 type ChildFormProps = {
   createAction: (formData: FormData) => void | Promise<void>;
   updateAction: (formData: FormData) => void | Promise<void>;
-  values?: Partial<RegistrationData>;
+  values?: Partial<
+    RegistrationData & {
+      childClass?: string;
+      fee?: number | null;
+      enrollDate?: string | Date | null;
+      dropDate?: string | Date | null;
+    }
+  >;
   statusCodes?: Set<string>;
 };
 
@@ -19,6 +26,17 @@ export default function ChildForm({
   const dobValue = values?.dob ? values.dob.toISOString().split("T")[0] : "";
   const sexValue = values?.sex ?? "";
   const programValue = values?.Program ?? "";
+  const classValue = values?.childClass ?? "";
+  const feeValue =
+    values?.fee === null || values?.fee === undefined ? "" : values?.fee;
+  const enrollDateValue =
+    values?.enrollDate instanceof Date
+      ? values.enrollDate.toISOString().split("T")[0]
+      : values?.enrollDate ?? "";
+  const dropDateValue =
+    values?.dropDate instanceof Date
+      ? values.dropDate.toISOString().split("T")[0]
+      : values?.dropDate ?? "";
 
   return (
     <Form action={isEdit ? updateAction : createAction} className="space-y-10">
@@ -231,6 +249,72 @@ export default function ChildForm({
               defaultValue={values?.parentTwoEmail ?? ""}
               aria-invalid={statusCodes.has("P2_EMAIL_INVALID")}
               className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8] focus:outline-none aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-red-500 focus:aria-[invalid=true]:ring-red-600"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Enrollment Details */}
+      <div>
+        <h3 className="mb-4 text-xl font-semibold text-[#3B1FA8]">
+          Enrollment Details
+        </h3>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700">
+              Class
+            </label>
+            <select
+              key={`class-${classValue ?? ""}`}
+              name="childClass"
+              defaultValue={classValue}
+              className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8] focus:outline-none"
+            >
+              <option value="">Select</option>
+              <option value="Waitlist">Waitlist</option>
+              <option value="Pre-Register">Pre-Register</option>
+              <option value="Registered">Registered</option>
+              <option value="Caterpillar">Caterpillar</option>
+              <option value="Chrysalis">Chrysalis</option>
+              <option value="Butterfly">Butterfly</option>
+              <option value="Sunshine">Sunshine</option>
+              <option value="Rainbow">Rainbow</option>
+              <option value="Test">Test</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700">
+              Fee
+            </label>
+            <input
+              type="number"
+              name="fee"
+              defaultValue={feeValue}
+              min="0"
+              step="1"
+              className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8] focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700">
+              Enroll Date
+            </label>
+            <input
+              type="date"
+              name="enrollDate"
+              defaultValue={enrollDateValue}
+              className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8] focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700">
+              Drop Date
+            </label>
+            <input
+              type="date"
+              name="dropDate"
+              defaultValue={dropDateValue}
+              className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8] focus:outline-none"
             />
           </div>
         </div>

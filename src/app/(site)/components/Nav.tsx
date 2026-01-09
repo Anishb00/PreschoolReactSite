@@ -12,8 +12,8 @@ import { usePathname } from "next/navigation";
 // Custom Components
 import styles from "@/app/(site)/rootlayout.module.css";
 
-export default function Navbar() {
-  const [active, setActive] = useState(false);
+export default function Navbar({ forceActive = false }: { forceActive?: boolean }) {
+  const [active, setActive] = useState(forceActive);
 
   var pathname = usePathname();
 
@@ -34,8 +34,15 @@ export default function Navbar() {
   }
 
   useEffect(() => {
+    if (forceActive) {
+      setActive(true);
+      return;
+    }
     window.addEventListener("scroll", userhasScrolled);
-  });
+    return () => {
+      window.removeEventListener("scroll", userhasScrolled);
+    };
+  }, [forceActive]);
 
   return (
     // Full-width transparent header, positioned at the very top

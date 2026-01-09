@@ -5,6 +5,7 @@ import { AdminSigninServerAction } from "@/lib/actions/AdminLogin";
 import { useFormStatus } from "react-dom";
 import { useActionState } from "react";
 import { authClient } from "@/lib/auth-client";
+import Nav from "@/app/(site)/components/Nav";
 
 export default function AdminLoginForm() {
 
@@ -21,14 +22,17 @@ export default function AdminLoginForm() {
   }, [state.status]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form
-        action={formAction}
-        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6"
-      >
-        <h2 className="text-2xl font-bold text-center text-gray-800">
-          Admin Login
-        </h2>
+    <>
+      <Nav forceActive />
+      <main className="min-h-screen bg-gray-100 pt-28">
+        <div className="flex min-h-[calc(100vh-7rem)] items-center justify-center px-4">
+          <form
+            action={formAction}
+            className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6"
+          >
+            <h2 className="text-2xl font-bold text-center text-gray-800">
+              Admin Login
+            </h2>
 
         {/* Username Field */}
         <div>
@@ -67,9 +71,11 @@ export default function AdminLoginForm() {
         </div>
 
         {/* Submit */}
-        <SubmitButton/>
-      </form>
-    </div>
+            <SubmitButton />
+          </form>
+        </div>
+      </main>
+    </>
   );
 
 }

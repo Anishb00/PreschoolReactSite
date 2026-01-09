@@ -5,6 +5,14 @@ import { useState } from "react";
 export default function PhotoCarousel({ filenames }: { filenames: string[] }) {
   const [currIndex, setCurrIndex] = useState(0);
 
+  if (filenames.length === 0) {
+    return (
+      <section className="mx-auto -mt-50 mb-20 w-[90%] max-w-5xl rounded-2xl border border-dashed border-gray-200 p-10 text-center text-gray-500">
+        No photos in the carousel yet.
+      </section>
+    );
+  }
+
   const goPrev = () =>
     setCurrIndex((currIndex - 1 + filenames.length) % filenames.length);
   const goNext = () => setCurrIndex((currIndex + 1) % filenames.length);

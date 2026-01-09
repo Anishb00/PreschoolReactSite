@@ -1,68 +1,105 @@
+import { revalidatePath } from "next/cache";
+import ChildrenTable from "@/app/admin/components/ChildrenTable";
+import { authorizeUser } from "@/lib/authentication";
+import { MIN_ASSET_ROLE_ACCESS } from "@/lib/protectedassets";
+import {
+  ChildWithParentsRow,
+  deleteChildById,
+  getChildrenWithParents,
+} from "@/lib/dbOperations";
+import { EndpointErrorResponse } from "@/lib/EndpointErrorResponse";
+
+type TableState = {
+  children: {
+    id: number;
+    name: string;
+    sex: string;
+    program: string;
+    className: string;
+    doctorName: string;
+    doctorPhone: string;
+    fee: string;
+    dropDate: string;
+    parent1Name: string;
+    parent1Email: string;
+    parent2Name: string;
+    parent2Email: string;
+  }[];
+  lastDeletedId?: number;
+  message?: string;
+};
+
+function formatDate(value: Date | null): string {
+  if (!value) {
+    return "";
+  }
+  return value.toISOString().split("T")[0];
+}
+
+function mapChildRow(row: ChildWithParentsRow) {
+  return {
+    id: row.Child_ID,
+    name: row.Child_name ?? "",
+    sex: row.Sex ?? "",
+    program: row.Program ?? "",
+    className: row.Class ?? "",
+    doctorName: row.Doctor_name ?? "",
+    doctorPhone: row.Doctor_phone ?? "",
+    fee: row.Fee != null ? String(row.Fee) : "",
+    dropDate: formatDate(row.Drop_date ?? null),
+    parent1Name: row.Parent1_Name ?? "",
+    parent1Email: row.Parent1_Email ?? "",
+    parent2Name: row.Parent2_Name ?? "",
+    parent2Email: row.Parent2_Email ?? "",
+  };
+}
+
 export default async function Dashboard() {
-  // Hardcoded data
-  const stats = [
-    { title: "Users", value: 1200 },
-    { title: "Orders", value: 320 },
-    { title: "Revenue", value: "$15,400" },
-    { title: "Feedbacks", value: 85 },
-  ];
+  await authorizeUser(MIN_ASSET_ROLE_ACCESS.VIEW_DASHBOARD);
+  const errorStatus = new EndpointErrorResponse();
+  const rows = await getChildrenWithParents(errorStatus);
+  const children = rows.map(mapChildRow);
+
+  const deleteChild = async (
+    _prevState: TableState,
+    formData: FormData
+  ): Promise<TableState> => {
+    "use server";
+    const errorState = new EndpointErrorResponse();
+    const childId = Number(formData.get("childId"));
+    if (!Number.isFinite(childId)) {
+      return {
+        children: (await getChildrenWithParents(errorState)).map(mapChildRow),
+        message: "Invalid child selected.",
+      };
+    }
+
+    await deleteChildById(childId, errorState);
+    if (errorState.uncaughtErrors.size > 0) {
+      return {
+        children: (await getChildrenWithParents(errorState)).map(mapChildRow),
+        message: "Unable to delete child. Please try again.",
+      };
+    }
+
+    revalidatePath("/admin/home");
+    return {
+      children: (await getChildrenWithParents(errorState)).map(mapChildRow),
+      lastDeletedId: childId,
+      message: "Child removed.",
+    };
+  };
 
   return (
     <>
       <header className="mb-6">
         <h2 className="text-3xl font-semibold text-gray-800">Welcome, Admin</h2>
-        <p className="text-gray-600">Here&apos;s an overview of your dashboard.</p>
-      </header>
+      <p className="text-gray-600">Manage child records below.</p>
+    </header>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <div
-            key={stat.title}
-            className="bg-white p-4 rounded-lg shadow hover:shadow-md transition"
-          >
-            <h3 className="text-gray-500">{stat.title}</h3>
-            <p className="text-2xl font-bold text-gray-800 mt-2">
-              {stat.value}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <section className="mt-10">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">
-          Recent Orders
-        </h3>
-        <table className="w-full bg-white rounded-lg shadow overflow-hidden">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="p-3 text-left">Order ID</th>
-              <th className="p-3 text-left">Customer</th>
-              <th className="p-3 text-left">Amount</th>
-              <th className="p-3 text-left">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b">
-              <td className="p-3">1001</td>
-              <td className="p-3">Alice</td>
-              <td className="p-3">$120</td>
-              <td className="p-3">Completed</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-3">1002</td>
-              <td className="p-3">Bob</td>
-              <td className="p-3">$85</td>
-              <td className="p-3">Pending</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-3">1003</td>
-              <td className="p-3">Charlie</td>
-              <td className="p-3">$45</td>
-              <td className="p-3">Cancelled</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-    </>
+    <section className="mt-6">
+      <ChildrenTable initialChildren={children} deleteChild={deleteChild} />
+    </section>
+  </>
   );
 }
