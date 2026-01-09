@@ -4,7 +4,7 @@ import type { RegistrationData, RegisterFormState, RegisterPageRenderCondition }
 import {API_ERROR_CODES,DB_ERROR_CODES} from "@/lib/errorCodes";
 import { redirect } from "next/navigation";
 import {EndpointErrorResponse} from "@/lib/EndpointErrorResponse";
-import {registerWaitlist} from "@/lib/dbOperations";
+import {getWaitlistChildWithParents, registerWaitlist} from "@/lib/dbOperations";
 
 
 
@@ -19,7 +19,6 @@ export default async function registerChild(
     dob:       helpers.mustDOB(formData.get("dob") || "",errorStatus),
     sex:       helpers.validateSex(String(formData.get('sex')),errorStatus),
     Program:   helpers.validateProgram(helpers.mustString(formData, "Program",errorStatus),errorStatus),
-    Pin:       "1236",
 
     parentOneName:    helpers.mustString(formData, "parentOneName",errorStatus),
     parentOneAddress: helpers.mustString(formData, "parentOneAddress",errorStatus),
@@ -40,6 +39,16 @@ export default async function registerChild(
   // run db procedure call pass error object to it
   if (errorStatus.checkErrors() == 0){
     await registerWaitlist(registrationData,errorStatus);
+    if (errorStatus.checkErrors() == 0) {
+      const waitlistRow = await getWaitlistChildWithParents(
+        { childName: registrationData.childName, dob: registrationData.dob },
+        errorStatus
+      );
+      if (!waitlistRow || !helpers.waitlistRecordMatches(waitlistRow, registrationData)) {
+        errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
+        errorStatus.log("Waitlist insert verification failed.");
+      }
+    }
   }
   const params = new URLSearchParams({
     childName: String(formData.get("childName"))

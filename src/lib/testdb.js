@@ -25,7 +25,6 @@ async function main() {
     "Emily Johnson",     // p_child_name
     "2021-05-14",        // p_dob
     "female",            // p_sex
-    2346,              // p_child_pin
     "Dr. Patel",         // p_doctor_name
     "14085551234",        // p_doctor_phone
     "Caterpillar",       // p_program
@@ -43,7 +42,6 @@ async function main() {
     // "Test Williams",     // p_child_name
     // "testdate",         // p_dob
     // "male",               // p_sex
-    // 9876,                 // p_child_pin
     // "Dr. Smith",          // p_doctor_name
     // "14085554444",        // p_doctor_phone
     // "Butterfly",          // p_program
@@ -59,7 +57,7 @@ async function main() {
 
 
 
-  const sql = "CALL register_child_waitlist(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+  const sql = "CALL register_child_waitlist(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   try {
     console.log("Calling procedure with params:", params);

@@ -3,7 +3,7 @@
 
 import React from "react";
 import { SidebarLink } from "./SidebarLink";
-import { LogoutButton } from "@/app/admin/home/logout";
+import { LogoutButton } from "@/app/admin/(protected)/home/logout";
 
 type AdminSidebarProps = {
   isAdmin: boolean;
@@ -74,6 +74,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isAdmin }) => {
                 collapsed={collapsed}
                 label="Edit Calendar"
                 href="/admin/Events"
+              />
+              <SidebarLink
+                collapsed={collapsed}
+                label="Edit Carousel"
+                href="/admin/Carousel"
               />
               <SidebarLink
                 collapsed={collapsed}

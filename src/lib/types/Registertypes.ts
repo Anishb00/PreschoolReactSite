@@ -24,7 +24,6 @@ export type RegistrationData = {
   dob: Date;                       // "YYYY-MM-DD"
   sex: "female" | "male" | "";            // matches <select> values
   Program: ProgramOption;            // capital P (as in your object)
-  Pin:string;
 
   parentOneName: string;             // required
   parentOneAddress: string;          // required
@@ -48,5 +47,4 @@ export type RegisterFormState = {
 };
 
 export type registerSeverAction = (formData: FormData) => void;
-
 

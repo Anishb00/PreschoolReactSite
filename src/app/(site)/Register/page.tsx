@@ -11,7 +11,6 @@ export default function RegisterPage() {
     dob: new Date(),
     sex: '',
     Program: "",
-    Pin: '',
 
     parentOneName: '',
     parentOneAddress: '',
@@ -27,7 +26,7 @@ export default function RegisterPage() {
     doctorPhone: '',
   };
   const initialPage: RegisterPageRenderCondition = "SUCCESS";
-  const initialstate:RegisterFormState = {  statusCodes: new Set(),values: EMPTY_REGISTRATION_DRAFT}
+  const initialstate: RegisterFormState = {  statusCodes: new Set(),values: EMPTY_REGISTRATION_DRAFT}
   const [state, serverAction, pending] = useActionState(registerChild, initialstate);
 
 

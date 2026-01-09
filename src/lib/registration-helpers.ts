@@ -16,7 +16,11 @@ export const mustString = (fd: FormData, key: string,errorStatus:EndpointErrorRe
 };
 
 export const mustDOB =(date:FormDataEntryValue,errorStatus:EndpointErrorResponse): Date => {
-    const dob = new Date(String(date));
+    const raw = String(date);
+    const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const dob = match
+      ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+      : new Date(raw);
     if (isNaN(dob.getTime())) {
         errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR)
         errorStatus.log(`recieved invalid dob value: ${dob}`);
@@ -94,6 +98,78 @@ export function validateProgram(option:string,errorStatus:EndpointErrorResponse)
     return option; 
 }
 
+export function waitlistRecordMatches(
+    row: {
+        Child_name: string;
+        DOB: Date;
+        Sex: string;
+        Program: string;
+        Class: string | null;
+        Doctor_name: string | null;
+        Doctor_phone: string | null;
+        Parent1_Name: string | null;
+        Parent1_Address: string | null;
+        Parent1_Phone: string | null;
+        Parent1_Email: string | null;
+        Parent2_Name: string | null;
+        Parent2_Address: string | null;
+        Parent2_Phone: string | null;
+        Parent2_Email: string | null;
+    },
+    data: {
+        childName: string;
+        dob: Date;
+        sex: "female" | "male" | "";
+        Program: ProgramOption;
+        doctorName: string;
+        doctorPhone: string;
+        parentOneName: string;
+        parentOnePhone: string;
+        parentOneEmail: string;
+        parentTwoName: string | null;
+        parentTwoPhone: string | null;
+        parentTwoEmail: string | null;
+    }
+): boolean {
+    const dbDob = toDateKey(row.DOB);
+    const formDob = toDateKey(data.dob);
 
+    const parent1Match =
+        row.Parent1_Name === data.parentOneName &&
+        row.Parent1_Phone === data.parentOnePhone &&
+        row.Parent1_Email === data.parentOneEmail;
+
+    const hasParent2Data =
+        data.parentTwoName !== null ||
+        data.parentTwoPhone !== null ||
+        data.parentTwoEmail !== null;
+
+    const parent2Match = hasParent2Data
+        ? row.Parent2_Name === data.parentTwoName &&
+          row.Parent2_Phone === data.parentTwoPhone &&
+          row.Parent2_Email === data.parentTwoEmail
+        : row.Parent2_Name === null &&
+          row.Parent2_Phone === null &&
+          row.Parent2_Email === null;
+
+    return (
+        row.Child_name === data.childName &&
+        dbDob === formDob &&
+        row.Sex === data.sex &&
+        row.Program === data.Program &&
+        row.Class === "Waitlist" &&
+        row.Doctor_name === data.doctorName &&
+        row.Doctor_phone === data.doctorPhone &&
+        parent1Match &&
+        parent2Match
+    );
+}
+
+function toDateKey(value: Date): string {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
 
 
