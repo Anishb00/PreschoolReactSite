@@ -1,10 +1,31 @@
 
-DROP DATABASE IF EXISTS Preschool;
-CREATE DATABASE Preschool
+CREATE DATABASE IF NOT EXISTS Preschool
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci;
 USE Preschool;
 
+DROP PROCEDURE IF EXISTS get_children_with_parents;
+DROP PROCEDURE IF EXISTS add_child_with_parents_full;
+DROP PROCEDURE IF EXISTS get_child_parent_columns;
+DROP PROCEDURE IF EXISTS fuzzy_find_child_parent;
+DROP PROCEDURE IF EXISTS delete_child_by_id;
+DROP PROCEDURE IF EXISTS update_child_and_parents;
+DROP PROCEDURE IF EXISTS register_child_waitlist;
+DROP PROCEDURE IF EXISTS get_waitlist_child_with_parents;
+DROP PROCEDURE IF EXISTS refresh_filtered_students;
+DROP PROCEDURE IF EXISTS generate_unique_child_pin;
+
+DROP TRIGGER IF EXISTS delete_orphan_parent_after_child;
+
+DROP VIEW IF EXISTS ChildWithParents;
+
+DROP TABLE IF EXISTS Check_In_Out;
+DROP TABLE IF EXISTS filtered_students;
+DROP TABLE IF EXISTS schedule_items;
+DROP TABLE IF EXISTS schedules;
+DROP TABLE IF EXISTS Child_Parent;
+DROP TABLE IF EXISTS Parent;
+DROP TABLE IF EXISTS Child;
 
 
 
@@ -193,7 +214,6 @@ CREATE PROCEDURE register_child_waitlist (
     IN p_child_name VARCHAR(30),
     IN p_dob DATE,
     IN p_sex ENUM('male','female'),
-    IN p_child_pin INT,
     IN p_doctor_name VARCHAR(50),
     IN p_doctor_phone VARCHAR(20),
     IN p_program VARCHAR(30),
@@ -212,6 +232,7 @@ BEGIN
     DECLARE v_child_id INT;
     DECLARE v_parent1_id INT;
     DECLARE v_parent2_id INT;
+    DECLARE v_child_pin INT;
 
     -- Rollback if anything fails
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -222,9 +243,11 @@ BEGIN
 
     START TRANSACTION;
 
+    CALL generate_unique_child_pin(v_child_pin);
+
     -- Insert child (fails if duplicate because of UNIQUE constraint)
     INSERT INTO Child (Child_name, DOB, Sex, Class, Child_Pin, Doctor_name, Doctor_phone,Program)
-    VALUES (p_child_name, p_dob, p_sex, 'Waitlist', p_child_pin, p_doctor_name, p_doctor_phone, p_program );
+    VALUES (p_child_name, p_dob, p_sex, 'Waitlist', v_child_pin, p_doctor_name, p_doctor_phone, p_program );
     SET v_child_id = LAST_INSERT_ID();
 
     -- Parent 1: look up first
@@ -349,6 +372,116 @@ END$$
 
 DELIMITER ;
 
+DELIMITER $$
+
+CREATE PROCEDURE add_child_with_parents_full (
+    IN p_child_name VARCHAR(30),
+    IN p_dob DATE,
+    IN p_sex VARCHAR(10),
+    IN p_program VARCHAR(30),
+    IN p_class VARCHAR(20),
+    IN p_doctor_name VARCHAR(30),
+    IN p_doctor_phone VARCHAR(19),
+    IN p_enroll_date DATE,
+    IN p_drop_date DATE,
+    IN p_fee INT,
+
+    IN p_parent1_name VARCHAR(50),
+    IN p_parent1_address LONGTEXT,
+    IN p_parent1_phone VARCHAR(19),
+    IN p_parent1_email VARCHAR(50),
+
+    IN p_parent2_name VARCHAR(50),
+    IN p_parent2_address LONGTEXT,
+    IN p_parent2_phone VARCHAR(19),
+    IN p_parent2_email VARCHAR(50)
+)
+BEGIN
+    DECLARE v_child_id INT;
+    DECLARE v_parent1_id INT;
+    DECLARE v_parent2_id INT;
+    DECLARE v_child_pin INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    CALL generate_unique_child_pin(v_child_pin);
+
+    INSERT INTO Child (
+        Child_name,
+        DOB,
+        Sex,
+        Program,
+        Class,
+        Doctor_name,
+        Doctor_phone,
+        Enroll_date,
+        Drop_date,
+        Fee,
+        Child_Pin
+    )
+    VALUES (
+        p_child_name,
+        p_dob,
+        p_sex,
+        p_program,
+        p_class,
+        p_doctor_name,
+        p_doctor_phone,
+        p_enroll_date,
+        p_drop_date,
+        p_fee,
+        v_child_pin
+    );
+    SET v_child_id = LAST_INSERT_ID();
+
+    SELECT parent_id INTO v_parent1_id
+    FROM Parent
+    WHERE Name = p_parent1_name
+      AND Phone = p_parent1_phone
+      AND Email = p_parent1_email
+    LIMIT 1;
+
+    IF v_parent1_id IS NULL THEN
+        INSERT INTO Parent (Name, Address, Phone, Email)
+        VALUES (p_parent1_name, p_parent1_address, p_parent1_phone, p_parent1_email);
+        SET v_parent1_id = LAST_INSERT_ID();
+    END IF;
+
+    INSERT INTO Child_Parent (child_id, parent_id)
+    VALUES (v_child_id, v_parent1_id);
+
+    IF p_parent2_name IS NOT NULL
+       AND p_parent2_phone IS NOT NULL
+       AND p_parent2_email IS NOT NULL THEN
+
+        SELECT parent_id INTO v_parent2_id
+        FROM Parent
+        WHERE Name = p_parent2_name
+          AND Phone = p_parent2_phone
+          AND Email = p_parent2_email
+        LIMIT 1;
+
+        IF v_parent2_id IS NULL THEN
+            INSERT INTO Parent (Name, Address, Phone, Email)
+            VALUES (p_parent2_name, p_parent2_address, p_parent2_phone, p_parent2_email);
+            SET v_parent2_id = LAST_INSERT_ID();
+        END IF;
+
+        INSERT INTO Child_Parent (child_id, parent_id)
+        VALUES (v_child_id, v_parent2_id);
+    END IF;
+
+    COMMIT;
+END$$
+
+DELIMITER ;
+
 
 DELIMITER $$
 
@@ -358,6 +491,63 @@ CREATE PROCEDURE delete_child_by_id (
 BEGIN
     DELETE FROM Child
     WHERE Child_ID = p_child_id;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE get_children_with_parents()
+BEGIN
+    SELECT
+        Child_ID,
+        Child_name,
+        Sex,
+        Program,
+        Class,
+        Doctor_name,
+        Doctor_phone,
+        Fee,
+        Drop_date,
+        Parent1_Name,
+        Parent1_Email,
+        Parent2_Name,
+        Parent2_Email
+    FROM ChildWithParents
+    ORDER BY Child_name;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE get_waitlist_child_with_parents(
+    IN p_child_name VARCHAR(30),
+    IN p_dob DATE
+)
+BEGIN
+    SELECT
+        Child_ID,
+        Child_name,
+        DOB,
+        Sex,
+        Program,
+        Class,
+        Doctor_name,
+        Doctor_phone,
+        Parent1_Name,
+        Parent1_Address,
+        Parent1_Phone,
+        Parent1_Email,
+        Parent2_Name,
+        Parent2_Address,
+        Parent2_Phone,
+        Parent2_Email
+    FROM ChildWithParents
+    WHERE Child_name = p_child_name
+      AND DOB = p_dob
+      AND Class = 'Waitlist'
+    LIMIT 1;
 END$$
 
 DELIMITER ;
@@ -401,4 +591,3 @@ BEGIN
 END$$
 
 DELIMITER ;
-
