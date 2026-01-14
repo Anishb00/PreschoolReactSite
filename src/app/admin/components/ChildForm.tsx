@@ -11,6 +11,9 @@ type ChildFormProps = {
       fee?: number | null;
       enrollDate?: string | Date | null;
       dropDate?: string | Date | null;
+      childId?: number;
+      parentOneId?: number;
+      parentTwoId?: number | null;
     }
   >;
   statusCodes?: Set<string>;
@@ -40,6 +43,21 @@ export default function ChildForm({
 
   return (
     <Form action={isEdit ? updateAction : createAction} className="space-y-10">
+      {isEdit && (
+        <>
+          <input type="hidden" name="childId" value={values?.childId ?? ""} />
+          <input
+            type="hidden"
+            name="parentOneId"
+            value={values?.parentOneId ?? ""}
+          />
+          <input
+            type="hidden"
+            name="parentTwoId"
+            value={values?.parentTwoId ?? ""}
+          />
+        </>
+      )}
       {/* Child Info */}
       <div>
         <h3 className="mb-4 text-xl font-semibold text-[#3B1FA8]">
@@ -135,6 +153,7 @@ export default function ChildForm({
               errorCode="DOC_PHONE_INVALID"
               label="Doctor's Phone"
               statusCodes={statusCodes}
+              defaultValueRaw={values?.doctorPhone ?? ""}
             />
           </div>
         </div>
@@ -179,6 +198,7 @@ export default function ChildForm({
               errorCode="P1_PHONE_INVALID"
               label="Phone Number"
               statusCodes={statusCodes}
+              defaultValueRaw={values?.parentOnePhone ?? ""}
             />
           </div>
           <div>
@@ -234,6 +254,7 @@ export default function ChildForm({
               errorCode="P2_PHONE_INVALID"
               label="Phone Number"
               statusCodes={statusCodes}
+              defaultValueRaw={values?.parentTwoPhone ?? ""}
             />
           </div>
           <div>

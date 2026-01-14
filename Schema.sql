@@ -12,6 +12,7 @@ DROP PROCEDURE IF EXISTS delete_child_by_id;
 DROP PROCEDURE IF EXISTS update_child_and_parents;
 DROP PROCEDURE IF EXISTS register_child_waitlist;
 DROP PROCEDURE IF EXISTS get_waitlist_child_with_parents;
+DROP PROCEDURE IF EXISTS get_child_with_parents_by_id;
 DROP PROCEDURE IF EXISTS refresh_filtered_students;
 DROP PROCEDURE IF EXISTS generate_unique_child_pin;
 
@@ -515,6 +516,39 @@ BEGIN
         Parent2_Email
     FROM ChildWithParents
     ORDER BY Child_name;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE get_child_with_parents_by_id(
+    IN p_child_id INT
+)
+BEGIN
+    SELECT
+        Child_ID,
+        Child_name,
+        DOB,
+        Sex,
+        Program,
+        Class,
+        Doctor_name,
+        Doctor_phone,
+        Enroll_date,
+        Drop_date,
+        Fee,
+        Parent1_Name,
+        Parent1_Address,
+        Parent1_Phone,
+        Parent1_Email,
+        Parent2_Name,
+        Parent2_Address,
+        Parent2_Phone,
+        Parent2_Email
+    FROM ChildWithParents
+    WHERE Child_ID = p_child_id
+    LIMIT 1;
 END$$
 
 DELIMITER ;

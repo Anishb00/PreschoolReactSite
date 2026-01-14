@@ -209,6 +209,30 @@ export type ChildWithParentsRow = {
   Parent2_Email: string | null;
 };
 
+export type ChildWithParentsFullRow = {
+  Child_ID: number;
+  Child_name: string;
+  DOB: Date;
+  Sex: string;
+  Program: string;
+  Class: string | null;
+  Doctor_name: string | null;
+  Doctor_phone: string | null;
+  Enroll_date: Date | null;
+  Drop_date: Date | null;
+  Fee: number | null;
+  Parent1_ID: number | null;
+  Parent1_Name: string | null;
+  Parent1_Address: string | null;
+  Parent1_Phone: string | null;
+  Parent1_Email: string | null;
+  Parent2_ID: number | null;
+  Parent2_Name: string | null;
+  Parent2_Address: string | null;
+  Parent2_Phone: string | null;
+  Parent2_Email: string | null;
+};
+
 export async function getChildrenWithParents(
   errorStatus: EndpointErrorResponse
 ): Promise<ChildWithParentsRow[]> {
@@ -222,6 +246,164 @@ export async function getChildrenWithParents(
     errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
     errorStatus.log(JSON.stringify(err));
     return [];
+  }
+}
+
+export async function getChildrenWithParentsFull(
+  errorStatus: EndpointErrorResponse,
+  opts?: { className?: string }
+): Promise<ChildWithParentsFullRow[]> {
+  try {
+    const filterClause = opts?.className ? "WHERE Class = ?" : "";
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `
+        SELECT
+          Child_ID,
+          Child_name,
+          DOB,
+          Sex,
+          Program,
+          Class,
+          Doctor_name,
+          Doctor_phone,
+          Enroll_date,
+          Drop_date,
+          Fee,
+          Parent1_Name,
+          Parent1_Address,
+          Parent1_Phone,
+          Parent1_Email,
+          Parent2_Name,
+          Parent2_Address,
+          Parent2_Phone,
+          Parent2_Email
+        FROM ChildWithParents
+        ${filterClause}
+        ORDER BY Child_name
+      `,
+      opts?.className ? [opts.className] : []
+    );
+    return (rows ?? []) as ChildWithParentsFullRow[];
+  } catch (err) {
+    errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
+    errorStatus.log(JSON.stringify(err));
+    return [];
+  }
+}
+
+
+export async function getChildWithParentsById(
+  childId: number,
+  errorStatus: EndpointErrorResponse
+): Promise<ChildWithParentsFullRow | null> {
+  try {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT
+        Child_ID,
+        Child_name,
+        DOB,
+        Sex,
+        Program,
+        Class,
+        Doctor_name,
+        Doctor_phone,
+        Enroll_date,
+        Drop_date,
+        Fee,
+        Parent1_ID,
+        Parent1_Name,
+        Parent1_Address,
+        Parent1_Phone,
+        Parent1_Email,
+        Parent2_ID,
+        Parent2_Name,
+        Parent2_Address,
+        Parent2_Phone,
+        Parent2_Email
+      FROM ChildWithParents
+      WHERE Child_ID = ?
+      LIMIT 1`,
+      [childId]
+    );
+    return (rows?.[0] ?? null) as ChildWithParentsFullRow | null;
+  } catch (err) {
+    errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
+    errorStatus.log(JSON.stringify(err));
+    return null;
+  }
+}
+
+export type UpdateChildPayload = {
+  childId: number;
+  childName: string;
+  dob: Date;
+  sex: string;
+  program: string;
+  className: string | null;
+  doctorName: string;
+  doctorPhone: string;
+  enrollDate: string | null;
+  dropDate: string | null;
+  fee: number | null;
+  parentOneId: number;
+  parentOneName: string;
+  parentOneAddress: string;
+  parentOnePhone: string;
+  parentOneEmail: string;
+  parentTwoId: number | null;
+  parentTwoName: string | null;
+  parentTwoAddress: string | null;
+  parentTwoPhone: string | null;
+  parentTwoEmail: string | null;
+};
+
+export async function updateChildAndParents(
+  payload: UpdateChildPayload,
+  errorStatus: EndpointErrorResponse
+): Promise<void> {
+  const params = [
+    payload.childId,
+    payload.childName,
+    payload.dob,
+    payload.sex,
+    payload.program,
+    payload.className,
+    payload.doctorName,
+    payload.doctorPhone,
+    payload.enrollDate,
+    payload.dropDate,
+    payload.fee,
+    payload.parentOneId,
+    payload.parentOneName,
+    payload.parentOneAddress,
+    payload.parentOnePhone,
+    payload.parentOneEmail,
+    payload.parentTwoId,
+    payload.parentTwoName,
+    payload.parentTwoAddress,
+    payload.parentTwoPhone,
+    payload.parentTwoEmail,
+  ];
+  try {
+    await pool.execute(
+      "CALL update_child_and_parents(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      params
+    );
+  } catch (err) {
+    const e = err as QueryError & { sqlMessage?: string };
+    const violatedConstraint = getConstraintName(e.sqlMessage || "");
+    console.log("update_child_and_parents error:", e);
+    if (violatedConstraint === null) {
+      errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
+      errorStatus.log(JSON.stringify(e));
+      return;
+    }
+    if (!isAnyErrorCode(violatedConstraint)) {
+      errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
+      errorStatus.log(JSON.stringify(e));
+      return;
+    }
+    errorStatus.add(violatedConstraint);
   }
 }
 

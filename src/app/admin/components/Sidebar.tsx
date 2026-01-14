@@ -40,7 +40,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isAdmin }) => {
           onClick={() => setCollapsed((v) => !v)}
           className="
             inline-flex items-center justify-center
-            rounded-md
+            h-12 w-12 rounded-md
             text-gray-300 hover:text-white hover:bg-gray-800
             transition-colors
           "
@@ -56,21 +56,17 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isAdmin }) => {
       {/* Navigation */}
       <nav
         className={[
-          "flex-1 py-4 space-y-3",
-          collapsed ? "px-0 flex flex-col items-center" : "px-3",
-        ].join(" ")}
-      >
-        <SidebarLink collapsed={collapsed} label="Home" href="/admin/home" />
+      "flex-1 py-4 space-y-3",
+      collapsed ? "px-0 flex flex-col items-center" : "px-3",
+    ].join(" ")}
+  >
+    <SidebarLink collapsed={collapsed} label="Home" href="/admin/home" />
+    <SidebarLink collapsed={collapsed} label="Mass Receipts" href="/admin/MassReceipt" />
 
-        <div className="pt-4 mt-4 border-t border-gray-800 space-y-3">
+    <div className="pt-4 mt-4 border-t border-gray-800 space-y-3">
+      {isAdmin && (
+        <>
           <SidebarLink
-            collapsed={collapsed}
-            label="Check Roles"
-            href="/admin/checkroles"
-          />
-          {isAdmin && (
-            <>
-              <SidebarLink
                 collapsed={collapsed}
                 label="Edit Calendar"
                 href="/admin/Events"
@@ -84,11 +80,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isAdmin }) => {
                 collapsed={collapsed}
                 label="Add Child"
                 href="/admin/AddChild"
-              />
-              <SidebarLink
-                collapsed={collapsed}
-                label="Edit Child"
-                href="/admin/EditChild"
               />
               <SidebarLink collapsed={collapsed} label="Employee Signup" href="/admin/signup" />
             </>

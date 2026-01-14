@@ -8,6 +8,7 @@ import {
   getChildrenWithParents,
 } from "@/lib/dbOperations";
 import { EndpointErrorResponse } from "@/lib/EndpointErrorResponse";
+import { isAdmin } from "@/lib/authentication";
 
 type TableState = {
   children: {
@@ -56,9 +57,11 @@ function mapChildRow(row: ChildWithParentsRow) {
 
 export default async function Dashboard() {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.VIEW_DASHBOARD);
+  const isAdminUser = await isAdmin();
   const errorStatus = new EndpointErrorResponse();
   const rows = await getChildrenWithParents(errorStatus);
   const children = rows.map(mapChildRow);
+  const headerTitle = isAdminUser ? "Welcome, Admin" : "Welcome";
 
   const deleteChild = async (
     _prevState: TableState,
@@ -93,12 +96,16 @@ export default async function Dashboard() {
   return (
     <>
       <header className="mb-6">
-        <h2 className="text-3xl font-semibold text-gray-800">Welcome, Admin</h2>
+        <h2 className="text-3xl font-semibold text-gray-800">{headerTitle}</h2>
       <p className="text-gray-600">Manage child records below.</p>
     </header>
 
     <section className="mt-6">
-      <ChildrenTable initialChildren={children} deleteChild={deleteChild} />
+      <ChildrenTable
+        initialChildren={children}
+        deleteChild={deleteChild}
+        isAdmin={isAdminUser}
+      />
     </section>
   </>
   );

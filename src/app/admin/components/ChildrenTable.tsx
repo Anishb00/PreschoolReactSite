@@ -4,6 +4,67 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useFormStatus } from "react-dom";
 
+const IconEdit = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+  </svg>
+);
+
+const IconMail = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <rect width="20" height="16" x="2" y="4" rx="2" />
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+  </svg>
+);
+
+const IconReceipt = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M4 21V5a2 2 0 0 1 2-2h9l5 5v13l-3-2-3 2-3-2-3 2-3-2-3 2Z" />
+    <path d="M14 3v4a2 2 0 0 0 2 2h4" />
+    <path d="M8 13h6" />
+    <path d="M8 17h2" />
+  </svg>
+);
+
+const IconTrash = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <line x1="10" x2="10" y1="11" y2="17" />
+    <line x1="14" x2="14" y1="11" y2="17" />
+  </svg>
+);
+
 export type ChildRow = {
   id: number;
   name: string;
@@ -29,6 +90,7 @@ type TableState = {
 type ChildrenTableProps = {
   initialChildren: ChildRow[];
   deleteChild: (prevState: TableState, formData: FormData) => Promise<TableState>;
+  isAdmin: boolean;
 };
 
 function DeleteButton() {
@@ -47,11 +109,18 @@ function DeleteButton() {
 export default function ChildrenTable({
   initialChildren,
   deleteChild,
+  isAdmin,
 }: ChildrenTableProps) {
   const [state, formAction] = React.useActionState(deleteChild, {
     children: initialChildren,
   });
   const [modalChildId, setModalChildId] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [classFilter, setClassFilter] = useState(isAdmin ? "all" : "Caterpillar");
+  const [isGeneratingSheet, setIsGeneratingSheet] = useState(false);
+  const [isGeneratingRoster, setIsGeneratingRoster] = useState(false);
+  const [isGeneratingTeacherSheet, setIsGeneratingTeacherSheet] = useState(false);
+  const [printError, setPrintError] = useState<string | null>(null);
 
   const modalChild = useMemo(() => {
     if (modalChildId == null) {
@@ -60,96 +129,469 @@ export default function ChildrenTable({
     return state.children.find((child) => child.id === modalChildId) ?? null;
   }, [modalChildId, state.children]);
 
+  const filteredChildren = useMemo(() => {
+    const studentClasses = new Set<string>([
+      "Caterpillar",
+      "Chrysalis",
+      "Butterfly",
+      "Sunshine",
+      "Rainbow",
+    ]);
+    const query = searchTerm.trim().toLowerCase();
+    const classFiltered = state.children.filter((child) => {
+      if (classFilter === "all") {
+        return studentClasses.has(child.className);
+      }
+      return child.className === classFilter;
+    });
+    if (!query) {
+      return classFiltered;
+    }
+    if (!query) {
+      return classFiltered;
+    }
+
+    return classFiltered.filter((child) => {
+      const haystackValues = isAdmin
+        ? [
+            child.id,
+            child.name,
+            child.sex,
+            child.program,
+            child.className,
+            child.doctorName,
+            child.doctorPhone,
+            child.fee,
+            child.dropDate,
+            child.parent1Name,
+            child.parent1Email,
+            child.parent2Name,
+            child.parent2Email,
+          ]
+        : [child.name];
+
+      const haystack = haystackValues
+        .map((value) => String(value ?? "").toLowerCase())
+        .join(" ");
+      return haystack.includes(query);
+    });
+  }, [classFilter, isAdmin, searchTerm, state.children]);
+
   useEffect(() => {
     if (state.lastDeletedId != null) {
       setModalChildId(null);
     }
   }, [state.lastDeletedId]);
 
+  const openPdf = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const newWindow = window.open(url, "_blank");
+    if (newWindow) {
+      newWindow.document.title = filename;
+      const cleanup = () => URL.revokeObjectURL(url);
+      newWindow.addEventListener("beforeunload", cleanup, { once: true });
+      try {
+        newWindow.focus();
+      } catch {
+        // ignore focus failures
+      }
+    } else {
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+  };
+
+  const childrenForSelectedClass = (context: string) => {
+    if (classFilter === "all") {
+      setPrintError(`Select a class before printing the ${context}.`);
+      return null;
+    }
+
+    const childrenForClass = state.children.filter(
+      (child) => child.className === classFilter
+    );
+    if (childrenForClass.length === 0) {
+      setPrintError(`No children found for class "${classFilter}".`);
+      return null;
+    }
+
+    return childrenForClass;
+  };
+
+  const generateSigninSheet = async () => {
+    setPrintError(null);
+    const childrenForClass = childrenForSelectedClass("sign-in sheet");
+    if (!childrenForClass) {
+      return;
+    }
+
+    setIsGeneratingSheet(true);
+    try {
+      const response = await fetch("/api/signin-sheet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          className: classFilter,
+          childNames: childrenForClass.map((child) => child.name),
+        }),
+      });
+
+      if (!response.ok) {
+        let message = "Unable to generate the sign-in sheet.";
+        try {
+          const data = (await response.json()) as { error?: string };
+          if (data?.error) {
+            message = data.error;
+          }
+        } catch {
+          // ignore JSON parsing failures
+        }
+        throw new Error(message);
+      }
+
+      const blob = await response.blob();
+      const safeClassName = classFilter.replace(/[^a-z0-9-_]+/gi, "_") || "class";
+      openPdf(blob, `signin_sheet_${safeClassName}.pdf`);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unable to generate the sign-in sheet.";
+      setPrintError(message);
+    } finally {
+      setIsGeneratingSheet(false);
+    }
+  };
+
+  const generateEmergencyRoster = async () => {
+    setPrintError(null);
+    if (!childrenForSelectedClass("emergency roster")) {
+      return;
+    }
+
+    setIsGeneratingRoster(true);
+    try {
+      const response = await fetch("/api/emergency-roster", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          className: classFilter,
+        }),
+      });
+
+      if (!response.ok) {
+        let message = "Unable to generate the emergency roster.";
+        try {
+          const data = (await response.json()) as { error?: string };
+          if (data?.error) {
+            message = data.error;
+          }
+        } catch {
+          // ignore JSON parsing failures
+        }
+        throw new Error(message);
+      }
+
+      const blob = await response.blob();
+      const safeClassName = classFilter.replace(/[^a-z0-9-_]+/gi, "_") || "class";
+      openPdf(blob, `emergency_roster_${safeClassName}.pdf`);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unable to generate the emergency roster.";
+      setPrintError(message);
+    } finally {
+      setIsGeneratingRoster(false);
+    }
+  };
+
+  const generateTeacherSigninSheet = async () => {
+    setPrintError(null);
+    const childrenForClass = childrenForSelectedClass("teacher sign-in sheet");
+    if (!childrenForClass) {
+      return;
+    }
+
+    setIsGeneratingTeacherSheet(true);
+    try {
+      const response = await fetch("/api/teacher-signin-sheet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          className: classFilter,
+          childNames: childrenForClass.map((child) => child.name),
+        }),
+      });
+
+      if (!response.ok) {
+        let message = "Unable to generate the teacher sign-in sheet.";
+        try {
+          const data = (await response.json()) as { error?: string };
+          if (data?.error) {
+            message = data.error;
+          }
+        } catch {
+          // ignore JSON parsing failures
+        }
+        throw new Error(message);
+      }
+
+      const blob = await response.blob();
+      const safeClassName = classFilter.replace(/[^a-z0-9-_]+/gi, "_") || "class";
+      openPdf(blob, `teacher_signin_sheet_${safeClassName}.pdf`);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Unable to generate the teacher sign-in sheet.";
+      setPrintError(message);
+    } finally {
+      setIsGeneratingTeacherSheet(false);
+    }
+  };
+
   return (
+    <>
     <div className="space-y-4">
       {state.message && (
         <div className="rounded-md border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm">
           {state.message}
         </div>
       )}
+      <div className="flex flex-wrap items-center gap-3">
+        {isAdmin && (
+          <input
+            type="search"
+            name="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search children, parents, phone, email..."
+            className="w-full max-w-md rounded-md border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
+          />
+        )}
+        {isAdmin && (
+          <select
+            name="classFilter"
+            value={classFilter}
+            onChange={(event) => {
+              setClassFilter(event.target.value);
+              setPrintError(null);
+            }}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
+          >
+            <option value="all">All Students</option>
+            <option value="Caterpillar">Caterpillar</option>
+            <option value="Chrysalis">Chrysalis</option>
+            <option value="Butterfly">Butterfly</option>
+            <option value="Sunshine">Sunshine</option>
+            <option value="Rainbow">Rainbow</option>
+            <option value="Pre-Register">Pre-Register</option>
+            <option value="Registered">Registered</option>
+            <option value="Waitlist">Waitlist</option>
+            <option value="Test">Test</option>
+          </select>
+        )}
+        {!isAdmin && (
+          <select
+            name="classFilter"
+            value={classFilter}
+            onChange={(event) => {
+              setClassFilter(event.target.value);
+              setPrintError(null);
+            }}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
+          >
+            <option value="Caterpillar">Caterpillar</option>
+            <option value="Chrysalis">Chrysalis</option>
+            <option value="Butterfly">Butterfly</option>
+            <option value="Sunshine">Sunshine</option>
+            <option value="Rainbow">Rainbow</option>
+          </select>
+        )}
+        <button
+          type="button"
+          onClick={generateSigninSheet}
+          disabled={
+            isGeneratingSheet ||
+            isGeneratingRoster ||
+            isGeneratingTeacherSheet ||
+            classFilter === "all"
+          }
+          className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isGeneratingSheet ? "Building..." : "Print sign-in sheet"}
+        </button>
+        <button
+          type="button"
+          onClick={generateEmergencyRoster}
+          disabled={
+            isGeneratingRoster ||
+            isGeneratingSheet ||
+            isGeneratingTeacherSheet ||
+            classFilter === "all"
+          }
+          className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isGeneratingRoster ? "Building..." : "Print emergency roster"}
+        </button>
+        <button
+          type="button"
+          onClick={generateTeacherSigninSheet}
+          disabled={
+            isGeneratingTeacherSheet ||
+            isGeneratingSheet ||
+            isGeneratingRoster ||
+            classFilter === "all"
+          }
+          className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isGeneratingTeacherSheet ? "Building..." : "Print teacher sign-in sheet"}
+        </button>
+        {isAdmin && searchTerm.trim() && (
+          <button
+            type="button"
+            onClick={() => setSearchTerm("")}
+            className="text-sm font-semibold text-gray-600 hover:text-gray-800"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+      {printError && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          {printError}
+        </div>
+      )}
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow">
-        <table className="min-w-[1200px] w-full text-sm">
-          <thead className="bg-gray-100 text-gray-700">
-            <tr>
-              <th className="sticky left-0 z-10 bg-gray-100 p-3 text-left">
-                Actions
-              </th>
-              <th className="p-3 text-left">Child Name</th>
-              <th className="p-3 text-left">Sex</th>
-              <th className="p-3 text-left">Program</th>
-              <th className="p-3 text-left">Class</th>
-              <th className="p-3 text-left">Doctor Name</th>
-              <th className="p-3 text-left">Doctor Phone</th>
-              <th className="p-3 text-left">Fee</th>
-              <th className="p-3 text-left">Drop Date</th>
-              <th className="p-3 text-left">Parent 1</th>
-              <th className="p-3 text-left">Parent 1 Email</th>
-              <th className="p-3 text-left">Parent 2</th>
-              <th className="p-3 text-left">Parent 2 Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            {state.children.length === 0 ? (
+        {isAdmin ? (
+          <table className="min-w-[1200px] w-full text-sm">
+            <thead className="bg-gray-100 text-gray-700">
               <tr>
-                <td
-                  colSpan={13}
-                  className="p-6 text-center text-gray-500"
-                >
-                  No children found.
-                </td>
+                <th className="sticky left-0 z-10 bg-gray-100 p-3 text-left">
+                  Actions
+                </th>
+                <th className="p-3 text-left">Child Name</th>
+                <th className="p-3 text-left">Sex</th>
+                <th className="p-3 text-left">Program</th>
+                <th className="p-3 text-left">Class</th>
+                <th className="p-3 text-left">Doctor Name</th>
+                <th className="p-3 text-left">Doctor Phone</th>
+                <th className="p-3 text-left">Fee</th>
+                <th className="p-3 text-left">Drop Date</th>
+                <th className="p-3 text-left">Parent 1</th>
+                <th className="p-3 text-left">Parent 1 Email</th>
+                <th className="p-3 text-left">Parent 2</th>
+                <th className="p-3 text-left">Parent 2 Email</th>
               </tr>
-            ) : (
-              state.children.map((child) => (
-                <tr key={child.id} className="border-t border-gray-200">
+            </thead>
+            <tbody>
+              {filteredChildren.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={13}
+                    className="p-6 text-center text-gray-500"
+                  >
+                    No children found.
+                  </td>
+                </tr>
+              ) : (
+                filteredChildren.map((child) => (
+                  <tr key={child.id} className="border-t border-gray-200">
                   <td className="sticky left-0 z-10 bg-white p-3">
-                    <div className="flex flex-col gap-2">
+                    <div className="grid grid-cols-2 gap-1 sm:gap-2 items-stretch">
                       <Link
                         href={`/admin/EditChild?childId=${child.id}`}
-                        className="rounded-md border border-blue-600 px-3 py-2 text-center text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                        className="action-button w-full rounded-md border border-blue-600 px-3 py-2 text-center text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                        aria-label="Edit"
                       >
-                        Edit
+                        <span className="action-icon">
+                          <IconEdit />
+                        </span>
+                        <span className="action-label">Edit</span>
                       </Link>
                       <button
                         type="button"
-                        className="rounded-md border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                        className="action-button w-full rounded-md border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                        aria-label="Email"
                       >
-                        Email
+                        <span className="action-icon">
+                          <IconMail />
+                        </span>
+                        <span className="action-label">Email</span>
                       </button>
+                      <Link
+                        href={`/admin/Receipt/${child.id}`}
+                        className="action-button w-full rounded-md border border-green-600 px-3 py-2 text-center text-xs font-semibold text-green-700 transition hover:bg-green-50"
+                        aria-label="Receipt"
+                      >
+                        <span className="action-icon">
+                          <IconReceipt />
+                        </span>
+                        <span className="action-label">Receipt</span>
+                      </Link>
                       <button
                         type="button"
                         onClick={() => setModalChildId(child.id)}
-                        className="rounded-md border border-red-600 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                        className="action-button w-full rounded-md border border-red-600 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                        aria-label="Delete"
                       >
-                        Delete
+                        <span className="action-icon">
+                          <IconTrash />
+                        </span>
+                        <span className="action-label">Delete</span>
                       </button>
                     </div>
                   </td>
-                  <td className="p-3 text-gray-900">{child.name}</td>
-                  <td className="p-3 text-gray-700">{child.sex}</td>
-                  <td className="p-3 text-gray-700">{child.program}</td>
-                  <td className="p-3 text-gray-700">{child.className}</td>
-                  <td className="p-3 text-gray-700">{child.doctorName}</td>
-                  <td className="p-3 text-gray-700">{child.doctorPhone}</td>
-                  <td className="p-3 text-gray-700">{child.fee}</td>
-                  <td className="p-3 text-gray-700">{child.dropDate}</td>
-                  <td className="p-3 text-gray-700">{child.parent1Name}</td>
-                  <td className="p-3 text-gray-700">{child.parent1Email}</td>
-                  <td className="p-3 text-gray-700">{child.parent2Name}</td>
-                  <td className="p-3 text-gray-700">{child.parent2Email}</td>
+                    <td className="p-3 text-gray-900">{child.name}</td>
+                    <td className="p-3 text-gray-700">{child.sex}</td>
+                    <td className="p-3 text-gray-700">{child.program}</td>
+                    <td className="p-3 text-gray-700">{child.className}</td>
+                    <td className="p-3 text-gray-700">{child.doctorName}</td>
+                    <td className="p-3 text-gray-700">{child.doctorPhone}</td>
+                    <td className="p-3 text-gray-700">{child.fee}</td>
+                    <td className="p-3 text-gray-700">{child.dropDate}</td>
+                    <td className="p-3 text-gray-700">{child.parent1Name}</td>
+                    <td className="p-3 text-gray-700">{child.parent1Email}</td>
+                    <td className="p-3 text-gray-700">{child.parent2Name}</td>
+                    <td className="p-3 text-gray-700">{child.parent2Email}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        ) : (
+          <table className="min-w-full w-full text-sm">
+            <thead className="bg-gray-100 text-gray-700">
+              <tr>
+                <th className="p-3 text-left">Child Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredChildren.length === 0 ? (
+                <tr>
+                  <td className="p-6 text-center text-gray-500">No children found.</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filteredChildren.map((child) => (
+                  <tr key={child.id} className="border-t border-gray-200">
+                    <td className="p-3 text-gray-900">{child.name}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
-      {modalChild && (
+      {isAdmin && modalChild && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
             <h3 className="text-lg font-semibold text-gray-900">
@@ -179,5 +621,30 @@ export default function ChildrenTable({
         </div>
       )}
     </div>
+    <style jsx>{`
+      .action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+      }
+      .action-icon,
+      .action-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      @media (max-width: 1880px) {
+        .action-label {
+          display: none;
+        }
+      }
+      @media (min-width: 1881px) {
+        .action-label {
+          display: inline-flex;
+        }
+      }
+    `}</style>
+    </>
   );
 }
