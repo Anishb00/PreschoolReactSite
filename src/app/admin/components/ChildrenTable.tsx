@@ -121,6 +121,10 @@ export default function ChildrenTable({
   const [isGeneratingRoster, setIsGeneratingRoster] = useState(false);
   const [isGeneratingTeacherSheet, setIsGeneratingTeacherSheet] = useState(false);
   const [printError, setPrintError] = useState<string | null>(null);
+  const [emailChild, setEmailChild] = useState<ChildRow | null>(null);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [emailAttachments, setEmailAttachments] = useState<FileList | null>(null);
 
   const modalChild = useMemo(() => {
     if (modalChildId == null) {
@@ -521,6 +525,12 @@ export default function ChildrenTable({
                         type="button"
                         className="action-button w-full rounded-md border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
                         aria-label="Email"
+                        onClick={() => {
+                          setEmailChild(child);
+                          setEmailSubject("");
+                          setEmailMessage("");
+                          setEmailAttachments(null);
+                        }}
                       >
                         <span className="action-icon">
                           <IconMail />
@@ -590,6 +600,96 @@ export default function ChildrenTable({
           </table>
         )}
       </div>
+
+      {isAdmin && emailChild && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Email Receipts
+                </h3>
+                <p className="text-sm text-gray-600">
+                  To: {emailChild.parent1Name} ({emailChild.parent1Email})
+                  {emailChild.parent2Email
+                    ? `, ${emailChild.parent2Email}`
+                    : ""}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEmailChild(null)}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close email dialog"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Message
+                </label>
+                <textarea
+                  value={emailMessage}
+                  onChange={(e) => setEmailMessage(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Attachments
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => setEmailAttachments(e.target.files)}
+                  className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-[#3B1FA8] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#2d1882]"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setEmailChild(null)}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const attachments =
+                    emailAttachments ? Array.from(emailAttachments).map((f) => f.name) : [];
+                  console.log("[Email UI] Child:", emailChild.name);
+                  console.log("[Email UI] To:", emailChild.parent1Email, emailChild.parent2Email);
+                  console.log("[Email UI] Subject:", emailSubject);
+                  console.log("[Email UI] Message:", emailMessage);
+                  console.log("[Email UI] Attachments:", attachments);
+                  setEmailChild(null);
+                }}
+                className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882]"
+              >
+                Send Email
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isAdmin && modalChild && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">

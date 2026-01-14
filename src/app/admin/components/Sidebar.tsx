@@ -62,6 +62,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isAdmin }) => {
   >
     <SidebarLink collapsed={collapsed} label="Home" href="/admin/home" />
     <SidebarLink collapsed={collapsed} label="Mass Receipts" href="/admin/MassReceipt" />
+    <SidebarLink collapsed={collapsed} label="Mass Email" href="/admin/MassEmail" />
 
     <div className="pt-4 mt-4 border-t border-gray-800 space-y-3">
       {isAdmin && (

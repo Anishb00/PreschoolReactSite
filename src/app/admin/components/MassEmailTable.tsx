@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export type MassReceiptChild = {
+export type MassEmailChild = {
   id: number;
   childName: string;
   className: string;
@@ -13,13 +14,19 @@ export type MassReceiptChild = {
 };
 
 type Props = {
-  initialChildren: MassReceiptChild[];
+  initialChildren: MassEmailChild[];
 };
 
-export default function MassReceiptTable({ initialChildren }: Props) {
+export default function MassEmailTable({ initialChildren }: Props) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [classFilter, setClassFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [showModal, setShowModal] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [attachments, setAttachments] = useState<FileList | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const filteredChildren = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -78,11 +85,26 @@ export default function MassReceiptTable({ initialChildren }: Props) {
     filteredChildren.length > 0 &&
     filteredChildren.every((child) => selectedIds.has(child.id));
 
-  const sendReceipts = () => {
+  const openModal = () => {
+    if (selectedIds.size === 0) {
+      setError("Select at least one child before emailing.");
+      return;
+    }
+    setError(null);
+    setShowModal(true);
+  };
+
+  const sendEmail = () => {
     const names = initialChildren
       .filter((child) => selectedIds.has(child.id))
       .map((child) => child.childName);
-    // console.log("[Mass Receipt] Selected children for receipts:", names);
+    const attachmentNames = attachments ? Array.from(attachments).map((f) => f.name) : [];
+    console.log("[Mass Email] Names:", names);
+    console.log("[Mass Email] Subject:", subject);
+    console.log("[Mass Email] Message:", message);
+    console.log("[Mass Email] Attachments:", attachmentNames);
+    const query = encodeURIComponent(JSON.stringify(names));
+    router.push(`/admin/MassEmail/success?names=${query}`);
   };
 
   return (
@@ -115,10 +137,10 @@ export default function MassReceiptTable({ initialChildren }: Props) {
         </select>
         <button
           type="button"
+          onClick={openModal}
           className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882]"
-          onClick={sendReceipts}
         >
-          Send Receipts
+          Email
         </button>
         {searchTerm.trim() && (
           <button
@@ -131,9 +153,11 @@ export default function MassReceiptTable({ initialChildren }: Props) {
         )}
       </div>
 
-      <div className="rounded-md border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-        Select children to prepare receipts. Generation will run when email delivery is implemented.
-      </div>
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow">
         <table className="min-w-[900px] w-full text-sm">
@@ -185,6 +209,86 @@ export default function MassReceiptTable({ initialChildren }: Props) {
           </tbody>
         </table>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Email Selected Parents
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {selectedIds.size} recipients selected
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close email dialog"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
+                  placeholder="Monthly receipts"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Message
+                </label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
+                  placeholder="Include any notes for families..."
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Attachments
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => setAttachments(e.target.files)}
+                  className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-[#3B1FA8] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#2d1882]"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={sendEmail}
+                className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882]"
+              >
+                Send Email
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
