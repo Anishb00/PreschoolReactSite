@@ -71,14 +71,20 @@ export type ChildRow = {
   sex: string;
   program: string;
   className: string;
-  doctorName: string;
-  doctorPhone: string;
+  dob?: string;
+  enrollDate: string;
   fee: string;
   dropDate: string;
+  doctorName?: string;
+  doctorPhone?: string;
   parent1Name: string;
   parent1Email: string;
+  parent1Phone?: string;
+  parent1Address?: string;
   parent2Name: string;
   parent2Email: string;
+  parent2Phone?: string;
+  parent2Address?: string;
 };
 
 type TableState = {
@@ -91,6 +97,7 @@ type ChildrenTableProps = {
   initialChildren: ChildRow[];
   deleteChild: (prevState: TableState, formData: FormData) => Promise<TableState>;
   isAdmin: boolean;
+  fullView?: boolean;
 };
 
 function DeleteButton() {
@@ -110,7 +117,10 @@ export default function ChildrenTable({
   initialChildren,
   deleteChild,
   isAdmin,
+  fullView = false,
 }: ChildrenTableProps) {
+  const actionColWidth = fullView ? "w-36" : "w-40";
+  const actionColMinWidth = fullView ? "9rem" : "10rem";
   const [state, formAction] = React.useActionState(deleteChild, {
     children: initialChildren,
   });
@@ -148,13 +158,6 @@ export default function ChildrenTable({
       }
       return child.className === classFilter;
     });
-    if (!query) {
-      return classFiltered;
-    }
-    if (!query) {
-      return classFiltered;
-    }
-
     return classFiltered.filter((child) => {
       const haystackValues = isAdmin
         ? [
@@ -163,14 +166,20 @@ export default function ChildrenTable({
             child.sex,
             child.program,
             child.className,
-            child.doctorName,
-            child.doctorPhone,
+            child.enrollDate,
             child.fee,
             child.dropDate,
+            fullView ? child.dob : "",
+            fullView ? child.doctorName : "",
+            fullView ? child.doctorPhone : "",
             child.parent1Name,
             child.parent1Email,
+            fullView ? child.parent1Phone : "",
+            fullView ? child.parent1Address : "",
             child.parent2Name,
             child.parent2Email,
+            fullView ? child.parent2Phone : "",
+            fullView ? child.parent2Address : "",
           ]
         : [child.name];
 
@@ -476,23 +485,32 @@ export default function ChildrenTable({
       )}
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow">
         {isAdmin ? (
-          <table className="min-w-[1200px] w-full text-sm">
+          <table className={`${fullView ? "min-w-[1800px]" : "min-w-[1200px]"} w-full text-sm`}>
             <thead className="bg-gray-100 text-gray-700">
               <tr>
-                <th className="sticky left-0 z-10 bg-gray-100 p-3 text-left">
+                 <th
+                   className={`sticky left-0 z-10 bg-gray-100 p-3 text-left ${actionColWidth}`}
+                   style={{ minWidth: actionColMinWidth }}
+                 >
                   Actions
                 </th>
                 <th className="p-3 text-left">Child Name</th>
                 <th className="p-3 text-left">Sex</th>
+                {fullView && <th className="p-3 text-left">DOB</th>}
                 <th className="p-3 text-left">Program</th>
                 <th className="p-3 text-left">Class</th>
-                <th className="p-3 text-left">Doctor Name</th>
-                <th className="p-3 text-left">Doctor Phone</th>
+                {fullView && <th className="p-3 text-left">Doctor Name</th>}
+                {fullView && <th className="p-3 text-left">Doctor Phone</th>}
+                <th className="p-3 text-left">Enroll Date</th>
                 <th className="p-3 text-left">Fee</th>
                 <th className="p-3 text-left">Drop Date</th>
                 <th className="p-3 text-left">Parent 1</th>
+                {fullView && <th className="p-3 text-left">Parent 1 Phone</th>}
+                {fullView && <th className="p-3 text-left">Parent 1 Address</th>}
                 <th className="p-3 text-left">Parent 1 Email</th>
                 <th className="p-3 text-left">Parent 2</th>
+                {fullView && <th className="p-3 text-left">Parent 2 Phone</th>}
+                {fullView && <th className="p-3 text-left">Parent 2 Address</th>}
                 <th className="p-3 text-left">Parent 2 Email</th>
               </tr>
             </thead>
@@ -509,7 +527,10 @@ export default function ChildrenTable({
               ) : (
                 filteredChildren.map((child) => (
                   <tr key={child.id} className="border-t border-gray-200">
-                  <td className="sticky left-0 z-10 bg-white p-3">
+                  <td
+                    className={`sticky left-0 z-10 bg-white p-3 ${actionColWidth}`}
+                    style={{ minWidth: actionColMinWidth }}
+                  >
                     <div className="grid grid-cols-2 gap-1 sm:gap-2 items-stretch">
                       <Link
                         href={`/admin/EditChild?childId=${child.id}`}
@@ -560,22 +581,28 @@ export default function ChildrenTable({
                       </button>
                     </div>
                   </td>
-                    <td className="p-3 text-gray-900">{child.name}</td>
-                    <td className="p-3 text-gray-700">{child.sex}</td>
-                    <td className="p-3 text-gray-700">{child.program}</td>
-                    <td className="p-3 text-gray-700">{child.className}</td>
-                    <td className="p-3 text-gray-700">{child.doctorName}</td>
-                    <td className="p-3 text-gray-700">{child.doctorPhone}</td>
-                    <td className="p-3 text-gray-700">{child.fee}</td>
-                    <td className="p-3 text-gray-700">{child.dropDate}</td>
-                    <td className="p-3 text-gray-700">{child.parent1Name}</td>
-                    <td className="p-3 text-gray-700">{child.parent1Email}</td>
-                    <td className="p-3 text-gray-700">{child.parent2Name}</td>
-                    <td className="p-3 text-gray-700">{child.parent2Email}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
+                  <td className="p-3 text-gray-900">{child.name}</td>
+                  <td className="p-3 text-gray-700">{child.sex}</td>
+                  {fullView && <td className="p-3 text-gray-700">{child.dob ?? ""}</td>}
+                  <td className="p-3 text-gray-700">{child.program}</td>
+                  <td className="p-3 text-gray-700">{child.className}</td>
+                  {fullView && <td className="p-3 text-gray-700">{child.doctorName ?? ""}</td>}
+                  {fullView && <td className="p-3 text-gray-700">{child.doctorPhone ?? ""}</td>}
+                  <td className="p-3 text-gray-700">{child.enrollDate}</td>
+                  <td className="p-3 text-gray-700">{child.fee}</td>
+                  <td className="p-3 text-gray-700">{child.dropDate}</td>
+                  <td className="p-3 text-gray-700">{child.parent1Name}</td>
+                  {fullView && <td className="p-3 text-gray-700">{child.parent1Phone ?? ""}</td>}
+                  {fullView && <td className="p-3 text-gray-700">{child.parent1Address ?? ""}</td>}
+                  <td className="p-3 text-gray-700">{child.parent1Email}</td>
+                  <td className="p-3 text-gray-700">{child.parent2Name}</td>
+                  {fullView && <td className="p-3 text-gray-700">{child.parent2Phone ?? ""}</td>}
+                  {fullView && <td className="p-3 text-gray-700">{child.parent2Address ?? ""}</td>}
+                  <td className="p-3 text-gray-700">{child.parent2Email}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
           </table>
         ) : (
           <table className="min-w-full w-full text-sm">

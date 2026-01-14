@@ -17,7 +17,7 @@ function mapChild(row: Awaited<ReturnType<typeof getChildrenWithParents>>[number
 }
 
 export default async function MassEmailPage() {
-  await authorizeUser(MIN_ASSET_ROLE_ACCESS.GENERATE_RECIEPTS);
+  await authorizeUser("admin");
   const errorStatus = new EndpointErrorResponse();
   const rows = await getChildrenWithParents(errorStatus);
   const children = rows.map(mapChild);
