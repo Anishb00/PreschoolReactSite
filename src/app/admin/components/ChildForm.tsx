@@ -1,10 +1,9 @@
 import Form from "next/form";
+import { createChild, updateChild } from "@/app/admin/actions/childActions";
 import PhoneMask from "@/app/components/ui/phonenumber";
 import type { RegistrationData } from "@/lib/types/Registertypes";
 
 type ChildFormProps = {
-  createAction: (formData: FormData) => void | Promise<void>;
-  updateAction: (formData: FormData) => void | Promise<void>;
   values?: Partial<
     RegistrationData & {
       childClass?: string;
@@ -20,8 +19,6 @@ type ChildFormProps = {
 };
 
 export default function ChildForm({
-  createAction,
-  updateAction,
   values,
   statusCodes = new Set<string>(),
 }: ChildFormProps) {
@@ -42,7 +39,7 @@ export default function ChildForm({
       : values?.dropDate ?? "";
 
   return (
-    <Form action={isEdit ? updateAction : createAction} className="space-y-10">
+    <Form action={isEdit ? updateChild : createChild} className="space-y-10">
       {isEdit && (
         <>
           <input type="hidden" name="childId" value={values?.childId ?? ""} />

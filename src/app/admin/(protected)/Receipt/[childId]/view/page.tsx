@@ -2,13 +2,13 @@ import { authorizeUser } from "@/lib/authentication";
 import { MIN_ASSET_ROLE_ACCESS } from "@/lib/protectedassets";
 
 type PageProps = {
-  params: { childId: string };
+  params: Promise<{ childId: string }>;
   searchParams: Promise<{ ts?: string }>;
 };
 
 export default async function ReceiptPreviewPage({ params, searchParams }: PageProps) {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.GENERATE_RECIEPTS);
-  const search = await searchParams;
+  const [resolvedParams, search] = await Promise.all([params, searchParams]);
   const cacheBust = search?.ts ?? Date.now().toString();
 
   return (

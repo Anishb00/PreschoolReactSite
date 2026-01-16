@@ -1,10 +1,10 @@
 'use client';
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from 'next/navigation';
 
-
-export default function Success() {
-  const childName = useSearchParams().get("childName")
+function SuccessContent() {
+  const childName = useSearchParams().get("childName");
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-8 bg-white">
@@ -51,5 +51,13 @@ export default function Success() {
         Go to Homepage
       </Link>
     </div>
+  );
+}
+
+export default function Success() {
+  return (
+    <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center">Loading...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

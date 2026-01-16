@@ -70,7 +70,7 @@ export default async function Dashboard() {
     const childId = Number(formData.get("childId"));
     if (!Number.isFinite(childId)) {
       return {
-        children: (await getChildrenWithParents(errorState)).map(mapChildRow),
+        children: (await getChildrenWithParentsFull(errorState)).map(mapChildRow),
         message: "Invalid child selected.",
       };
     }
@@ -78,14 +78,14 @@ export default async function Dashboard() {
     await deleteChildById(childId, errorState);
     if (errorState.uncaughtErrors.size > 0) {
       return {
-        children: (await getChildrenWithParents(errorState)).map(mapChildRow),
+        children: (await getChildrenWithParentsFull(errorState)).map(mapChildRow),
         message: "Unable to delete child. Please try again.",
       };
     }
 
     revalidatePath("/admin/home");
     return {
-      children: (await getChildrenWithParents(errorState)).map(mapChildRow),
+      children: (await getChildrenWithParentsFull(errorState)).map(mapChildRow),
       lastDeletedId: childId,
       message: "Child removed.",
     };

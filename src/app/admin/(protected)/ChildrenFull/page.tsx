@@ -1,4 +1,4 @@
-import ChildrenTable from "@/app/admin/components/ChildrenTable";
+import ChildrenTable, { type ChildRow } from "@/app/admin/components/ChildrenTable";
 import { authorizeUser, isAdmin } from "@/lib/authentication";
 import { MIN_ASSET_ROLE_ACCESS } from "@/lib/protectedassets";
 import {
@@ -16,7 +16,7 @@ function formatDate(value: Date | null): string {
   return value.toISOString().split("T")[0];
 }
 
-function mapChildRow(row: ChildWithParentsFullRow) {
+function mapChildRow(row: ChildWithParentsFullRow): ChildRow {
   return {
     id: row.Child_ID,
     name: row.Child_name ?? "",
@@ -40,6 +40,12 @@ function mapChildRow(row: ChildWithParentsFullRow) {
   };
 }
 
+type TableState = {
+  children: ChildRow[];
+  lastDeletedId?: number;
+  message?: string;
+};
+
 export default async function ChildrenFullPage() {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.VIEW_DASHBOARD);
   const isAdminUser = await isAdmin();
@@ -47,10 +53,7 @@ export default async function ChildrenFullPage() {
   const rows = await getChildrenWithParentsFull(errorStatus);
   const children = rows.map(mapChildRow);
 
-  const deleteChild = async (
-    _prevState: { children: ReturnType<typeof mapChildRow>[]; lastDeletedId?: number; message?: string },
-    formData: FormData
-  ) => {
+  const deleteChild = async (_prevState: TableState, formData: FormData): Promise<TableState> => {
     "use server";
     const errorState = new EndpointErrorResponse();
     const childId = Number(formData.get("childId"));

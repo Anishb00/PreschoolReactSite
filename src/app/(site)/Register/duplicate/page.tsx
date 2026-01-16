@@ -1,10 +1,11 @@
 'use client';
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from 'next/navigation';
 
 
-export default function DuplicatePage() {
-  const childName = useSearchParams().get("childName")
+function DuplicateContent() {
+  const childName = useSearchParams().get("childName");
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-8 bg-white">
       {/* Warning icon */}
@@ -60,5 +61,13 @@ export default function DuplicatePage() {
         Go to Homepage
       </Link>
     </div>
+  );
+}
+
+export default function DuplicatePage() {
+  return (
+    <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center">Loading...</div>}>
+      <DuplicateContent />
+    </Suspense>
   );
 }

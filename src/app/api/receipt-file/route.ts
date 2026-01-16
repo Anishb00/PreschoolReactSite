@@ -14,7 +14,9 @@ export async function GET(_req: NextRequest) {
 
   try {
     const bytes = await readFile(OUTPUT_PATH);
-    return new NextResponse(bytes, {
+    // Convert to a plain ArrayBuffer (NextResponse does not accept SharedArrayBuffer)
+    const pdfArrayBuffer = new Uint8Array(bytes).buffer;
+    return new NextResponse(pdfArrayBuffer, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

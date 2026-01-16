@@ -1,20 +1,10 @@
-import { redirect } from "next/navigation";
 import ChildForm from "@/app/admin/components/ChildForm";
 import type { RegistrationData } from "@/lib/types/Registertypes";
 import { EndpointErrorResponse } from "@/lib/EndpointErrorResponse";
-import { API_ERROR_CODES, DB_ERROR_CODES } from "@/lib/errorCodes";
-import * as helpers from "@/lib/registration-helpers";
-import {
-  getChildWithParentsById,
-  updateChildAndParents,
-  type UpdateChildPayload,
-} from "@/lib/dbOperations";
+import { getChildWithParentsById } from "@/lib/dbOperations";
 
 type EditChildPageProps = {
-  searchParams?: {
-    childId?: string;
-    status?: string;
-  } | Promise<{ childId?: string; status?: string }>;
+  searchParams?: Promise<{ childId?: string; status?: string }>;
 };
 
 function toDateOnly(value: Date | null): Date | null {
@@ -25,157 +15,8 @@ function toDateOnly(value: Date | null): Date | null {
 }
 
 export default async function EditChildPage({ searchParams }: EditChildPageProps) {
-  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const status = resolvedSearchParams?.status ?? "";
-  const createChild = async (formData: FormData) => {
-    "use server";
-    void formData;
-  };
-
-  const updateChild = async (formData: FormData) => {
-    "use server";
-    const errorStatus = new EndpointErrorResponse();
-    const childId = Number(formData.get("childId"));
-    const parentOneId = Number(formData.get("parentOneId"));
-    const parentTwoIdRaw = String(formData.get("parentTwoId") || "").trim();
-    const parentTwoId = parentTwoIdRaw ? Number(parentTwoIdRaw) : null;
-
-    if (!Number.isFinite(childId)) {
-      errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
-      errorStatus.log(`recieved invalid childId value: ${childId}`);
-    }
-    if (!Number.isFinite(parentOneId)) {
-      errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
-      errorStatus.log(`recieved invalid parentOneId value: ${parentOneId}`);
-    }
-    if (parentTwoIdRaw && !Number.isFinite(parentTwoId)) {
-      errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
-      errorStatus.log(`recieved invalid parentTwoId value: ${parentTwoIdRaw}`);
-    }
-
-    const classOptions = new Set([
-      "Waitlist",
-      "Pre-Register",
-      "Registered",
-      "Caterpillar",
-      "Chrysalis",
-      "Butterfly",
-      "Sunshine",
-      "Rainbow",
-      "Test",
-    ]);
-
-    const classRaw = String(formData.get("childClass") || "").trim();
-    const classValue = classRaw ? classRaw : null;
-    if (classValue && !classOptions.has(classValue)) {
-      errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
-      errorStatus.log(`recieved invalid class value: ${classValue}`);
-    }
-
-    const feeRaw = String(formData.get("fee") || "").trim();
-    const feeValue = feeRaw ? Number(feeRaw) : null;
-    if (feeRaw && (Number.isNaN(feeValue) || feeValue < 0)) {
-      errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
-      errorStatus.log(`recieved invalid fee value: ${feeRaw}`);
-    }
-
-    const enrollDateRaw = String(formData.get("enrollDate") || "").trim();
-    const enrollDate =
-      enrollDateRaw && !Number.isNaN(new Date(enrollDateRaw).getTime())
-        ? enrollDateRaw
-        : null;
-    if (enrollDateRaw && !enrollDate) {
-      errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
-      errorStatus.log(`recieved invalid enroll date value: ${enrollDateRaw}`);
-    }
-
-    const dropDateRaw = String(formData.get("dropDate") || "").trim();
-    const dropDate =
-      dropDateRaw && !Number.isNaN(new Date(dropDateRaw).getTime())
-        ? dropDateRaw
-        : null;
-    if (dropDateRaw && !dropDate) {
-      errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
-      errorStatus.log(`recieved invalid drop date value: ${dropDateRaw}`);
-    }
-
-    const registrationData: UpdateChildPayload = {
-      childId,
-      childName: helpers.mustString(formData, "childName", errorStatus),
-      dob: helpers.mustDOB(formData.get("dob") || "", errorStatus),
-      sex: helpers.validateSex(String(formData.get("sex")), errorStatus),
-      program: helpers.validateProgram(
-        helpers.mustString(formData, "Program", errorStatus),
-        errorStatus
-      ),
-      className: classValue,
-      doctorName: helpers.mustString(formData, "doctorName", errorStatus),
-      doctorPhone: helpers.normalizeAndValidatePhone(
-        formData,
-        "doctorPhone",
-        errorStatus,
-        "DOC_PHONE_INVALID",
-        { required: true }
-      ),
-      enrollDate,
-      dropDate,
-      fee: feeValue,
-      parentOneId,
-      parentOneName: helpers.mustString(formData, "parentOneName", errorStatus),
-      parentOneAddress: helpers.mustString(
-        formData,
-        "parentOneAddress",
-        errorStatus
-      ),
-      parentOnePhone: helpers.normalizeAndValidatePhone(
-        formData,
-        "parentOnePhone",
-        errorStatus,
-        "P1_PHONE_INVALID",
-        { required: true }
-      ),
-      parentOneEmail: helpers.validateEmailAddress(
-        formData,
-        "parentOneEmail",
-        errorStatus,
-        "P1_EMAIL_INVALID",
-        { required: true }
-      ),
-      parentTwoId,
-      parentTwoName: helpers.optionalString(formData, "parentTwoName"),
-      parentTwoAddress: helpers.optionalString(formData, "parentTwoAddress"),
-      parentTwoPhone: helpers.normalizeAndValidatePhone(
-        formData,
-        "parentTwoPhone",
-        errorStatus,
-        "P2_PHONE_INVALID",
-        { required: false }
-      ),
-      parentTwoEmail: helpers.validateEmailAddress(
-        formData,
-        "parentTwoEmail",
-        errorStatus,
-        "P2_EMAIL_INVALID",
-        { required: false }
-      ),
-    };
-
-    if (errorStatus.checkErrors() === 0) {
-      await updateChildAndParents(registrationData, errorStatus);
-    }
-
-    if (errorStatus.uncaughtErrors.size > 0) {
-      redirect(`/admin/EditChild?childId=${childId}&status=error`);
-    }
-    if (errorStatus.caughtErrors.has(DB_ERROR_CODES.DUPLICATE_CHILD)) {
-      redirect(`/admin/EditChild?childId=${childId}&status=duplicate`);
-    }
-    if (errorStatus.caughtErrors.size > 0) {
-      redirect(`/admin/EditChild?childId=${childId}&status=invalid`);
-    }
-
-    redirect(`/admin/EditChild?childId=${childId}&status=success`);
-  };
 
   const childId = Number(resolvedSearchParams?.childId);
   const errorStatus = new EndpointErrorResponse();
@@ -252,11 +93,7 @@ export default async function EditChildPage({ searchParams }: EditChildPageProps
           Unable to load the selected child. Please return to the dashboard and try again.
         </div>
       ) : (
-        <ChildForm
-          values={values}
-          createAction={createChild}
-          updateAction={updateChild}
-        />
+        <ChildForm values={values} />
       )}
     </>
   );

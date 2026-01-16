@@ -25,7 +25,7 @@ export default function Navbar({ forceActive = false }: { forceActive?: boolean 
     }
   }
 
-  function styleActive(href){
+  function styleActive(href: string) {
     return {
       fontWeight: pathname === `/${href}` ? 'bold' : 'normal',
       color: pathname === `/${href}` ? '#0070f3' : 'inherit', // adjust highlight color

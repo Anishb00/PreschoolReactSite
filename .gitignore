@@ -51,3 +51,6 @@ public/photocarousel/*
 !public/photocarousel/.gitkeep
 documents/*
 !documents/.gitkeep
+
+
+docker-compose.yml

@@ -6,12 +6,13 @@ import { getChildWithParentsById } from "@/lib/dbOperations";
 import ReceiptForm from "@/app/admin/components/ReceiptForm";
 
 type PageProps = {
-  params: { childId: string };
+  params: Promise<{ childId: string }>;
 };
 
 export default async function ReceiptFormPage({ params }: PageProps) {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.GENERATE_RECIEPTS);
-  const childId = Number(params.childId);
+  const resolvedParams = await params;
+  const childId = Number(resolvedParams.childId);
   if (!Number.isFinite(childId)) {
     notFound();
   }

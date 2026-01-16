@@ -1,11 +1,7 @@
 
-// import {query} from '@/lib/dbOperations';
+import { NextResponse } from "next/server";
 
-
-// export async function GET() {
-//   const rows = await query()
-//   return new Response(JSON.stringify(rows), {
-//     status: 200,
-//     headers: { 'Content-Type': 'application/json' },
-//   })
-// }
+// Basic health endpoint for /api. Extend or replace as needed.
+export async function GET() {
+  return NextResponse.json({ ok: true });
+}
