@@ -10,11 +10,13 @@ export const auth = betterAuth({
         expiresIn: 60 * 60 * 24 * 2, // 2 days
         updateAge: 60 * 60 * 24 // 1 day (every 1 day the session expiration is updated)
     },
-    emailAndPassword: {  
+    emailAndPassword: {
         enabled: true,
+        disableSignUp: true,
         minPasswordLength:4,
         maxPasswordLength:20,
     },
+    trustedOrigins: ["http://localhost:3000", "http://localhost"],
     database: pool,
     appName: "preschoolreactsite",
     plugins: [username(),
@@ -24,6 +26,6 @@ export const auth = betterAuth({
             admin,
             user
         }
-    }), 
+    }),
     nextCookies()],
 });

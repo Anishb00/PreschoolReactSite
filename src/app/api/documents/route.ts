@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { mkdir, readdir, stat, writeFile, unlink } from "fs/promises";
+import { authorizeUser } from "@/lib/authentication";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +13,7 @@ function sanitizeFilename(name: string): string {
 }
 
 export async function GET() {
+  await authorizeUser("admin");
   await mkdir(DOCS_DIR, { recursive: true });
   const entries = await readdir(DOCS_DIR);
   const files = await Promise.all(
@@ -32,6 +34,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  await authorizeUser("admin");
   const form = await req.formData();
   const file = form.get("file");
   const overrideName = sanitizeFilename(String(form.get("name") ?? ""));
@@ -51,6 +54,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  await authorizeUser("admin");
   const { searchParams } = new URL(req.url);
   const filename = sanitizeFilename(searchParams.get("name") ?? "");
   if (!filename) {

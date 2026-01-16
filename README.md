@@ -2,47 +2,68 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Setup
 
+1. unlock the sign-up endpoint so it can be used without authentication:
 
+comment the following like in src/lib/auth.ts in the emailAndPassword object
+#disableSignUp: true
 
+2. docker compose up -d
 
-1.install dependencies
+3. When you docker containers are created your /auth/sign-up/emil endpoint will be open so you can create your first user. Run the following command:
 
 ```bash
-npm install
-
+curl -X POST http://localhost/api/auth/sign-up/email \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Example User",
+    "email": "example@example.com",
+    "password": "examplePassword",
+    "username": "example"
+  }'
 ```
-2. Set your environment variables
-Dev setup:
-- create a .env file from .env.example
+This creates a user in better-auth with "user" priveleges
 
-Production:
--TODO
+4. Now enter you mysql database with the following command:
 
-3.
+```bash
+# uses host shell env vars (DB_USER/DB_PASSWORD/DB_NAME)
+docker compose exec db mysql -u"$DB_USER" -p"$DB_PASSWORD" "$DB_NAME"
+```
+
+5. upgrade user to admin:
+
+```sql
+UPDATE `user` SET role = 'admin' WHERE email = 'example@example.com';
+```
+
+
+6. lock the sign-up endpoint so it cannot be used without authentication:
+
+uncomment the following like in src/lib/auth.ts
+#disableSignUp: true,
+
+
+7. Rebuild and recreate web container to reflect change in /auth/sign-up/email endpoint
+
+``` bash
+docker compose up --build web
+```
 
 
 
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Other Useful commands:
 
-## Learn More
+- docker compose down -v                  # stop containers and remove volumes (DB data wiped)
+- docker compose down                     # only stops containers
+- docker compose up --build               # recreates all containers
+- docker compose up --build <servicename> # recreates specific service
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 
 

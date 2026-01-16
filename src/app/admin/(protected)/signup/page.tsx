@@ -1,29 +1,59 @@
-import {auth} from "@/lib/auth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function AdminSignupForm() {
+type SignupPageProps = {
+  searchParams?: Promise<{ status?: string }>;
+};
+
+export default async function AdminSignupForm({ searchParams }: SignupPageProps) {
+    const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
     const  signupServerAction = async function(formData: FormData)  {
         'use server';
+        const session = await auth.api.getSession({ headers: await headers() });
+        if (!session || session.user.role !== "admin") {
+            redirect("/admin/signup?status=forbidden");
+        }
+
         const name = String(formData.get("name"));
         const email = String(formData.get("email"));
         const username = String(formData.get("username"));
         const password = String(formData.get("password"));
         const confirmPassword = formData.get("confirmPassword");
 
+        if (password !== confirmPassword) {
+            redirect("/admin/signup?status=nomatch");
+        }
+
         try{
-            const data = await auth.api.signUpEmail({
+            await auth.api.createUser({
                 body: {
-                    email, 
-                    name, 
-                    password, 
-                    username, 
+                    email,
+                    name,
+                    password,
+                    role: "user",
+                    data: { username },
                 },
             });
-            console.log("-------------Data------------------",data);
         } catch(err){
             console.log("-------------Error------------------",err);
+            redirect("/admin/signup?status=error");
         }
+
+        redirect("/admin/signup?status=success");
     };
+
+    const statusMessage =
+      resolvedSearchParams?.status === "success"
+        ? { text: "User created successfully.", tone: "success" as const }
+        : resolvedSearchParams?.status === "error"
+          ? { text: "Failed to create user. Please try again.", tone: "error" as const }
+          : resolvedSearchParams?.status === "forbidden"
+            ? { text: "You must be an admin to create users.", tone: "error" as const }
+            : resolvedSearchParams?.status === "nomatch"
+              ? { text: "Passwords do not match.", tone: "error" as const }
+              : null;
 
     return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -34,6 +64,18 @@ export default function AdminSignupForm() {
         <h2 className="text-2xl font-bold text-center text-gray-800">
             Admin Sign Up
         </h2>
+        {statusMessage && (
+          <p
+            className={[
+              "rounded-md border px-3 py-2 text-sm",
+              statusMessage.tone === "success"
+                ? "text-green-700 bg-green-50 border-green-200"
+                : "text-red-700 bg-red-50 border-red-200",
+            ].join(" ")}
+          >
+            {statusMessage.text}
+          </p>
+        )}
 
         {/* Name Field */}
         <div>
