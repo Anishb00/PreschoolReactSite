@@ -42,8 +42,6 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "3306:3306"
     volumes:
       - db-data:/var/lib/mysql
       - ./sqlScripts/Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
