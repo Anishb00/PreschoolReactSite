@@ -17,7 +17,7 @@ curl -X POST http://localhost/api/auth/sign-up/email \
   -d '{
     "name": "Example User",
     "email": "example@example.com",
-    "password": "examplePassword",
+    "password": "pass",
     "username": "example"
   }'
 ```

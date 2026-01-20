@@ -46,7 +46,6 @@ services:
       - db-data:/var/lib/mysql
       - ./sqlScripts/Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./sqlScripts/better-auth-tables.sql:/docker-entrypoint-initdb.d/02-better-auth.sql:ro
-      - ./sqlScripts/seed_children.sql:/docker-entrypoint-initdb.d/03-seed-children.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p${DB_ROOT_PASSWORD} || exit 1"]
       interval: 10s
