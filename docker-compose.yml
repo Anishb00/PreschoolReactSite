@@ -47,12 +47,7 @@ services:
       - ./sqlScripts/Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./sqlScripts/better-auth-tables.sql:/docker-entrypoint-initdb.d/02-better-auth.sql:ro
     healthcheck:
-      test: [
-        "CMD-SHELL",
-        "mysqladmin ping -h 127.0.0.1 -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" --silent \
-        && (c=$$(cat /tmp/healthcount 2>/dev/null || echo 0); c=$$((c+1)); echo $$c >/tmp/healthcount; [ $$c -ge 3 ]) \
-        || (rm -f /tmp/healthcount; exit 1)"
-      ]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p${DB_ROOT_PASSWORD} || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
