@@ -42,6 +42,8 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+    # ports:
+    #   - "127.0.0.1:3306:3306" # remove if you want to use app outside of docker containers
     volumes:
       - mysql_data:/var/lib/mysql
       - ./sqlScripts/Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro

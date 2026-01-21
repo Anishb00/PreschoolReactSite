@@ -18,7 +18,7 @@ export default function PhotoCarousel({ filenames }: { filenames: string[] }) {
   const goNext = () => setCurrIndex((currIndex + 1) % filenames.length);
 
   return (
-    <section className="relative mx-auto -mt-50 mb-20 h-[500px] w-[90%] max-w-5xl overflow-hidden rounded-2xl shadow">
+    <section className="relative mx-auto -mt-50 mb-20 h-[500px] w-full max-w-5xl overflow-hidden shadow md:w-[90%] md:rounded-2xl">
       {/* Image row */}
       <div
         className="flex h-full w-full transition-transform duration-700 ease-in-out"

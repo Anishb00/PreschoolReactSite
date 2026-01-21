@@ -22,28 +22,21 @@ export default function Footer() {
         <div className="text-center md:text-left">
           <h4 className="mb-2 font-semibold uppercase">Contact Information</h4>
           <p>
-            Moorlands School, Foxhill Drive,
+            Stepping Stone World Preschool
             <br />
-            Weetwood Lane, Leeds LS16 5PF
+            1362 South Main St
+            <br />
+            Milpitas, California 95035
           </p>
           <p>
             Email:{" "}
             <a
-              href="mailto:info@moorlands-school.co.uk"
+              href="mailto:steppingstoneworld@gmail.com"
               className="text-blue-600"
             >
-              info@moorlands-school.co.uk
+              steppingstoneworld@gmail.com
             </a>
-          </p>
-          <p>Phone: 0113 278 5286</p>
-          <div className="mt-2 flex justify-center gap-3 md:justify-start">
-            <a href="#" aria-label="Facebook">
-              <i className="fab fa-facebook-square text-xl"></i>
-            </a>
-            <a href="#" aria-label="Instagram">
-              <i className="fab fa-instagram text-xl"></i>
-            </a>
-          </div>
+          </p>``
         </div>
 
         {/* Quick Links */}
@@ -85,7 +78,7 @@ export default function Footer() {
       </div>
 
       <div className="mt-12 border-t border-gray-300 pt-6 text-center text-xs text-gray-500">
-        © 2025 Your School Name. Developed by Your Team |{" "}
+        © 2025 Stepping Stone World Preschool. Developed by Your Team |{" "}
         <Link href="/" className="hover:underline">
           Terms and Conditions
         </Link>{" "}

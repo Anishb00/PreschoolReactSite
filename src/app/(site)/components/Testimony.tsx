@@ -12,7 +12,7 @@ export default function Testimony() {
           We provide certified academic and developmental learning for children
           in the following age and grade levels:
         </p>
-        <ul className="grid list-inside list-disc grid-cols-2 gap-x-8 gap-y-2 text-lg">
+        <ul className="grid list-inside list-disc grid-cols-1 gap-x-8 gap-y-2 text-lg md:grid-cols-2">
           <li>Toddlers (18 months and up)</li>
           <li>Preschool</li>
           <li>Pre-Kindergarten</li>
