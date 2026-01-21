@@ -43,7 +43,7 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - db-data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
       - ./sqlScripts/Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./sqlScripts/better-auth-tables.sql:/docker-entrypoint-initdb.d/02-better-auth.sql:ro
     healthcheck:
@@ -74,4 +74,6 @@ networks:
     driver: bridge
 
 volumes:
-  db-data:
+  mysql_data:
+    external: true
+    name: preschool_mysql_data
