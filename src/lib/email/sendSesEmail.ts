@@ -1,7 +1,7 @@
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 const sesRegion =
-  process.env.SES_REGION || process.env.AWS_REGION || "us-west-2";
+  process.env.SES_REGION || process.env.AWS_REGION || "us-west-1";
 const sesSourceEmail = process.env.SES_SOURCE_EMAIL;
 
 const sesClient = sesSourceEmail
