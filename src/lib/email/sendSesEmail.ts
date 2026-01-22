@@ -8,6 +8,15 @@ const sesClient = sesSourceEmail
   ? new SESv2Client({ region: sesRegion })
   : null;
 
+function escapeHtml(input: string) {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function sendSesEmail(to: string[], subject: string, message: string) {
   if (!sesClient || !sesSourceEmail) {
     console.warn("SES email not configured: missing SES_SOURCE_EMAIL.");
@@ -28,7 +37,7 @@ export async function sendSesEmail(to: string[], subject: string, message: strin
         Subject: { Data: subject || "(no subject)" },
         Body: {
           Text: { Data: message || "" },
-          Html: { Data: `<p>${message || ""}</p>` },
+          Html: { Data: `<p>${escapeHtml(message || "")}</p>` },
         },
       },
     },
