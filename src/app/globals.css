@@ -20,6 +20,59 @@ h6 {
   line-height: 1.2;
 }
 
+/* Fluid, site-wide typography applied via .site-typography wrapper in (site)/layout */
+.site-typography {
+  font-size: clamp(1rem, 0.3vw + 0.97rem, 1.125rem);
+  line-height: 1.7;
+}
+
+.site-typography h1 {
+  font-size: clamp(2.5rem, 1.8vw + 2rem, 3.75rem);
+  line-height: 1.1;
+}
+
+.site-typography h2 {
+  font-size: clamp(2rem, 1.4vw + 1.7rem, 3rem);
+  line-height: 1.15;
+}
+
+.site-typography h3 {
+  font-size: clamp(1.5rem, 1vw + 1.25rem, 2.25rem);
+  line-height: 1.2;
+}
+
+.site-typography h4,
+.site-typography h5,
+.site-typography h6 {
+  font-size: clamp(1.25rem, 0.7vw + 1.05rem, 1.75rem);
+  line-height: 1.25;
+}
+
+.site-typography p,
+.site-typography li {
+  line-height: 1.7;
+}
+
+/* FullCalendar toolbar tweaks for small screens */
+.calendar-wrapper .fc .fc-toolbar {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.calendar-wrapper .fc .fc-toolbar-chunk {
+  gap: 0.4rem;
+}
+
+.calendar-wrapper .fc .fc-toolbar-title {
+  font-size: clamp(1.1rem, 1vw + 1rem, 1.6rem);
+}
+
+@media (max-width: 640px) {
+  .calendar-wrapper .fc .fc-view-harness {
+    min-height: 550px; /* increase small-screen calendar height */
+  }
+}
+
 /* --- Your custom keyframes --- */
 @keyframes growCircle {
   0%   { transform: scale(0) }

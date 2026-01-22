@@ -28,7 +28,7 @@ export default function Philosophy() {
         <img
           src="classroom.jpg"
           alt="Classroom"
-          className="h-180 w-full rounded-xl object-cover shadow"
+          className="h-full w-full rounded-xl object-cover"
         />
       </div>
     </section>

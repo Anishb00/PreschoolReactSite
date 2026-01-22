@@ -75,7 +75,7 @@ const programs = [
 
 export default function ClassroomGrid() {
   return (
-    <section className="bg-white p-20">
+    <section className="bg-white p-2 md:p-20">
       <h2 className="mb-16 text-center text-4xl font-bold text-[#3B1FA8]">
         Explore Our Classrooms
       </h2>

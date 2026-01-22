@@ -1,6 +1,6 @@
 export default function EnrichmentAndRatios() {
   return (
-    <section className="bg-white p-20">
+    <section className="bg-white p-2 md:p-20">
       <div className="mb-12">
         <h3 className="mb-4 text-3xl font-semibold text-[#3B1FA8]">
           Enrichment Activities

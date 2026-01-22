@@ -27,6 +27,7 @@ export default function MassEmailTable({ initialChildren }: Props) {
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<FileList | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
   const filteredChildren = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -94,22 +95,46 @@ export default function MassEmailTable({ initialChildren }: Props) {
     setShowModal(true);
   };
 
-  const sendEmail = () => {
-    const names = initialChildren
-      .filter((child) => selectedIds.has(child.id))
-      .map((child) => child.childName);
-    const attachmentNames = attachments ? Array.from(attachments).map((f) => f.name) : [];
-    console.log("[Mass Email] Names:", names);
-    console.log("[Mass Email] Subject:", subject);
-    console.log("[Mass Email] Message:", message);
-    console.log("[Mass Email] Attachments:", attachmentNames);
-    const query = encodeURIComponent(JSON.stringify(names));
-    router.push(`/admin/MassEmail/success?names=${query}`);
+  const sendEmail = async () => {
+    const selected = initialChildren.filter((child) => selectedIds.has(child.id));
+    const names = selected.map((child) => child.childName);
+    const recipients = selected
+      .flatMap((child) => [child.parent1Email, child.parent2Email])
+      .filter((email) => !!email);
+
+    if (recipients.length === 0) {
+      setError("No parent emails found for the selected children.");
+      return;
+    }
+    if (!subject.trim() || !message.trim()) {
+      setError("Subject and message are required.");
+      return;
+    }
+
+    setError(null);
+    setSending(true);
+    try {
+      const res = await fetch("/api/mass-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: recipients, subject, message }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to send email.");
+      }
+      const query = encodeURIComponent(JSON.stringify(names));
+      router.push(`/admin/MassEmail/success?names=${query}`);
+    } catch (err: any) {
+      setError(err.message || "Failed to send email.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
         <input
           type="search"
           name="search"
@@ -257,18 +282,19 @@ export default function MassEmailTable({ initialChildren }: Props) {
                   placeholder="Include any notes for families..."
                 />
               </div>
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Attachments
-                </label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => setAttachments(e.target.files)}
-                  className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-[#3B1FA8] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#2d1882]"
-                />
-              </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Attachments
+              </label>
+              <input
+                type="file"
+                multiple
+                onChange={(e) => setAttachments(e.target.files)}
+                className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-[#3B1FA8] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#2d1882]"
+              />
+              <p className="text-xs text-gray-500">Note: attachments are not sent via email yet.</p>
             </div>
+          </div>
 
             <div className="mt-4 flex justify-end gap-3">
               <button
@@ -281,9 +307,10 @@ export default function MassEmailTable({ initialChildren }: Props) {
               <button
                 type="button"
                 onClick={sendEmail}
-                className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882]"
+                disabled={sending}
+                className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:opacity-60"
               >
-                Send Email
+                {sending ? "Sending..." : "Send Email"}
               </button>
             </div>
           </div>

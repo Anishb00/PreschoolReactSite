@@ -55,11 +55,25 @@ CREATE TABLE Parent (
   Address LONGTEXT NOT NULL,
   Phone VARCHAR(19) NOT NULL,
   Email VARCHAR(50) NOT NULL,
+  Email_verified BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (Parent_ID),
   UNIQUE KEY UQ_PARENT_IDENTITY (Name, Phone, Email),
   CONSTRAINT PARENT_PHONE_FORMAT CHECK (Phone REGEXP '^[0-9]{11}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE email_verifications (
+  Verification_ID INT NOT NULL AUTO_INCREMENT,
+  Parent_ID INT NOT NULL,
+  Token_Hash VARCHAR(255) NOT NULL,
+  Expires_At DATETIME NOT NULL,
+  Last_Sent_At DATETIME NOT NULL,
+  Daily_Count INT NOT NULL DEFAULT 1,
+  Daily_Window_Start DATETIME NOT NULL,
+  Created_At TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (Verification_ID),
+  UNIQUE KEY UQ_parent_verification (Parent_ID),
+  FOREIGN KEY (Parent_ID) REFERENCES Parent(Parent_ID) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 CREATE TABLE Child_Parent (
   Child_ID INT NOT NULL,
   Parent_ID INT NOT NULL,
@@ -248,7 +262,7 @@ BEGIN
 
     -- Insert child (fails if duplicate because of UNIQUE constraint)
     INSERT INTO Child (Child_name, DOB, Sex, Class, Child_Pin, Doctor_name, Doctor_phone,Program)
-    VALUES (p_child_name, p_dob, p_sex, 'Waitlist', v_child_pin, p_doctor_name, p_doctor_phone, p_program );
+    VALUES (p_child_name, p_dob, p_sex, 'Pre-Register', v_child_pin, p_doctor_name, p_doctor_phone, p_program );
     SET v_child_id = LAST_INSERT_ID();
 
     -- Parent 1: look up first

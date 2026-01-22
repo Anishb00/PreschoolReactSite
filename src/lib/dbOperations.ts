@@ -102,6 +102,53 @@ export async function getWaitlistChildWithParents(
   }
 }
 
+export type ChildWithParentIds = {
+  childId: number;
+  className: string | null;
+  parent1Id: number | null;
+  parent2Id: number | null;
+};
+
+export async function getChildByNameDobWithParentIds(
+  data: Pick<RegistrationData, "childName" | "dob">,
+  errorStatus: EndpointErrorResponse
+): Promise<ChildWithParentIds | null> {
+  try {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT Child_ID, Class, Parent1_ID, Parent2_ID
+       FROM ChildWithParents
+       WHERE Child_name = ? AND DOB = ?
+       LIMIT 1`,
+      [data.childName, data.dob]
+    );
+    const row = rows?.[0];
+    if (!row) return null;
+    return {
+      childId: Number(row.Child_ID),
+      className: row.Class as string | null,
+      parent1Id: row.Parent1_ID ? Number(row.Parent1_ID) : null,
+      parent2Id: row.Parent2_ID ? Number(row.Parent2_ID) : null,
+    };
+  } catch (err) {
+    errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
+    errorStatus.log(JSON.stringify(err));
+    return null;
+  }
+}
+
+export async function setChildClass(
+  childId: number,
+  className: string,
+  errorStatus: EndpointErrorResponse
+): Promise<void> {
+  try {
+    await pool.query("UPDATE Child SET Class = ? WHERE Child_ID = ?", [className, childId]);
+  } catch (err) {
+    errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
+    errorStatus.log(JSON.stringify(err));
+  }
+}
+
 export type AddChildFullPayload = {
   childName: string;
   dob: Date;

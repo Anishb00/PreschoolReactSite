@@ -33,9 +33,9 @@ export default function Calendar() {
   });
 
   return (
-    <section className="flex flex-col gap-10 px-1 py-20 md:flex-row md:justify-center">
+    <section className="calendar-wrapper flex flex-col gap-10 px-2 py-20 min-[1200px]:flex-row min-[1200px]:justify-center">
       {/* Calendar View */}
-      <div className="lg:w-1/2">
+      <div className="min-[1200px]:w-1/2">
         <FullCalendar
           plugins={[dayGridPlugin]}
           initialView="dayGridMonth"
@@ -44,7 +44,7 @@ export default function Calendar() {
       </div>
 
       {/* List View */}
-      <div className="lg:w-1/2">
+      <div className="min-[1200px]:w-1/2">
         <FullCalendar
           plugins={[listPlugin]}
           initialView="listMonth"

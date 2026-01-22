@@ -1,6 +1,6 @@
 export default function DailyRoutine() {
   return (
-    <section className="bg-gray-100 p-20">
+    <section className="bg-gray-100 p-2 md:p-20">
       <h3 className="mb-6 text-3xl font-semibold text-[#3B1FA8]">
         Daily Routine
       </h3>

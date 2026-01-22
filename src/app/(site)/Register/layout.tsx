@@ -10,8 +10,8 @@ export default function RegisterLayout({children}:{children: React.ReactNode}){
             subtitle={pageDescription}
             />
 
-            <section className="bg-gray-100 px-6 py-20 md:px-20">
-            <div className="mx-auto w-[80%] max-w-[1000px] rounded-xl bg-white p-10 shadow">
+            <section className="bg-gray-100 p-4 md:px-20 md:py-20">
+            <div className="mx-auto w-full max-w-[1100px] rounded-xl bg-white p-4 md:p-10 shadow">
                 <>
                 {children}
                 </>

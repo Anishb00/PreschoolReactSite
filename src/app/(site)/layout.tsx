@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <>
       <Nav />
-      <main className="w-full text-black">{children}</main>
+      <main className="site-typography w-full text-black">{children}</main>
       <Footer />
     </>
   );

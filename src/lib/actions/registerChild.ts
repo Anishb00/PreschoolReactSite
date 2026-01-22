@@ -1,10 +1,11 @@
 'use server';
 import * as helpers from "@/lib/registration-helpers";
-import type { RegistrationData, RegisterFormState, RegisterPageRenderCondition } from "@/lib/types/Registertypes";
+import type { RegistrationData, RegisterFormState } from "@/lib/types/Registertypes";
 import {API_ERROR_CODES,DB_ERROR_CODES} from "@/lib/errorCodes";
 import { redirect } from "next/navigation";
 import {EndpointErrorResponse} from "@/lib/EndpointErrorResponse";
-import {getWaitlistChildWithParents, registerWaitlist} from "@/lib/dbOperations";
+import {getChildByNameDobWithParentIds, registerWaitlist, setChildClass} from "@/lib/dbOperations";
+import { sendVerificationForParent } from "@/lib/verification";
 
 
 
@@ -40,13 +41,31 @@ export default async function registerChild(
   if (errorStatus.checkErrors() == 0){
     await registerWaitlist(registrationData,errorStatus);
     if (errorStatus.checkErrors() == 0) {
-      const waitlistRow = await getWaitlistChildWithParents(
+      const childRow = await getChildByNameDobWithParentIds(
         { childName: registrationData.childName, dob: registrationData.dob },
         errorStatus
       );
-      if (!waitlistRow || !helpers.waitlistRecordMatches(waitlistRow, registrationData)) {
+      if (childRow) {
+        if (childRow.className !== "Pre-Register") {
+          await setChildClass(childRow.childId, "Pre-Register", errorStatus);
+        }
+        if (childRow.parent1Id) {
+          await sendVerificationForParent({
+            parentId: childRow.parent1Id,
+            parentEmail: registrationData.parentOneEmail,
+            childName: registrationData.childName,
+          });
+        }
+        if (childRow.parent2Id && registrationData.parentTwoEmail) {
+          await sendVerificationForParent({
+            parentId: childRow.parent2Id,
+            parentEmail: registrationData.parentTwoEmail,
+            childName: registrationData.childName,
+          });
+        }
+      } else {
         errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
-        errorStatus.log("Waitlist insert verification failed.");
+        errorStatus.log("Could not locate child after registration.");
       }
     }
   }
