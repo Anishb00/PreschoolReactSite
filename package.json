@@ -10,7 +10,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-sdk/client-sesv2": "^3.972.0",
     "@fullcalendar/core": "^6.1.17",
     "@fullcalendar/daygrid": "^6.1.17",
     "@fullcalendar/list": "^6.1.17",
