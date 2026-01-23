@@ -122,14 +122,12 @@ export async function getChildByNameDobWithParentIds(
   errorStatus: EndpointErrorResponse
 ): Promise<ChildWithParentIds | null> {
   try {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT Child_ID, DOB, Class, Parent1_ID, Parent2_ID, Potty_trained, Parent1_Email, Parent2_Email, Parent1_Verified, Parent2_Verified
-       FROM ChildWithParents
-       WHERE Child_name = ? AND DOB = ?
-       LIMIT 1`,
+    const [rows] = await pool.query<RowDataPacket[][]>(
+      "CALL get_child_by_name_dob_with_parents(?, ?)",
       [data.childName, data.dob]
     );
-    const row = rows?.[0];
+    const dataRows = Array.isArray(rows) ? rows[0] : [];
+    const row = dataRows?.[0];
     if (!row) return null;
     return {
       childId: Number(row.Child_ID),
@@ -156,7 +154,7 @@ export async function setChildClass(
   errorStatus: EndpointErrorResponse
 ): Promise<void> {
   try {
-    await pool.query("UPDATE Child SET Class = ? WHERE Child_ID = ?", [className, childId]);
+    await pool.execute("CALL set_child_class(?, ?)", [childId, className]);
   } catch (err) {
     errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
     errorStatus.log(JSON.stringify(err));
@@ -323,39 +321,12 @@ export async function getChildrenWithParentsFull(
   opts?: { className?: string }
 ): Promise<ChildWithParentsFullRow[]> {
   try {
-    const filterClause = opts?.className ? "WHERE Class = ?" : "";
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `
-        SELECT
-          Child_ID,
-          Child_name,
-          DOB,
-          Sex,
-          Program,
-          Class,
-          Potty_trained,
-          Doctor_name,
-          Doctor_phone,
-          Enroll_date,
-          Drop_date,
-          Fee,
-          Parent1_Name,
-          Parent1_Address,
-          Parent1_Phone,
-          Parent1_Email,
-          Parent1_Verified,
-          Parent2_Name,
-          Parent2_Address,
-          Parent2_Phone,
-          Parent2_Email,
-          Parent2_Verified
-        FROM ChildWithParents
-        ${filterClause}
-        ORDER BY Child_name
-      `,
-      opts?.className ? [opts.className] : []
+    const [rows] = await pool.query<RowDataPacket[][]>(
+      "CALL get_children_with_parents_full(?)",
+      [opts?.className ?? null]
     );
-    return (rows ?? []) as ChildWithParentsFullRow[];
+    const data = Array.isArray(rows) ? rows[0] : [];
+    return (data ?? []) as ChildWithParentsFullRow[];
   } catch (err) {
     errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
     errorStatus.log(JSON.stringify(err));
@@ -369,39 +340,12 @@ export async function getChildWithParentsById(
   errorStatus: EndpointErrorResponse
 ): Promise<ChildWithParentsFullRow | null> {
   try {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT
-        Child_ID,
-        Child_name,
-        DOB,
-        Sex,
-        Program,
-        Potty_trained,
-        Class,
-        Doctor_name,
-        Doctor_phone,
-        Enroll_date,
-        Drop_date,
-        Fee,
-        Potty_trained,
-        Parent1_ID,
-        Parent1_Name,
-        Parent1_Address,
-        Parent1_Phone,
-        Parent1_Email,
-        Parent1_Verified,
-        Parent2_ID,
-        Parent2_Name,
-        Parent2_Address,
-        Parent2_Phone,
-        Parent2_Email,
-        Parent2_Verified
-      FROM ChildWithParents
-      WHERE Child_ID = ?
-      LIMIT 1`,
+    const [rows] = await pool.query<RowDataPacket[][]>(
+      "CALL get_child_with_parents_by_id(?)",
       [childId]
     );
-    return (rows?.[0] ?? null) as ChildWithParentsFullRow | null;
+    const data = Array.isArray(rows) ? rows[0] : [];
+    return (data?.[0] ?? null) as ChildWithParentsFullRow | null;
   } catch (err) {
     errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
     errorStatus.log(JSON.stringify(err));

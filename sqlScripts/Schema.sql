@@ -5,6 +5,8 @@ CREATE DATABASE IF NOT EXISTS Preschool
 USE Preschool;
 
 DROP PROCEDURE IF EXISTS get_children_with_parents;
+DROP PROCEDURE IF EXISTS get_children_with_parents_full;
+DROP PROCEDURE IF EXISTS get_child_by_name_dob_with_parents;
 DROP PROCEDURE IF EXISTS add_child_with_parents_full;
 DROP PROCEDURE IF EXISTS get_child_parent_columns;
 DROP PROCEDURE IF EXISTS fuzzy_find_child_parent;
@@ -13,6 +15,7 @@ DROP PROCEDURE IF EXISTS update_child_and_parents;
 DROP PROCEDURE IF EXISTS register_child;
 DROP PROCEDURE IF EXISTS get_waitlist_child_with_parents;
 DROP PROCEDURE IF EXISTS get_child_with_parents_by_id;
+DROP PROCEDURE IF EXISTS set_child_class;
 DROP PROCEDURE IF EXISTS refresh_filtered_students;
 DROP PROCEDURE IF EXISTS generate_unique_child_pin;
 
@@ -562,6 +565,44 @@ DELIMITER ;
 
 DELIMITER $$
 
+CREATE PROCEDURE get_children_with_parents_full(
+    IN p_class VARCHAR(50)
+)
+BEGIN
+    SELECT
+        Child_ID,
+        Child_name,
+        DOB,
+        Sex,
+        Program,
+        Class,
+        Potty_trained,
+        Doctor_name,
+        Doctor_phone,
+        Enroll_date,
+        Drop_date,
+        Fee,
+        Parent1_ID,
+        Parent1_Name,
+        Parent1_Address,
+        Parent1_Phone,
+        Parent1_Email,
+        Parent1_Verified,
+        Parent2_ID,
+        Parent2_Name,
+        Parent2_Address,
+        Parent2_Phone,
+        Parent2_Email,
+        Parent2_Verified
+    FROM ChildWithParents
+    WHERE p_class IS NULL OR p_class = '' OR Class = p_class
+    ORDER BY Child_name;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
 CREATE PROCEDURE get_child_with_parents_by_id(
     IN p_child_id INT
 )
@@ -573,20 +614,24 @@ BEGIN
         Sex,
         Program,
         Class,
+        Potty_trained,
         Doctor_name,
         Doctor_phone,
         Enroll_date,
         Drop_date,
         Fee,
-        Potty_trained,
+        Parent1_ID,
         Parent1_Name,
         Parent1_Address,
         Parent1_Phone,
         Parent1_Email,
+        Parent1_Verified,
+        Parent2_ID,
         Parent2_Name,
         Parent2_Address,
         Parent2_Phone,
-        Parent2_Email
+        Parent2_Email,
+        Parent2_Verified
     FROM ChildWithParents
     WHERE Child_ID = p_child_id
     LIMIT 1;
@@ -611,19 +656,63 @@ BEGIN
         Doctor_name,
         Doctor_phone,
         Potty_trained,
+        Parent1_ID,
         Parent1_Name,
         Parent1_Address,
         Parent1_Phone,
         Parent1_Email,
+        Parent1_Verified,
+        Parent2_ID,
         Parent2_Name,
         Parent2_Address,
         Parent2_Phone,
-        Parent2_Email
+        Parent2_Email,
+        Parent2_Verified
     FROM ChildWithParents
     WHERE Child_name = p_child_name
       AND DOB = p_dob
       AND Class = 'Waitlist'
     LIMIT 1;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE get_child_by_name_dob_with_parents(
+    IN p_child_name VARCHAR(30),
+    IN p_dob DATE
+)
+BEGIN
+    SELECT
+        Child_ID,
+        DOB,
+        Class,
+        Parent1_ID,
+        Parent2_ID,
+        Potty_trained,
+        Parent1_Email,
+        Parent2_Email,
+        Parent1_Verified,
+        Parent2_Verified
+    FROM ChildWithParents
+    WHERE Child_name = p_child_name
+      AND DOB = p_dob
+    LIMIT 1;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE set_child_class(
+    IN p_child_id INT,
+    IN p_class VARCHAR(20)
+)
+BEGIN
+    UPDATE Child
+    SET Class = p_class
+    WHERE Child_ID = p_child_id;
 END$$
 
 DELIMITER ;
