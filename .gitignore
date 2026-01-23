@@ -51,3 +51,5 @@ public/photocarousel/*
 !public/photocarousel/.gitkeep
 documents/*
 !documents/.gitkeep
+
+Preschool_data.sql
