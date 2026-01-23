@@ -38,16 +38,22 @@ export const optionalString = (fd: FormData, key: string) => {
 export function normalizeAndValidatePhone(fd: FormData, key: string, errorStatus:EndpointErrorResponse,errorCode: AnyErrorCode, opts: { required: true }): string;
 export function normalizeAndValidatePhone(fd: FormData, key: string, errorStatus:EndpointErrorResponse,errorCode: AnyErrorCode, opts: { required: false }): string | null;
 
+
 export function normalizeAndValidatePhone(fd: FormData, key: string, errorStatus:EndpointErrorResponse,errorCode: AnyErrorCode, opts: {required:boolean}): string | null {
     const phoneNum = String(fd.get(key)) || "";
-    if(!opts.required && phoneNum.length === 0){
+    const normalizedPhoneNumber = String(phoneNum).replace(/[^\d]/g, "");
+    console.log(normalizedPhoneNumber, normalizedPhoneNumber.length > 1 && normalizedPhoneNumber.length < 11)
+    if(!opts.required && normalizedPhoneNumber.length == 1){
         return null;
-    }else if (opts.required && phoneNum.length == 0){
+    }else if(!opts.required && (normalizedPhoneNumber.length > 1 && normalizedPhoneNumber.length < 11)){
+        errorStatus.add(errorCode);
+        return phoneNum;
+    }else if (opts.required && normalizedPhoneNumber.length < 11){
         errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR)
         errorStatus.log(`recieved invalid ${key} value: ${phoneNum}`);
         return phoneNum;
     }
-    const normalizedPhoneNumber = String(phoneNum).replace(/[^\d]/g, "");
+
     if (normalizedPhoneNumber.length===11){
         return normalizedPhoneNumber;
     } else{
@@ -95,7 +101,7 @@ export function validateProgram(option:string,errorStatus:EndpointErrorResponse)
         errorStatus.log(`recieved invalid Program value: ${option}`);
         return "";
     }
-    return option; 
+    return option;
 }
 
 export function parseYesNoBoolean(
