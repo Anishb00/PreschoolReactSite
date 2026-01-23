@@ -4,7 +4,7 @@ import fs from "fs/promises";
 
 type ChildInfo = { name: string; dob: Date; pottyTrained: boolean };
 
-const sesRegion = process.env.SES_REGION || process.env.AWS_REGION || "us-west-1";
+const sesRegion = process.env.AWS_REGION || "us-west-1";
 const sesSourceEmail = process.env.SES_SOURCE_EMAIL;
 const sesClient = sesSourceEmail ? new SESv2Client({ region: sesRegion }) : null;
 
