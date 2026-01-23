@@ -29,11 +29,11 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
       message: "Thank you! Your email has been verified. We’ll continue your registration process.",
     },
     invalid: {
-      title: "Verification failed",
+      title: "Something went wrong",
       message: "This link is invalid or expired. Please request a new verification email.",
     },
     missing: {
-      title: "Verification failed",
+      title: "Something went wrong",
       message: "No token was provided.",
     },
     error: {
