@@ -5,8 +5,10 @@ import { EndpointErrorResponse } from "@/lib/EndpointErrorResponse";
 import { getChildrenWithParents } from "@/lib/dbOperations";
 
 function mapChild(row: Awaited<ReturnType<typeof getChildrenWithParents>>[number]): MassEmailChild {
-  const parent1Verified = row.Parent1_Verified === 1;
-  const parent2Verified = row.Parent2_Verified === 1;
+  const parent1Verified =
+    row.Parent1_Verified == null ? undefined : row.Parent1_Verified === 1;
+  const parent2Verified =
+    row.Parent2_Verified == null ? undefined : row.Parent2_Verified === 1;
   return {
     id: row.Child_ID,
     childName: row.Child_name ?? "",

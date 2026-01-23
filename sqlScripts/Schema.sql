@@ -550,8 +550,10 @@ BEGIN
         Drop_date,
         Parent1_Name,
         Parent1_Email,
+        Parent1_Verified,
         Parent2_Name,
-        Parent2_Email
+        Parent2_Email,
+        Parent2_Verified
     FROM ChildWithParents
     ORDER BY Child_name;
 END$$
