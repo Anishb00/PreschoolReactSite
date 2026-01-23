@@ -23,7 +23,7 @@ export async function sendVerificationEmail({
     console.warn("No APP_BASE_URL configured; skipping verification email send.");
     return;
   }
-  const verifyLink = `${baseUrl}/verify-email?token=${encodeURIComponent(token)}`;
+  const verifyLink = `${baseUrl}/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(toEmail)}`;
   const subject = `Verify your email for ${childName}'s registration`;
   const message = [
     `Hi,`,

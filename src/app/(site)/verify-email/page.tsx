@@ -2,17 +2,18 @@ import { verifyEmailToken } from "@/lib/verification";
 import Banner from "../components/Banner";
 
 type PageProps = {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ token?: string; email?: string }>;
 };
 
 export default async function VerifyEmailPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const token = typeof params.token === "string" ? params.token : null;
+  const email = typeof params.email === "string" ? params.email : undefined;
 
   let status: "missing" | "verified" | "invalid" | "error" | "already_verified" = "missing";
   if (token) {
     try {
-      const result = await verifyEmailToken(token);
+      const result = await verifyEmailToken(token, email);
       if (result.status === "verified" || result.status === "already_verified") {
         status = result.status;
       } else {

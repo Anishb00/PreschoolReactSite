@@ -83,11 +83,30 @@ export async function issueVerificationTokenForParent(
   }
 }
 
-export async function verifyEmailToken(token: string) {
-  const hashed = hashToken(token);
+export async function verifyEmailToken(token: string | null, email?: string) {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
+
+    // If email provided and already verified, short-circuit success.
+    if (email) {
+      const [emailRows] = await connection.query(
+        `SELECT Parent_ID, Email_verified FROM Parent WHERE Email = ? LIMIT 1`,
+        [email]
+      );
+      const parentRow = Array.isArray(emailRows) ? (emailRows as any[])[0] : undefined;
+      if (parentRow && parentRow.Email_verified) {
+        await connection.commit();
+        return { status: "already_verified" as const };
+      }
+    }
+
+    if (!token) {
+      await connection.rollback();
+      return { status: "invalid" as const };
+    }
+
+    const hashed = hashToken(token);
     const [rows] = await connection.query(
       `SELECT ev.Parent_ID, ev.Expires_At, p.Email_verified
        FROM email_verifications ev
@@ -103,11 +122,22 @@ export async function verifyEmailToken(token: string) {
     }
     const parentId = Number(match.Parent_ID);
     const expiresAt = new Date(match.Expires_At);
-    const alreadyVerified = Boolean(match.Email_verified);
 
-    if (alreadyVerified) {
-      await connection.commit();
-      return { status: "already_verified" as const };
+    // If email provided but doesn't match token parent, treat invalid.
+    if (email) {
+      const [emailRows] = await connection.query(
+        `SELECT Parent_ID, Email_verified FROM Parent WHERE Email = ? LIMIT 1`,
+        [email]
+      );
+      const parentRow = Array.isArray(emailRows) ? (emailRows as any[])[0] : undefined;
+      if (!parentRow || Number(parentRow.Parent_ID) !== parentId) {
+        await connection.rollback();
+        return { status: "invalid" as const };
+      }
+      if (parentRow.Email_verified) {
+        await connection.commit();
+        return { status: "already_verified" as const };
+      }
     }
 
     if (expiresAt.getTime() < now().getTime()) {
@@ -116,12 +146,7 @@ export async function verifyEmailToken(token: string) {
     }
 
     await connection.query(`UPDATE Parent SET Email_verified = TRUE WHERE Parent_ID = ?`, [parentId]);
-    await connection.query(
-      `UPDATE email_verifications
-       SET Expires_At = ?, Daily_Count = 0
-       WHERE Parent_ID = ?`,
-      [expiresAt, parentId]
-    );
+    await connection.query(`DELETE FROM email_verifications WHERE Parent_ID = ?`, [parentId]);
 
     const [childRows] = await connection.query(
       `SELECT c.Child_ID, c.Class
