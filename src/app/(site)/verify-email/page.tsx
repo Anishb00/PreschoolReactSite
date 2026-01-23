@@ -27,7 +27,7 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
   const copy = {
     verified: {
       title: "Email verified",
-      message: "Thank you! Your email has been verified. We’ll continue your registration process.",
+      message: "Thank you. Your email has been verified. We will send the registration forms to your email address. Please complete them and have them ready on your child’s first day of school. We will notify you when your child comes off the waitlist.",
     },
     invalid: {
       title: "Something went wrong",

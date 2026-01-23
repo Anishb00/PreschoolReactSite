@@ -269,8 +269,10 @@ export type ChildWithParentsRow = {
   Drop_date: Date | null;
   Parent1_Name: string | null;
   Parent1_Email: string | null;
+  Parent1_Verified?: number | null;
   Parent2_Name: string | null;
   Parent2_Email: string | null;
+  Parent2_Verified?: number | null;
 };
 
 export type ChildWithParentsFullRow = {

@@ -9,8 +9,10 @@ export type MassEmailChild = {
   className: string;
   parent1Name: string;
   parent1Email: string;
+  parent1Verified?: boolean;
   parent2Name: string;
   parent2Email: string;
+  parent2Verified?: boolean;
 };
 
 type Props = {
@@ -185,7 +187,7 @@ export default function MassEmailTable({ initialChildren }: Props) {
       )}
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow">
-        <table className="min-w-[900px] w-full text-sm">
+        <table className="min-w-[950px] w-full text-sm">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
               <th className="p-3 text-left">
@@ -197,6 +199,7 @@ export default function MassEmailTable({ initialChildren }: Props) {
                 />
               </th>
               <th className="p-3 text-left">Child</th>
+              <th className="p-3 text-left">Status</th>
               <th className="p-3 text-left">Class</th>
               <th className="p-3 text-left">Parent 1</th>
               <th className="p-3 text-left">Parent 1 Email</th>
@@ -207,7 +210,7 @@ export default function MassEmailTable({ initialChildren }: Props) {
           <tbody>
             {filteredChildren.length === 0 ? (
               <tr>
-                <td colSpan={7} className="p-6 text-center text-gray-500">
+                <td colSpan={8} className="p-6 text-center text-gray-500">
                   No children found.
                 </td>
               </tr>
@@ -223,11 +226,49 @@ export default function MassEmailTable({ initialChildren }: Props) {
                     />
                   </td>
                   <td className="p-3 text-gray-900">{child.childName}</td>
+                  <td className="p-3 text-gray-700">
+                    {(() => {
+                      const missing: string[] = [];
+                      if (child.parent1Verified === false) missing.push("Parent 1 email is not verified");
+                      if (child.parent2Verified === false) missing.push("Parent 2 email is not verified");
+                      const hasIssue = missing.length > 0;
+                      const title = missing.join(" & ") || "All parent emails are verified";
+                      return (
+                        <span
+                          className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                            hasIssue ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
+                          }`}
+                          title={title}
+                          aria-label={title}
+                        >
+                          {hasIssue ? "!" : "✓"}
+                        </span>
+                      );
+                    })()}
+                  </td>
                   <td className="p-3 text-gray-700">{child.className}</td>
                   <td className="p-3 text-gray-700">{child.parent1Name}</td>
-                  <td className="p-3 text-gray-700">{child.parent1Email}</td>
+                  <td
+                    className={`p-3 text-gray-700 ${
+                      child.parent1Verified === false ? "bg-amber-50 text-amber-800" : ""
+                    }`}
+                    title={
+                      child.parent1Verified === false ? "Parent 1 email is not verified" : undefined
+                    }
+                  >
+                    {child.parent1Email}
+                  </td>
                   <td className="p-3 text-gray-700">{child.parent2Name}</td>
-                  <td className="p-3 text-gray-700">{child.parent2Email}</td>
+                  <td
+                    className={`p-3 text-gray-700 ${
+                      child.parent2Verified === false ? "bg-amber-50 text-amber-800" : ""
+                    }`}
+                    title={
+                      child.parent2Verified === false ? "Parent 2 email is not verified" : undefined
+                    }
+                  >
+                    {child.parent2Email}
+                  </td>
                 </tr>
               ))
             )}
