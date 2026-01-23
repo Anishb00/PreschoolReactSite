@@ -43,6 +43,7 @@ export default async function EditChildPage({ searchParams }: EditChildPageProps
         Program: (row.Program ?? "") as RegistrationData["Program"],
         doctorName: row.Doctor_name ?? "",
         doctorPhone: row.Doctor_phone ?? "",
+        pottyTrained: Boolean(row.Potty_trained),
         parentOneName: row.Parent1_Name ?? "",
         parentOneAddress: row.Parent1_Address ?? "",
         parentOnePhone: row.Parent1_Phone ?? "",

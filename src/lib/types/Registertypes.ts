@@ -38,6 +38,7 @@ export type RegistrationData = {
 
   doctorName: string;                // required
   doctorPhone: string;               // digits-only
+  pottyTrained: boolean;
 };
 
 export type RegisterPageRenderCondition =  "REGISTER" | "SUCCESS" | "DUPLICATE"
@@ -47,4 +48,3 @@ export type RegisterFormState = {
 };
 
 export type registerSeverAction = (formData: FormData) => void;
-

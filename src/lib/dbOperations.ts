@@ -25,7 +25,7 @@ export const registerWaitlist:RegisterWaitlistFn = Object.assign(
     const params = registerWaitlist.objParamOrder.map((val,index)=> {return formData[registerWaitlist.objParamOrder[index]]})
     try{
       await pool.execute(
-      `CALL register_child_waitlist(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `CALL register_child_waitlist(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         params
       );
     } catch(err){
@@ -53,6 +53,7 @@ export const registerWaitlist:RegisterWaitlistFn = Object.assign(
       "doctorName",
       "doctorPhone",
       "Program",
+      "pottyTrained",
       "parentOneName",
       "parentOneAddress",
       "parentOnePhone",
@@ -72,6 +73,7 @@ export type WaitlistChildWithParentsRow = {
   Sex: string;
   Program: string;
   Class: string | null;
+  Potty_trained?: number | null;
   Doctor_name: string | null;
   Doctor_phone: string | null;
   Parent1_Name: string | null;
@@ -154,6 +156,7 @@ export type AddChildFullPayload = {
   dob: Date;
   sex: string;
   program: string;
+  pottyTrained: boolean;
   className: string | null;
   doctorName: string;
   doctorPhone: string;
@@ -179,6 +182,7 @@ export async function addChildWithParentsFull(
     payload.dob,
     payload.sex,
     payload.program,
+    payload.pottyTrained ? 1 : 0,
     payload.className,
     payload.doctorName,
     payload.doctorPhone,
@@ -196,7 +200,7 @@ export async function addChildWithParentsFull(
   ];
   try {
     await pool.execute(
-      "CALL add_child_with_parents_full(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "CALL add_child_with_parents_full(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       params
     );
   } catch (err) {
@@ -246,6 +250,7 @@ export type ChildWithParentsRow = {
   Sex: string;
   Program: string;
   Class: string | null;
+  Potty_trained?: number | null;
   Doctor_name: string | null;
   Doctor_phone: string | null;
   Fee: number | null;
@@ -263,6 +268,7 @@ export type ChildWithParentsFullRow = {
   Sex: string;
   Program: string;
   Class: string | null;
+  Potty_trained?: number | null;
   Doctor_name: string | null;
   Doctor_phone: string | null;
   Enroll_date: Date | null;
@@ -351,12 +357,14 @@ export async function getChildWithParentsById(
         DOB,
         Sex,
         Program,
+        Potty_trained,
         Class,
         Doctor_name,
         Doctor_phone,
         Enroll_date,
         Drop_date,
         Fee,
+        Potty_trained,
         Parent1_ID,
         Parent1_Name,
         Parent1_Address,
@@ -386,6 +394,7 @@ export type UpdateChildPayload = {
   dob: Date;
   sex: string;
   program: string;
+  pottyTrained: boolean;
   className: string | null;
   doctorName: string;
   doctorPhone: string;
@@ -414,6 +423,7 @@ export async function updateChildAndParents(
     payload.dob,
     payload.sex,
     payload.program,
+    payload.pottyTrained ? 1 : 0,
     payload.className,
     payload.doctorName,
     payload.doctorPhone,
@@ -433,7 +443,7 @@ export async function updateChildAndParents(
   ];
   try {
     await pool.execute(
-      "CALL update_child_and_parents(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "CALL update_child_and_parents(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       params
     );
   } catch (err) {

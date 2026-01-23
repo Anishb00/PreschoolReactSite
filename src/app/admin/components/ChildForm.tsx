@@ -27,6 +27,7 @@ export default function ChildForm({
   const sexValue = values?.sex ?? "";
   const programValue = values?.Program ?? "";
   const classValue = values?.childClass ?? "";
+  const pottyTrainedValue = values?.pottyTrained ?? false;
   const feeValue =
     values?.fee === null || values?.fee === undefined ? "" : values?.fee;
   const enrollDateValue =
@@ -123,6 +124,33 @@ export default function ChildForm({
               <option value="5-day-full">5-Day — Full Day</option>
               <option value="5-day-half">5-Day — Half Day</option>
             </select>
+          </div>
+          <div>
+            <span className="block text-sm font-semibold text-gray-700">
+              Potty Trained
+            </span>
+            <div className="mt-2 flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="radio"
+                  name="pottyTrained"
+                  value="yes"
+                  defaultChecked={pottyTrainedValue === true}
+                  required
+                />
+                Yes
+              </label>
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="radio"
+                  name="pottyTrained"
+                  value="no"
+                  defaultChecked={pottyTrainedValue === false}
+                  required
+                />
+                No
+              </label>
+            </div>
           </div>
         </div>
       </div>

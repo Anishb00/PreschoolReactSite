@@ -98,6 +98,19 @@ export function validateProgram(option:string,errorStatus:EndpointErrorResponse)
     return option; 
 }
 
+export function parseYesNoBoolean(
+    fd: FormData,
+    key: string,
+    errorStatus: EndpointErrorResponse
+): boolean {
+    const raw = String(fd.get(key) ?? "").toLowerCase();
+    if (raw === "yes" || raw === "true") return true;
+    if (raw === "no" || raw === "false") return false;
+    errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
+    errorStatus.log(`recieved invalid boolean value for ${key}: ${raw}`);
+    return false;
+}
+
 export function waitlistRecordMatches(
     row: {
         Child_name: string;
@@ -157,7 +170,7 @@ export function waitlistRecordMatches(
         dbDob === formDob &&
         row.Sex === data.sex &&
         row.Program === data.Program &&
-        row.Class === "Waitlist" &&
+        row.Class === "Pre-Register" &&
         row.Doctor_name === data.doctorName &&
         row.Doctor_phone === data.doctorPhone &&
         parent1Match &&
@@ -171,5 +184,3 @@ function toDateKey(value: Date): string {
     const day = String(value.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
 }
-
-

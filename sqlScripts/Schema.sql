@@ -37,6 +37,7 @@ CREATE TABLE Child (
   Sex VARCHAR(10) CHECK (Sex in ('male', 'female'))NOT NULL ,
   Program VARCHAR(30) NOT NULL,
   Class VARCHAR(20) CHECK (Class IN ('Waitlist','Pre-Register', 'Registered', 'Caterpillar', 'Chrysalis', 'Butterfly', 'Sunshine', 'Rainbow','Test')) DEFAULT NULL,
+  Potty_trained BOOLEAN NOT NULL DEFAULT FALSE,
   Doctor_name VARCHAR(30) NOT NULL,
   Doctor_phone VARCHAR(19) NOT NULL,
   Enroll_date DATE DEFAULT NULL,
@@ -90,6 +91,7 @@ SELECT
     c.Sex,
     c.Program,
     c.Class,
+    c.Potty_trained,
     c.Doctor_name,
     c.Doctor_phone,
     c.Enroll_date,
@@ -122,7 +124,7 @@ FROM (
 ) p
 RIGHT JOIN Child c ON c.Child_ID = p.Child_ID
 GROUP BY
-    c.Child_ID, c.Child_name, c.DOB, c.Sex, c.Program, c.Class,
+    c.Child_ID, c.Child_name, c.DOB, c.Sex, c.Program, c.Class, c.Potty_trained,
     c.Doctor_name, c.Doctor_phone, c.Enroll_date, c.Drop_date,
     c.Fee, c.Child_Pin;
 
@@ -232,6 +234,7 @@ CREATE PROCEDURE register_child_waitlist (
     IN p_doctor_name VARCHAR(50),
     IN p_doctor_phone VARCHAR(20),
     IN p_program VARCHAR(30),
+    IN p_potty_trained BOOLEAN,
 
     IN p_parent1_name VARCHAR(50),
     IN p_parent1_address VARCHAR(100),
@@ -261,8 +264,8 @@ BEGIN
     CALL generate_unique_child_pin(v_child_pin);
 
     -- Insert child (fails if duplicate because of UNIQUE constraint)
-    INSERT INTO Child (Child_name, DOB, Sex, Class, Child_Pin, Doctor_name, Doctor_phone,Program)
-    VALUES (p_child_name, p_dob, p_sex, 'Pre-Register', v_child_pin, p_doctor_name, p_doctor_phone, p_program );
+    INSERT INTO Child (Child_name, DOB, Sex, Class, Child_Pin, Doctor_name, Doctor_phone,Program, Potty_trained)
+    VALUES (p_child_name, p_dob, p_sex, 'Pre-Register', v_child_pin, p_doctor_name, p_doctor_phone, p_program, p_potty_trained );
     SET v_child_id = LAST_INSERT_ID();
 
     -- Parent 1: look up first
@@ -320,6 +323,7 @@ CREATE PROCEDURE update_child_and_parents(
     IN p_dob DATE,
     IN p_sex VARCHAR(10),
     IN p_program VARCHAR(30),
+    IN p_potty_trained BOOLEAN,
     IN p_class VARCHAR(20),
     IN p_doctor_name VARCHAR(30),
     IN p_doctor_phone VARCHAR(19),
@@ -356,6 +360,7 @@ BEGIN
         DOB          = p_dob,
         Sex          = p_sex,
         Program      = p_program,
+        Potty_trained = p_potty_trained,
         Class        = p_class,
         Doctor_name  = p_doctor_name,
         Doctor_phone = p_doctor_phone,
@@ -394,6 +399,7 @@ CREATE PROCEDURE add_child_with_parents_full (
     IN p_dob DATE,
     IN p_sex VARCHAR(10),
     IN p_program VARCHAR(30),
+    IN p_potty_trained BOOLEAN,
     IN p_class VARCHAR(20),
     IN p_doctor_name VARCHAR(30),
     IN p_doctor_phone VARCHAR(19),
@@ -432,6 +438,7 @@ BEGIN
         DOB,
         Sex,
         Program,
+        Potty_trained,
         Class,
         Doctor_name,
         Doctor_phone,
@@ -445,6 +452,7 @@ BEGIN
         p_dob,
         p_sex,
         p_program,
+        p_potty_trained,
         p_class,
         p_doctor_name,
         p_doctor_phone,
@@ -520,6 +528,7 @@ BEGIN
         Sex,
         Program,
         Class,
+        Potty_trained,
         Doctor_name,
         Doctor_phone,
         Fee,
@@ -552,6 +561,7 @@ BEGIN
         Enroll_date,
         Drop_date,
         Fee,
+        Potty_trained,
         Parent1_Name,
         Parent1_Address,
         Parent1_Phone,
@@ -583,6 +593,7 @@ BEGIN
         Class,
         Doctor_name,
         Doctor_phone,
+        Potty_trained,
         Parent1_Name,
         Parent1_Address,
         Parent1_Phone,

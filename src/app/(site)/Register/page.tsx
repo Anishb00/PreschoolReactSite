@@ -24,6 +24,7 @@ export default function RegisterPage() {
 
     doctorName: '',
     doctorPhone: '',
+    pottyTrained: false,
   };
   const initialPage: RegisterPageRenderCondition = "SUCCESS";
   const initialstate: RegisterFormState = {  statusCodes: new Set(),values: EMPTY_REGISTRATION_DRAFT}

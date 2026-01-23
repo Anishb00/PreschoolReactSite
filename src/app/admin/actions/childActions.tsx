@@ -73,6 +73,7 @@ export async function createChild(formData: FormData) {
       helpers.mustString(formData, "Program", errorStatus),
       errorStatus
     ),
+    pottyTrained: helpers.parseYesNoBoolean(formData, "pottyTrained", errorStatus),
     className: classValue,
     doctorName: helpers.mustString(formData, "doctorName", errorStatus),
     doctorPhone: helpers.normalizeAndValidatePhone(
@@ -208,6 +209,7 @@ export async function updateChild(formData: FormData) {
       helpers.mustString(formData, "Program", errorStatus),
       errorStatus
     ),
+    pottyTrained: helpers.parseYesNoBoolean(formData, "pottyTrained", errorStatus),
     className: classValue,
     doctorName: helpers.mustString(formData, "doctorName", errorStatus),
     doctorPhone: helpers.normalizeAndValidatePhone(

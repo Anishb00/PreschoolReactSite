@@ -76,6 +76,33 @@ export default function RegisterForm({serverAction,statusCodes,values}: {serverA
               <option value="5-day-half">5-Day — Half Day</option>
             </select>
           </div>
+          <div>
+            <span className="block text-sm font-semibold text-gray-700">
+              Potty Trained
+            </span>
+            <div className="mt-2 flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="radio"
+                  name="pottyTrained"
+                  value="yes"
+                  defaultChecked={values.pottyTrained === true}
+                  required
+                />
+                Yes
+              </label>
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="radio"
+                  name="pottyTrained"
+                  value="no"
+                  defaultChecked={values.pottyTrained === false}
+                  required
+                />
+                No
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
