@@ -100,6 +100,7 @@ type ChildrenTableProps = {
   deleteChild: (prevState: TableState, formData: FormData) => Promise<TableState>;
   isAdmin: boolean;
   fullView?: boolean;
+  showPrintControls?: boolean;
 };
 
 function DeleteButton() {
@@ -120,6 +121,7 @@ export default function ChildrenTable({
   deleteChild,
   isAdmin,
   fullView = false,
+  showPrintControls = true,
 }: ChildrenTableProps) {
   const actionColWidth = fullView ? "w-36" : "w-40";
   const actionColMinWidth = fullView ? "9rem" : "10rem";
@@ -431,45 +433,49 @@ export default function ChildrenTable({
             <option value="Rainbow">Rainbow</option>
           </select>
         )}
-        <button
-          type="button"
-          onClick={generateSigninSheet}
-          disabled={
-            isGeneratingSheet ||
-            isGeneratingRoster ||
-            isGeneratingTeacherSheet ||
-            classFilter === "all"
-          }
-          className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isGeneratingSheet ? "Building..." : "Print sign-in sheet"}
-        </button>
-        <button
-          type="button"
-          onClick={generateEmergencyRoster}
-          disabled={
-            isGeneratingRoster ||
-            isGeneratingSheet ||
-            isGeneratingTeacherSheet ||
-            classFilter === "all"
-          }
-          className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isGeneratingRoster ? "Building..." : "Print emergency roster"}
-        </button>
-        <button
-          type="button"
-          onClick={generateTeacherSigninSheet}
-          disabled={
-            isGeneratingTeacherSheet ||
-            isGeneratingSheet ||
-            isGeneratingRoster ||
-            classFilter === "all"
-          }
-          className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isGeneratingTeacherSheet ? "Building..." : "Print teacher sign-in sheet"}
-        </button>
+        {showPrintControls && (
+          <>
+            <button
+              type="button"
+              onClick={generateSigninSheet}
+              disabled={
+                isGeneratingSheet ||
+                isGeneratingRoster ||
+                isGeneratingTeacherSheet ||
+                classFilter === "all"
+              }
+              className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isGeneratingSheet ? "Building..." : "Print sign-in sheet"}
+            </button>
+            <button
+              type="button"
+              onClick={generateEmergencyRoster}
+              disabled={
+                isGeneratingRoster ||
+                isGeneratingSheet ||
+                isGeneratingTeacherSheet ||
+                classFilter === "all"
+              }
+              className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isGeneratingRoster ? "Building..." : "Print emergency roster"}
+            </button>
+            <button
+              type="button"
+              onClick={generateTeacherSigninSheet}
+              disabled={
+                isGeneratingTeacherSheet ||
+                isGeneratingSheet ||
+                isGeneratingRoster ||
+                classFilter === "all"
+              }
+              className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isGeneratingTeacherSheet ? "Building..." : "Print teacher sign-in sheet"}
+            </button>
+          </>
+        )}
         {isAdmin && searchTerm.trim() && (
           <button
             type="button"
@@ -480,7 +486,7 @@ export default function ChildrenTable({
           </button>
         )}
       </div>
-      {printError && (
+      {showPrintControls && printError && (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
           {printError}
         </div>

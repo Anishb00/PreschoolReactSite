@@ -81,6 +81,7 @@ export default async function UnverifiedPage() {
         deleteChild={deleteChild}
         isAdmin={isAdminUser}
         fullView={false}
+        showPrintControls={false}
       />
     </div>
   );
