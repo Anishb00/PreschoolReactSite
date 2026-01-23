@@ -195,7 +195,9 @@ export default function DocumentManager() {
                 </td>
               </tr>
             ) : (
-              files.map((file) => (
+              files
+                .filter((file) => file.name !== ".gitkeep")
+                .map((file) => (
                 <tr key={file.name} className="border-t border-gray-200">
                   <td className="p-3 text-gray-900">{file.name}</td>
                   <td className="p-3 text-gray-700">{file.size}</td>
