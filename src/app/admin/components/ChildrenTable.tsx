@@ -590,7 +590,7 @@ export default function ChildrenTable({
                       if (child.parent1Verified === false) {
                         missing.push("Parent 1 email is not verified");
                       }
-                      if (child.parent2Verified === false) {
+                      if (child.parent2Email && child.parent2Verified === false) {
                         missing.push("Parent 2 email is not verified");
                       }
                       const hasIssue = missing.length > 0;
@@ -639,10 +639,12 @@ export default function ChildrenTable({
                   {fullView && <td className="p-3 text-gray-700">{child.parent2Address ?? ""}</td>}
                   <td
                     className={`p-3 text-gray-700 ${
-                      child.parent2Verified === false ? "bg-amber-50 text-amber-800" : ""
+                      child.parent2Email && child.parent2Verified === false
+                        ? "bg-amber-50 text-amber-800"
+                        : ""
                     }`}
                     title={
-                      child.parent2Verified === false
+                      child.parent2Email && child.parent2Verified === false
                         ? "Parent 2 email is not verified"
                         : undefined
                     }
