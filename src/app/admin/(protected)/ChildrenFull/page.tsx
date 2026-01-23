@@ -31,10 +31,12 @@ function mapChildRow(row: ChildWithParentsFullRow): ChildRow {
     doctorPhone: row.Doctor_phone ?? "",
     parent1Name: row.Parent1_Name ?? "",
     parent1Email: row.Parent1_Email ?? "",
+    parent1Verified: row.Parent1_Verified ? Boolean(row.Parent1_Verified) : false,
     parent1Phone: row.Parent1_Phone ?? "",
     parent1Address: row.Parent1_Address ?? "",
     parent2Name: row.Parent2_Name ?? "",
     parent2Email: row.Parent2_Email ?? "",
+    parent2Verified: row.Parent2_Verified ? Boolean(row.Parent2_Verified) : false,
     parent2Phone: row.Parent2_Phone ?? "",
     parent2Address: row.Parent2_Address ?? "",
   };

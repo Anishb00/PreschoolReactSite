@@ -17,13 +17,15 @@ type TableState = {
     sex: string;
     program: string;
     className: string;
-    enrollDate: string;
-    fee: string;
-    dropDate: string;
-    parent1Name: string;
-    parent1Email: string;
-    parent2Name: string;
-    parent2Email: string;
+  enrollDate: string;
+  fee: string;
+  dropDate: string;
+  parent1Name: string;
+  parent1Email: string;
+  parent1Verified?: boolean;
+  parent2Name: string;
+  parent2Email: string;
+  parent2Verified?: boolean;
   }[];
   lastDeletedId?: number;
   message?: string;
@@ -48,8 +50,10 @@ function mapChildRow(row: ChildWithParentsFullRow) {
     dropDate: formatDate(row.Drop_date ?? null),
     parent1Name: row.Parent1_Name ?? "",
     parent1Email: row.Parent1_Email ?? "",
+    parent1Verified: row.Parent1_Verified ? Boolean(row.Parent1_Verified) : false,
     parent2Name: row.Parent2_Name ?? "",
     parent2Email: row.Parent2_Email ?? "",
+    parent2Verified: row.Parent2_Verified ? Boolean(row.Parent2_Verified) : false,
   };
 }
 

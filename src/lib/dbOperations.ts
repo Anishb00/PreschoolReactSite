@@ -291,11 +291,13 @@ export type ChildWithParentsFullRow = {
   Parent1_Address: string | null;
   Parent1_Phone: string | null;
   Parent1_Email: string | null;
+  Parent1_Verified?: number | null;
   Parent2_ID: number | null;
   Parent2_Name: string | null;
   Parent2_Address: string | null;
   Parent2_Phone: string | null;
   Parent2_Email: string | null;
+  Parent2_Verified?: number | null;
 };
 
 export async function getChildrenWithParents(
@@ -339,10 +341,12 @@ export async function getChildrenWithParentsFull(
           Parent1_Address,
           Parent1_Phone,
           Parent1_Email,
+          Parent1_Verified,
           Parent2_Name,
           Parent2_Address,
           Parent2_Phone,
-          Parent2_Email
+          Parent2_Email,
+          Parent2_Verified
         FROM ChildWithParents
         ${filterClause}
         ORDER BY Child_name
@@ -383,11 +387,13 @@ export async function getChildWithParentsById(
         Parent1_Address,
         Parent1_Phone,
         Parent1_Email,
+        Parent1_Verified,
         Parent2_ID,
         Parent2_Name,
         Parent2_Address,
         Parent2_Phone,
-        Parent2_Email
+        Parent2_Email,
+        Parent2_Verified
       FROM ChildWithParents
       WHERE Child_ID = ?
       LIMIT 1`,

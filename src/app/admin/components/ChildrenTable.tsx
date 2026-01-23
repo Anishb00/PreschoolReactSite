@@ -79,10 +79,12 @@ export type ChildRow = {
   doctorPhone?: string;
   parent1Name: string;
   parent1Email: string;
+  parent1Verified?: boolean;
   parent1Phone?: string;
   parent1Address?: string;
   parent2Name: string;
   parent2Email: string;
+  parent2Verified?: boolean;
   parent2Phone?: string;
   parent2Address?: string;
 };
@@ -485,7 +487,7 @@ export default function ChildrenTable({
       )}
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow">
         {isAdmin ? (
-          <table className={`${fullView ? "min-w-[1800px]" : "min-w-[1200px]"} w-full text-sm`}>
+          <table className={`${fullView ? "min-w-[1850px]" : "min-w-[1200px]"} w-full text-sm`}>
             <thead className="bg-gray-100 text-gray-700">
               <tr>
                  <th
@@ -495,6 +497,7 @@ export default function ChildrenTable({
                   Actions
                 </th>
                 <th className="p-3 text-left">Child Name</th>
+                <th className="p-3 text-left">Status</th>
                 <th className="p-3 text-left">Sex</th>
                 {fullView && <th className="p-3 text-left">DOB</th>}
                 <th className="p-3 text-left">Program</th>
@@ -503,7 +506,6 @@ export default function ChildrenTable({
                 {fullView && <th className="p-3 text-left">Doctor Phone</th>}
                 <th className="p-3 text-left">Enroll Date</th>
                 <th className="p-3 text-left">Fee</th>
-                <th className="p-3 text-left">Drop Date</th>
                 <th className="p-3 text-left">Parent 1</th>
                 {fullView && <th className="p-3 text-left">Parent 1 Phone</th>}
                 {fullView && <th className="p-3 text-left">Parent 1 Address</th>}
@@ -518,7 +520,7 @@ export default function ChildrenTable({
               {filteredChildren.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={13}
+                    colSpan={fullView ? 19 : 12}
                     className="p-6 text-center text-gray-500"
                   >
                     No children found.
@@ -582,6 +584,33 @@ export default function ChildrenTable({
                     </div>
                   </td>
                   <td className="p-3 text-gray-900">{child.name}</td>
+                  <td className="p-3 text-gray-700">
+                    {(() => {
+                      const missing: string[] = [];
+                      if (child.parent1Verified === false) {
+                        missing.push("Parent 1 email is not verified");
+                      }
+                      if (child.parent2Verified === false) {
+                        missing.push("Parent 2 email is not verified");
+                      }
+                      const hasIssue = missing.length > 0;
+                      const title =
+                        missing.join(" & ") || "All parent emails are verified";
+                      return (
+                        <span
+                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
+                            hasIssue
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-green-100 text-green-700"
+                          }`}
+                          title={title}
+                          aria-label={title}
+                        >
+                          {hasIssue ? "!" : "✓"}
+                        </span>
+                      );
+                    })()}
+                  </td>
                   <td className="p-3 text-gray-700">{child.sex}</td>
                   {fullView && <td className="p-3 text-gray-700">{child.dob ?? ""}</td>}
                   <td className="p-3 text-gray-700">{child.program}</td>
@@ -590,15 +619,36 @@ export default function ChildrenTable({
                   {fullView && <td className="p-3 text-gray-700">{child.doctorPhone ?? ""}</td>}
                   <td className="p-3 text-gray-700">{child.enrollDate}</td>
                   <td className="p-3 text-gray-700">{child.fee}</td>
-                  <td className="p-3 text-gray-700">{child.dropDate}</td>
                   <td className="p-3 text-gray-700">{child.parent1Name}</td>
                   {fullView && <td className="p-3 text-gray-700">{child.parent1Phone ?? ""}</td>}
                   {fullView && <td className="p-3 text-gray-700">{child.parent1Address ?? ""}</td>}
-                  <td className="p-3 text-gray-700">{child.parent1Email}</td>
+                  <td
+                    className={`p-3 text-gray-700 ${
+                      child.parent1Verified === false ? "bg-amber-50 text-amber-800" : ""
+                    }`}
+                    title={
+                      child.parent1Verified === false
+                        ? "Parent 1 email is not verified"
+                        : undefined
+                    }
+                  >
+                    {child.parent1Email}
+                  </td>
                   <td className="p-3 text-gray-700">{child.parent2Name}</td>
                   {fullView && <td className="p-3 text-gray-700">{child.parent2Phone ?? ""}</td>}
                   {fullView && <td className="p-3 text-gray-700">{child.parent2Address ?? ""}</td>}
-                  <td className="p-3 text-gray-700">{child.parent2Email}</td>
+                  <td
+                    className={`p-3 text-gray-700 ${
+                      child.parent2Verified === false ? "bg-amber-50 text-amber-800" : ""
+                    }`}
+                    title={
+                      child.parent2Verified === false
+                        ? "Parent 2 email is not verified"
+                        : undefined
+                    }
+                  >
+                    {child.parent2Email}
+                  </td>
                 </tr>
               ))
             )}

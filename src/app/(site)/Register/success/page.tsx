@@ -9,8 +9,8 @@ function SuccessContent() {
   const status = params.get("status") || "preregister";
   const message =
     status === "waitlist"
-      ? "Registration forms have been sent to your email."
-      : "We received your registration. Please verify your email so your child can be added to the waitlist.";
+      ? "Your child has been added to the waitlist. Please complete the registration forms sent to your email and bring them with you on your child’s first day of school."
+      : "We sent a verification email to the email address you provided. Click the link in that email to verify your email. Once verified, your child will be added to the waitlist.";
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-8 bg-white">
@@ -45,8 +45,7 @@ function SuccessContent() {
 
       {/* FadeUp text */}
       <p className="text-2xl font-medium text-gray-700 text-center opacity-0 animate-fadeUp [animation-delay:1s]">
-        We received your registration for{" "}
-        <span className="font-semibold">{childName}</span>. {message}
+       {message}
       </p>
 
       {/* Button to homepage */}
