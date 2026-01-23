@@ -9,6 +9,11 @@ type Payload = {
   to: string[];
   subject: string;
   message: string;
+  attachment?: {
+    filename: string;
+    content: string; // base64
+    contentType?: string;
+  } | null;
 };
 
 export async function POST(req: NextRequest) {
@@ -17,6 +22,7 @@ export async function POST(req: NextRequest) {
   const to = Array.isArray(body.to) ? body.to.filter(Boolean) : [];
   const subject = body.subject ?? "";
   const message = body.message ?? "";
+  const attachment = body.attachment ?? null;
 
   if (to.length === 0) {
     return NextResponse.json({ error: "No recipients provided." }, { status: 400 });
@@ -29,8 +35,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await sendSesEmail(to, subject, message);
-    return NextResponse.json({ ok: true });
+    const failed: string[] = [];
+    for (const recipient of to) {
+      try {
+        await sendSesEmail([recipient], subject, message, undefined, attachment ?? undefined);
+      } catch (err) {
+        console.error("Mass email send failed for", recipient, err);
+        failed.push(recipient);
+      }
+    }
+    return NextResponse.json({ ok: true, failed });
   } catch (err) {
     console.error("Mass email send failed", err);
     return NextResponse.json({ error: "Failed to send email." }, { status: 500 });

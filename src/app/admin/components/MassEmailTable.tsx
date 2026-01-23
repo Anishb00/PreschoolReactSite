@@ -29,7 +29,18 @@ export default function MassEmailTable({ initialChildren }: Props) {
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<FileList | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [failedRecipients, setFailedRecipients] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
+
+  const fileToBase64 = async (file: File) => {
+    const buffer = await file.arrayBuffer();
+    let binary = "";
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  };
 
   const filteredChildren = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -100,9 +111,13 @@ export default function MassEmailTable({ initialChildren }: Props) {
   const sendEmail = async () => {
     const selected = initialChildren.filter((child) => selectedIds.has(child.id));
     const names = selected.map((child) => child.childName);
-    const recipients = selected
-      .flatMap((child) => [child.parent1Email, child.parent2Email])
-      .filter((email) => !!email);
+    const recipients = Array.from(
+      new Set(
+        selected
+          .flatMap((child) => [child.parent1Email, child.parent2Email])
+          .filter((email) => !!email)
+      )
+    );
 
     if (recipients.length === 0) {
       setError("No parent emails found for the selected children.");
@@ -113,17 +128,40 @@ export default function MassEmailTable({ initialChildren }: Props) {
       return;
     }
 
+    let attachmentPayload: { filename: string; content: string; contentType?: string } | null = null;
+    if (attachments && attachments.length > 0) {
+      const file = attachments[0];
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Attachment is too large (max 5MB).");
+        return;
+      }
+      const content = await fileToBase64(file);
+      attachmentPayload = {
+        filename: file.name,
+        content,
+        contentType: file.type || "application/octet-stream",
+      };
+    }
+
     setError(null);
+    setFailedRecipients([]);
     setSending(true);
     try {
       const res = await fetch("/api/mass-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to: recipients, subject, message }),
+        body: JSON.stringify({ to: recipients, subject, message, attachment: attachmentPayload }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Failed to send email.");
+      }
+      const data = (await res.json()) as { failed?: string[] };
+      if (data.failed && data.failed.length > 0) {
+        setFailedRecipients(data.failed);
+        setError("Some emails could not be sent.");
+        setShowModal(false);
+        return;
       }
       const query = encodeURIComponent(JSON.stringify(names));
       router.push(`/admin/MassEmail/success?names=${query}`);
@@ -183,6 +221,16 @@ export default function MassEmailTable({ initialChildren }: Props) {
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
           {error}
+        </div>
+      )}
+      {failedRecipients.length > 0 && (
+        <div className="max-h-40 overflow-y-auto rounded-md border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+          <p className="font-semibold">Failed to send to:</p>
+          <ul className="list-disc pl-5">
+            {failedRecipients.map((email) => (
+              <li key={email}>{email}</li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -329,11 +377,11 @@ export default function MassEmailTable({ initialChildren }: Props) {
               </label>
               <input
                 type="file"
-                multiple
+                multiple={false}
                 onChange={(e) => setAttachments(e.target.files)}
                 className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-[#3B1FA8] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#2d1882]"
               />
-              <p className="text-xs text-gray-500">Note: attachments are not sent via email yet.</p>
+              <p className="text-xs text-gray-500">Optional, single file (PDF preferred, max 5MB).</p>
             </div>
           </div>
 
