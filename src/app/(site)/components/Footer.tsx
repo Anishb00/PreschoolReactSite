@@ -36,7 +36,7 @@ export default function Footer() {
             >
               steppingstoneworld@gmail.com
             </a>
-          </p>``
+          </p>
         </div>
 
         {/* Quick Links */}
@@ -79,13 +79,6 @@ export default function Footer() {
 
       <div className="mt-12 border-t border-gray-300 pt-6 text-center text-xs text-gray-500">
         © 2025 Stepping Stone World Preschool. Developed by Your Team |{" "}
-        <Link href="/" className="hover:underline">
-          Terms and Conditions
-        </Link>{" "}
-        |{" "}
-        <Link href="/" className="hover:underline">
-          Privacy Policy
-        </Link>
       </div>
     </footer>
   );
