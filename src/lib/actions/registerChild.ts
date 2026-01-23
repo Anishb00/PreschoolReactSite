@@ -35,13 +35,13 @@ export default async function registerChild(
     parentTwoEmail:   helpers.validateEmailAddress(formData, "parentTwoEmail",errorStatus,API_ERROR_CODES.P2_EMAIL_INVALID,{required:false}),
 
 
-    doctorName:  helpers.mustString(formData, "doctorName",errorStatus),
-    doctorPhone: helpers.normalizeAndValidatePhone(formData,'doctorPhone',errorStatus,API_ERROR_CODES.DOC_PHONE_INVALID,{required:true}),
+  doctorName:  helpers.mustString(formData, "doctorName",errorStatus),
+  doctorPhone: helpers.normalizeAndValidatePhone(formData,'doctorPhone',errorStatus,API_ERROR_CODES.DOC_PHONE_INVALID,{required:true}),
   };
 
+  let resultingClass: string | null = null;
   // run db procedure call pass error object to it
   if (errorStatus.checkErrors() == 0){
-    let resultingClass: string | null = null;
     await registerChildDb(registrationData,errorStatus);
     if (errorStatus.checkErrors() == 0) {
       const childRow = await getChildByNameDobWithParentIds(
