@@ -89,9 +89,10 @@ export async function verifyEmailToken(token: string) {
   try {
     await connection.beginTransaction();
     const [rows] = await connection.query(
-      `SELECT ev.Parent_ID
+      `SELECT ev.Parent_ID, ev.Expires_At, p.Email_verified
        FROM email_verifications ev
-       WHERE ev.Token_Hash = ? AND ev.Expires_At > NOW()
+       JOIN Parent p ON p.Parent_ID = ev.Parent_ID
+       WHERE ev.Token_Hash = ?
        FOR UPDATE`,
       [hashed]
     );
@@ -101,9 +102,26 @@ export async function verifyEmailToken(token: string) {
       return { status: "invalid" as const };
     }
     const parentId = Number(match.Parent_ID);
+    const expiresAt = new Date(match.Expires_At);
+    const alreadyVerified = Boolean(match.Email_verified);
+
+    if (alreadyVerified) {
+      await connection.commit();
+      return { status: "already_verified" as const };
+    }
+
+    if (expiresAt.getTime() < now().getTime()) {
+      await connection.rollback();
+      return { status: "invalid" as const };
+    }
 
     await connection.query(`UPDATE Parent SET Email_verified = TRUE WHERE Parent_ID = ?`, [parentId]);
-    await connection.query(`DELETE FROM email_verifications WHERE Parent_ID = ?`, [parentId]);
+    await connection.query(
+      `UPDATE email_verifications
+       SET Expires_At = ?, Daily_Count = 0
+       WHERE Parent_ID = ?`,
+      [expiresAt, parentId]
+    );
 
     const [childRows] = await connection.query(
       `SELECT c.Child_ID, c.Class

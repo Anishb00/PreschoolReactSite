@@ -17,7 +17,12 @@ function escapeHtml(input: string) {
     .replace(/'/g, "&#39;");
 }
 
-export async function sendSesEmail(to: string[], subject: string, message: string) {
+export async function sendSesEmail(
+  to: string[],
+  subject: string,
+  message: string,
+  htmlBody?: string
+) {
   if (!sesClient || !sesSourceEmail) {
     console.warn("SES email not configured: missing SES_SOURCE_EMAIL.");
     return;
@@ -37,7 +42,7 @@ export async function sendSesEmail(to: string[], subject: string, message: strin
         Subject: { Data: subject || "(no subject)" },
         Body: {
           Text: { Data: message || "" },
-          Html: { Data: `<p>${escapeHtml(message || "")}</p>` },
+          Html: { Data: htmlBody ?? `<p>${escapeHtml(message || "")}</p>` },
         },
       },
     },

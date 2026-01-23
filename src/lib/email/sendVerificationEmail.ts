@@ -30,11 +30,33 @@ export async function sendVerificationEmail({
     ``,
     `Please verify your email to complete the registration for ${childName}.`,
     ``,
-    `Click the link below (valid for 24 hours):`,
+    `Verify link (valid for 24 hours):`,
     verifyLink,
     ``,
     `If you didn’t request this, you can ignore this email.`,
   ].join("\n");
 
-  await sendSesEmail([toEmail], subject, message);
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #111827; line-height: 1.6;">
+      <p>Hi,</p>
+      <p>Please verify your email to complete the registration for <strong>${childName}</strong>.</p>
+      <p style="margin: 16px 0;">
+        <a href="${verifyLink}" style="
+          display: inline-block;
+          padding: 12px 20px;
+          background-color: #3a249c;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: 600;
+        ">
+          Verify Email
+        </a>
+      </p>
+      <p style="font-size: 14px; color: #4b5563;">This link is valid for 24 hours.</p>
+      <p>If you didn’t request this, you can ignore this email.</p>
+    </div>
+  `;
+
+  await sendSesEmail([toEmail], subject, message, html);
 }
