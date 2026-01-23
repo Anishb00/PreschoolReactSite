@@ -51,6 +51,15 @@ export default function DocumentManager() {
     []
   );
 
+  const nonDeletableFiles = useMemo(
+    () =>
+      new Set([
+        "SSW_Enrollment_Form_TOD.pdf",
+        "SSW_Enrollment_Form.pdf",
+      ]),
+    []
+  );
+
   const onUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -208,13 +217,24 @@ export default function DocumentManager() {
                         >
                           Replace
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => onDelete(file.name)}
-                          className="rounded-md border border-red-600 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                        >
-                          Delete
-                        </button>
+                        {nonDeletableFiles.has(file.name) ? (
+                          <button
+                            type="button"
+                            disabled
+                            className="rounded-md border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-400"
+                            title="This file cannot be deleted"
+                          >
+                            Delete
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => onDelete(file.name)}
+                            className="rounded-md border border-red-600 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                          >
+                            Delete
+                          </button>
+                        )}
                       </div>
                     )}
                   </td>

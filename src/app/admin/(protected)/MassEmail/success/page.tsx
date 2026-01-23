@@ -28,7 +28,7 @@ export default async function MassEmailSuccessPage({ searchParams }: PageProps) 
       </header>
 
       <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
-        Emails queued successfully (mock).
+        Emails queued successfully.
       </div>
 
       <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
