@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import pool from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/email/sendVerificationEmail";
+import { sendEnrollmentForms } from "@/lib/email/sendEnrollmentForms";
+import { getWaitlistChildrenForParent } from "@/lib/db/parentChildren";
 
 const EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 const COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
@@ -88,10 +90,12 @@ export async function verifyEmailToken(token: string | null, email?: string) {
   try {
     await connection.beginTransaction();
 
+    let parentEmail: string | null = null;
+
     // If email provided and already verified, short-circuit success.
     if (email) {
       const [emailRows] = await connection.query(
-        `SELECT Parent_ID, Email_verified FROM Parent WHERE Email = ? LIMIT 1`,
+        `SELECT Parent_ID, Email_verified, Email FROM Parent WHERE Email = ? LIMIT 1`,
         [email]
       );
       const parentRow = Array.isArray(emailRows) ? (emailRows as any[])[0] : undefined;
@@ -99,6 +103,7 @@ export async function verifyEmailToken(token: string | null, email?: string) {
         await connection.commit();
         return { status: "already_verified" as const };
       }
+      parentEmail = parentRow?.Email ?? null;
     }
 
     if (!token) {
@@ -108,7 +113,7 @@ export async function verifyEmailToken(token: string | null, email?: string) {
 
     const hashed = hashToken(token);
     const [rows] = await connection.query(
-      `SELECT ev.Parent_ID, ev.Expires_At, p.Email_verified
+      `SELECT ev.Parent_ID, ev.Expires_At, p.Email_verified, p.Email
        FROM email_verifications ev
        JOIN Parent p ON p.Parent_ID = ev.Parent_ID
        WHERE ev.Token_Hash = ?
@@ -123,10 +128,14 @@ export async function verifyEmailToken(token: string | null, email?: string) {
     const parentId = Number(match.Parent_ID);
     const expiresAt = new Date(match.Expires_At);
 
+    if (!parentEmail) {
+      parentEmail = match.Email ?? null;
+    }
+
     // If email provided but doesn't match token parent, treat invalid.
     if (email) {
       const [emailRows] = await connection.query(
-        `SELECT Parent_ID, Email_verified FROM Parent WHERE Email = ? LIMIT 1`,
+        `SELECT Parent_ID, Email_verified, Email FROM Parent WHERE Email = ? LIMIT 1`,
         [email]
       );
       const parentRow = Array.isArray(emailRows) ? (emailRows as any[])[0] : undefined;
@@ -176,6 +185,22 @@ export async function verifyEmailToken(token: string | null, email?: string) {
     }
 
     await connection.commit();
+
+    // After commit, send enrollment forms if we have an email.
+    if (parentEmail) {
+      const waitlistChildren = await getWaitlistChildrenForParent(parentId);
+      if (waitlistChildren.length > 0) {
+        await sendEnrollmentForms({
+          toEmail: parentEmail,
+          children: waitlistChildren.map((child) => ({
+            name: child.childName,
+            dob: child.dob,
+            pottyTrained: child.pottyTrained,
+          })),
+        });
+      }
+    }
+
     return { status: "verified" as const };
   } catch (err) {
     await connection.rollback();
@@ -207,31 +232,28 @@ export async function sendVerificationForParent({
   return { status: "sent" as const };
 }
 
-export async function resendVerificationByEmail(email: string, childName?: string) {
+export async function resendVerificationByEmail(email: string) {
   const [rows] = await pool.query(
-    `SELECT DISTINCT p.Parent_ID, p.Email_verified, c.Child_name
+    `SELECT p.Parent_ID, p.Email_verified
      FROM Parent p
-     LEFT JOIN Child_Parent cp ON cp.Parent_ID = p.Parent_ID
-     LEFT JOIN Child c ON c.Child_ID = cp.Child_ID
-     WHERE p.Email = ?
-     ${childName ? "AND c.Child_name = ?" : ""}
-     LIMIT 2`,
-    childName ? [email, childName] : [email]
+     WHERE p.Email = ?`,
+    [email]
   );
   const parents = Array.isArray(rows) ? (rows as any[]) : [];
   if (parents.length === 0) return { status: "not_found" as const };
-  if (parents.length > 1) return { status: "ambiguous" as const };
 
-  const parent = parents[0];
-  if (parent.Email_verified) return { status: "already_verified" as const };
+  const allVerified = parents.every((p) => p.Email_verified);
+  if (allVerified) return { status: "already_verified" as const };
 
-  const issue = await issueVerificationTokenForParent(Number(parent.Parent_ID));
-  if ("error" in issue) return { status: issue.error };
-
-  await sendVerificationEmail({
-    toEmail: email,
-    childName: childName || parent.Child_name || "your child",
-    token: issue.token,
-  });
+  for (const parent of parents) {
+    if (parent.Email_verified) continue;
+    const issue = await issueVerificationTokenForParent(Number(parent.Parent_ID));
+    if ("error" in issue) return { status: issue.error };
+    await sendVerificationEmail({
+      toEmail: email,
+      childName: "your child",
+      token: issue.token,
+    });
+  }
   return { status: "sent" as const };
 }

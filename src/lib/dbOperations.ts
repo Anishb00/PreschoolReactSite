@@ -16,16 +16,16 @@ async function establishConnection() {
     return connection;
 }
 
-type RegisterWaitlistFn = ((data:RegistrationData,errorStatus:EndpointErrorResponse)=>Promise<void>) & {
+type RegisterChildFn = ((data:RegistrationData,errorStatus:EndpointErrorResponse)=>Promise<void>) & {
   objParamOrder: ReadonlyArray<keyof RegistrationData>;
 };
 
-export const registerWaitlist:RegisterWaitlistFn = Object.assign(
+export const registerChild:RegisterChildFn = Object.assign(
   async function func(formData:RegistrationData,errorStatus:EndpointErrorResponse) {
-    const params = registerWaitlist.objParamOrder.map((val,index)=> {return formData[registerWaitlist.objParamOrder[index]]})
+    const params = registerChild.objParamOrder.map((val,index)=> {return formData[registerChild.objParamOrder[index]]})
     try{
       await pool.execute(
-      `CALL register_child_waitlist(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `CALL register_child(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         params
       );
     } catch(err){
@@ -109,6 +109,12 @@ export type ChildWithParentIds = {
   className: string | null;
   parent1Id: number | null;
   parent2Id: number | null;
+  pottyTrained?: number | null;
+  parent1Email?: string | null;
+  parent2Email?: string | null;
+  parent1Verified?: number | null;
+  parent2Verified?: number | null;
+  dob?: Date;
 };
 
 export async function getChildByNameDobWithParentIds(
@@ -117,7 +123,7 @@ export async function getChildByNameDobWithParentIds(
 ): Promise<ChildWithParentIds | null> {
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT Child_ID, Class, Parent1_ID, Parent2_ID
+      `SELECT Child_ID, DOB, Class, Parent1_ID, Parent2_ID, Potty_trained, Parent1_Email, Parent2_Email, Parent1_Verified, Parent2_Verified
        FROM ChildWithParents
        WHERE Child_name = ? AND DOB = ?
        LIMIT 1`,
@@ -127,9 +133,15 @@ export async function getChildByNameDobWithParentIds(
     if (!row) return null;
     return {
       childId: Number(row.Child_ID),
+      dob: row.DOB ? new Date(row.DOB) : undefined,
       className: row.Class as string | null,
       parent1Id: row.Parent1_ID ? Number(row.Parent1_ID) : null,
       parent2Id: row.Parent2_ID ? Number(row.Parent2_ID) : null,
+      pottyTrained: row.Potty_trained ? Number(row.Potty_trained) : 0,
+      parent1Email: row.Parent1_Email ?? null,
+      parent2Email: row.Parent2_Email ?? null,
+      parent1Verified: row.Parent1_Verified ? Number(row.Parent1_Verified) : 0,
+      parent2Verified: row.Parent2_Verified ? Number(row.Parent2_Verified) : 0,
     };
   } catch (err) {
     errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
@@ -317,6 +329,7 @@ export async function getChildrenWithParentsFull(
           Sex,
           Program,
           Class,
+          Potty_trained,
           Doctor_name,
           Doctor_phone,
           Enroll_date,

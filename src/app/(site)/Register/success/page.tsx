@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useSearchParams } from 'next/navigation';
 
 function SuccessContent() {
-  const childName = useSearchParams().get("childName");
+  const params = useSearchParams();
+  const childName = params.get("childName");
+  const status = params.get("status") || "preregister";
+  const message =
+    status === "waitlist"
+      ? "Registration forms have been sent to your email."
+      : "We received your registration. Please verify your email so your child can be added to the waitlist.";
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-8 bg-white">
@@ -39,8 +45,8 @@ function SuccessContent() {
 
       {/* FadeUp text */}
       <p className="text-2xl font-medium text-gray-700 text-center opacity-0 animate-fadeUp [animation-delay:1s]">
-        Child <span className="font-semibold">{childName}</span> has been
-        successfully added to the waitlist 🎉
+        We received your registration for{" "}
+        <span className="font-semibold">{childName}</span>. {message}
       </p>
 
       {/* Button to homepage */}

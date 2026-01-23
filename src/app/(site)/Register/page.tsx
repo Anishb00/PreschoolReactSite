@@ -34,9 +34,15 @@ export default function RegisterPage() {
 
   return(
     <>
-      <h2 className="mb-6 text-3xl font-bold text-[#3B1FA8]">
-        Join Our Waitlist
-      </h2>
+      <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <h2 className="text-3xl font-bold text-[#3B1FA8]">Join Our Waitlist</h2>
+        <a
+          href="/verify-email/resend"
+          className="inline-flex items-center gap-2 rounded-md border border-[#3B1FA8] px-4 py-2 text-sm font-semibold text-[#3B1FA8] transition hover:bg-[#3B1FA8] hover:text-white"
+        >
+          Need another verification email?
+        </a>
+      </div>
       <RegisterForm serverAction = {serverAction} statusCodes={state.statusCodes} values={state.values}
       />
     </>

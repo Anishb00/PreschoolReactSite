@@ -10,7 +10,7 @@ DROP PROCEDURE IF EXISTS get_child_parent_columns;
 DROP PROCEDURE IF EXISTS fuzzy_find_child_parent;
 DROP PROCEDURE IF EXISTS delete_child_by_id;
 DROP PROCEDURE IF EXISTS update_child_and_parents;
-DROP PROCEDURE IF EXISTS register_child_waitlist;
+DROP PROCEDURE IF EXISTS register_child;
 DROP PROCEDURE IF EXISTS get_waitlist_child_with_parents;
 DROP PROCEDURE IF EXISTS get_child_with_parents_by_id;
 DROP PROCEDURE IF EXISTS refresh_filtered_students;
@@ -105,13 +105,15 @@ SELECT
     MIN(CASE WHEN rn = 1 THEN p.Address END)     AS Parent1_Address,
     MIN(CASE WHEN rn = 1 THEN p.Phone END)       AS Parent1_Phone,
     MIN(CASE WHEN rn = 1 THEN p.Email END)       AS Parent1_Email,
+    MIN(CASE WHEN rn = 1 THEN p.Email_verified END) AS Parent1_Verified,
 
     -- Parent 2 (second parent if exists)
     MIN(CASE WHEN rn = 2 THEN p.Parent_ID END)   AS Parent2_ID,
     MIN(CASE WHEN rn = 2 THEN p.Name END)        AS Parent2_Name,
     MIN(CASE WHEN rn = 2 THEN p.Address END)     AS Parent2_Address,
     MIN(CASE WHEN rn = 2 THEN p.Phone END)       AS Parent2_Phone,
-    MIN(CASE WHEN rn = 2 THEN p.Email END)       AS Parent2_Email
+    MIN(CASE WHEN rn = 2 THEN p.Email END)       AS Parent2_Email,
+    MIN(CASE WHEN rn = 2 THEN p.Email_verified END) AS Parent2_Verified
 
 FROM (
     -- Rank parents per child so we can split into Parent1 / Parent2
@@ -227,7 +229,7 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE PROCEDURE register_child_waitlist (
+CREATE PROCEDURE register_child (
     IN p_child_name VARCHAR(30),
     IN p_dob DATE,
     IN p_sex ENUM('male','female'),
@@ -251,6 +253,9 @@ BEGIN
     DECLARE v_parent1_id INT;
     DECLARE v_parent2_id INT;
     DECLARE v_child_pin INT;
+    DECLARE v_parent1_verified BOOLEAN DEFAULT FALSE;
+    DECLARE v_parent2_verified BOOLEAN DEFAULT FALSE;
+    DECLARE v_target_class VARCHAR(20) DEFAULT 'Pre-Register';
 
     -- Rollback if anything fails
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -263,13 +268,8 @@ BEGIN
 
     CALL generate_unique_child_pin(v_child_pin);
 
-    -- Insert child (fails if duplicate because of UNIQUE constraint)
-    INSERT INTO Child (Child_name, DOB, Sex, Class, Child_Pin, Doctor_name, Doctor_phone,Program, Potty_trained)
-    VALUES (p_child_name, p_dob, p_sex, 'Pre-Register', v_child_pin, p_doctor_name, p_doctor_phone, p_program, p_potty_trained );
-    SET v_child_id = LAST_INSERT_ID();
-
     -- Parent 1: look up first
-    SELECT parent_id INTO v_parent1_id
+    SELECT parent_id, Email_verified INTO v_parent1_id, v_parent1_verified
     FROM Parent
     WHERE Name = p_parent1_name
       AND Phone = p_parent1_phone
@@ -280,17 +280,15 @@ BEGIN
         INSERT INTO Parent (Name, Address, Phone, Email)
         VALUES (p_parent1_name, p_parent1_address, p_parent1_phone, p_parent1_email);
         SET v_parent1_id = LAST_INSERT_ID();
+        SET v_parent1_verified = FALSE;
     END IF;
-
-    INSERT INTO Child_Parent (child_id, parent_id)
-    VALUES (v_child_id, v_parent1_id);
 
     -- Parent 2 (optional)
     IF p_parent2_name IS NOT NULL
        AND p_parent2_phone IS NOT NULL
        AND p_parent2_email IS NOT NULL THEN
 
-        SELECT parent_id INTO v_parent2_id
+        SELECT parent_id, Email_verified INTO v_parent2_id, v_parent2_verified
         FROM Parent
         WHERE Name = p_parent2_name
           AND Phone = p_parent2_phone
@@ -301,8 +299,25 @@ BEGIN
             INSERT INTO Parent (Name, Address, Phone, Email)
             VALUES (p_parent2_name, p_parent2_address, p_parent2_phone, p_parent2_email);
             SET v_parent2_id = LAST_INSERT_ID();
+            SET v_parent2_verified = FALSE;
         END IF;
+    END IF;
 
+    IF v_parent1_verified OR v_parent2_verified THEN
+        SET v_target_class = 'Waitlist';
+    ELSE
+        SET v_target_class = 'Pre-Register';
+    END IF;
+
+    -- Insert child (fails if duplicate because of UNIQUE constraint)
+    INSERT INTO Child (Child_name, DOB, Sex, Class, Child_Pin, Doctor_name, Doctor_phone,Program, Potty_trained)
+    VALUES (p_child_name, p_dob, p_sex, v_target_class, v_child_pin, p_doctor_name, p_doctor_phone, p_program, p_potty_trained );
+    SET v_child_id = LAST_INSERT_ID();
+
+    INSERT INTO Child_Parent (child_id, parent_id)
+    VALUES (v_child_id, v_parent1_id);
+
+    IF v_parent2_id IS NOT NULL THEN
         INSERT INTO Child_Parent (child_id, parent_id)
         VALUES (v_child_id, v_parent2_id);
     END IF;
