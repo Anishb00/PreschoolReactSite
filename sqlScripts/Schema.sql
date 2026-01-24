@@ -40,12 +40,13 @@ CREATE TABLE Child (
   DOB DATE NOT NULL,
   Sex VARCHAR(10) CHECK (Sex in ('male', 'female'))NOT NULL ,
   Program VARCHAR(30) NOT NULL,
-  Class VARCHAR(20) CHECK (Class IN ('Waitlist','Pre-Register', 'Registered', 'Caterpillar', 'Chrysalis', 'Butterfly', 'Sunshine', 'Rainbow','Test')) DEFAULT NULL,
+  Class VARCHAR(20) CHECK (Class IN ('Waitlist','Pre-Register', 'Registered', 'Caterpillar', 'Chrysalis', 'Butterfly', 'Sunshine', 'Rainbow','Test','Dismissed')) DEFAULT NULL,
   Potty_trained BOOLEAN NOT NULL DEFAULT FALSE,
   Doctor_name VARCHAR(30) NOT NULL,
   Doctor_phone VARCHAR(19) NOT NULL,
   Enroll_date DATE DEFAULT NULL,
   Drop_date DATE DEFAULT NULL,
+  Checkout_time TIME DEFAULT NULL,
   Fee INT DEFAULT NULL,
   Child_Pin INT NOT NULL,
   PRIMARY KEY (Child_ID),
@@ -100,6 +101,7 @@ SELECT
     c.Doctor_phone,
     c.Enroll_date,
     c.Drop_date,
+    c.Checkout_time,
     c.Fee,
     c.Child_Pin,
 
@@ -131,7 +133,7 @@ FROM (
 RIGHT JOIN Child c ON c.Child_ID = p.Child_ID
 GROUP BY
     c.Child_ID, c.Child_name, c.DOB, c.Sex, c.Program, c.Class, c.Potty_trained,
-    c.Doctor_name, c.Doctor_phone, c.Enroll_date, c.Drop_date,
+    c.Doctor_name, c.Doctor_phone, c.Enroll_date, c.Drop_date, c.Checkout_time,
     c.Fee, c.Child_Pin;
 
 CREATE TABLE `Check_In_Out` (
@@ -208,6 +210,19 @@ DELIMITER ;
 
 DELIMITER $$
 
+CREATE PROCEDURE set_child_checkout_time(
+    IN p_child_id INT,
+    IN p_checkout_time TIME
+)
+BEGIN
+    UPDATE Child
+    SET Checkout_time = p_checkout_time
+    WHERE Child_ID = p_child_id;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
 CREATE TRIGGER delete_orphan_parent_after_child
 AFTER DELETE ON Child
 FOR EACH ROW
@@ -241,6 +256,7 @@ CREATE PROCEDURE register_child (
     IN p_doctor_phone VARCHAR(20),
     IN p_program VARCHAR(30),
     IN p_potty_trained BOOLEAN,
+    IN p_checkout_time TIME,
 
     IN p_parent1_name VARCHAR(50),
     IN p_parent1_address VARCHAR(100),
@@ -317,6 +333,7 @@ BEGIN
     INSERT INTO Child (Child_name, DOB, Sex, Class, Child_Pin, Doctor_name, Doctor_phone,Program, Potty_trained)
     VALUES (p_child_name, p_dob, p_sex, v_target_class, v_child_pin, p_doctor_name, p_doctor_phone, p_program, p_potty_trained );
     SET v_child_id = LAST_INSERT_ID();
+    UPDATE Child SET Checkout_time = p_checkout_time WHERE Child_ID = v_child_id;
 
     INSERT INTO Child_Parent (child_id, parent_id)
     VALUES (v_child_id, v_parent1_id);
@@ -348,6 +365,7 @@ CREATE PROCEDURE update_child_and_parents(
     IN p_doctor_phone VARCHAR(19),
     IN p_enroll_date DATE,
     IN p_drop_date DATE,
+    IN p_checkout_time TIME,
     IN p_fee INT,
 
     -- Parent 1 info
@@ -385,6 +403,7 @@ BEGIN
         Doctor_phone = p_doctor_phone,
         Enroll_date  = p_enroll_date,
         Drop_date    = p_drop_date,
+        Checkout_time = p_checkout_time,
         Fee          = p_fee
     WHERE Child_ID = p_child_id;
 
@@ -424,6 +443,7 @@ CREATE PROCEDURE add_child_with_parents_full (
     IN p_doctor_phone VARCHAR(19),
     IN p_enroll_date DATE,
     IN p_drop_date DATE,
+    IN p_checkout_time TIME,
     IN p_fee INT,
 
     IN p_parent1_name VARCHAR(50),
@@ -463,6 +483,7 @@ BEGIN
         Doctor_phone,
         Enroll_date,
         Drop_date,
+        Checkout_time,
         Fee,
         Child_Pin
     )
@@ -477,6 +498,7 @@ BEGIN
         p_doctor_phone,
         p_enroll_date,
         p_drop_date,
+        p_checkout_time,
         p_fee,
         v_child_pin
     );
@@ -552,6 +574,7 @@ BEGIN
         Doctor_phone,
         Fee,
         Drop_date,
+        Checkout_time,
         Parent1_Name,
         Parent1_Email,
         Parent1_Verified,
@@ -582,6 +605,7 @@ BEGIN
         Doctor_phone,
         Enroll_date,
         Drop_date,
+        Checkout_time,
         Fee,
         Parent1_ID,
         Parent1_Name,
@@ -620,6 +644,7 @@ BEGIN
         Doctor_phone,
         Enroll_date,
         Drop_date,
+        Checkout_time,
         Fee,
         Parent1_ID,
         Parent1_Name,

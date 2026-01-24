@@ -22,7 +22,7 @@ type Props = {
 export default function MassEmailTable({ initialChildren }: Props) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [classFilter, setClassFilter] = useState("all");
+  const [classFilter, setClassFilter] = useState("enrolled");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [showModal, setShowModal] = useState(false);
   const [subject, setSubject] = useState("");
@@ -44,8 +44,18 @@ export default function MassEmailTable({ initialChildren }: Props) {
 
   const filteredChildren = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
+    const core = new Set([
+      "Caterpillar",
+      "Chrysalis",
+      "Butterfly",
+      "Sunshine",
+      "Rainbow",
+    ]);
+
     const classAllowed = (childClass: string) => {
       if (classFilter === "all") return true;
+      if (classFilter === "unassigned") return !childClass;
+      if (classFilter === "enrolled") return childClass ? core.has(childClass) : false;
       return childClass === classFilter;
     };
 
@@ -187,9 +197,11 @@ export default function MassEmailTable({ initialChildren }: Props) {
           name="classFilter"
           value={classFilter}
           onChange={(event) => setClassFilter(event.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
-        >
+        className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
+      >
+          <option value="enrolled">Enrolled Students</option>
           <option value="all">All Students</option>
+          <option value="unassigned">Unassigned</option>
           <option value="Caterpillar">Caterpillar</option>
           <option value="Chrysalis">Chrysalis</option>
           <option value="Butterfly">Butterfly</option>

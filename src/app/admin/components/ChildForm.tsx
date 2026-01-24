@@ -28,6 +28,11 @@ export default function ChildForm({
   const programValue = values?.Program ?? "";
   const classValue = values?.childClass ?? "";
   const pottyTrainedValue = values?.pottyTrained ?? false;
+  const checkoutTimeValue = (() => {
+    const v = values?.checkoutTime;
+    if (typeof v === "string") return v;
+    return "";
+  })();
   const feeValue =
     values?.fee === null || values?.fee === undefined ? "" : values?.fee;
   const enrollDateValue =
@@ -104,6 +109,17 @@ export default function ChildForm({
               <option value="male">Male</option>
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700">
+              Checkout Time
+            </label>
+            <input
+              type="time"
+              name="checkoutTime"
+              defaultValue={checkoutTimeValue}
+              className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8] focus:outline-none"
+            />
+          </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700">
@@ -117,10 +133,14 @@ export default function ChildForm({
               className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8] focus:outline-none"
             >
               <option value="">Select</option>
+              <option value="1-day-full">1-Day — Full Day</option>
+              <option value="1-day-half">1-Day — Half Day</option>
               <option value="2-day-full">2-Day — Full Day</option>
               <option value="2-day-half">2-Day — Half Day</option>
               <option value="3-day-full">3-Day — Full Day</option>
               <option value="3-day-half">3-Day — Half Day</option>
+              <option value="4-day-full">4-Day — Full Day</option>
+              <option value="4-day-half">4-Day — Half Day</option>
               <option value="5-day-full">5-Day — Full Day</option>
               <option value="5-day-half">5-Day — Half Day</option>
             </select>
@@ -325,6 +345,7 @@ export default function ChildForm({
               <option value="Butterfly">Butterfly</option>
               <option value="Sunshine">Sunshine</option>
               <option value="Rainbow">Rainbow</option>
+              <option value="Dismissed">Dismissed</option>
               <option value="Test">Test</option>
             </select>
           </div>

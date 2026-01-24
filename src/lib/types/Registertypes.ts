@@ -5,10 +5,14 @@ import {EndpointErrorResponse} from "@/lib/EndpointErrorResponse";
 * 
 * */
 export const PROGRAM_CHOICES = [
+  "1-day-full",
+  "1-day-half",
   "2-day-full",
   "2-day-half",
   "3-day-full",
   "3-day-half",
+  "4-day-full",
+  "4-day-half",
   "5-day-full",
   "5-day-half",
   ""
@@ -24,6 +28,7 @@ export type RegistrationData = {
   dob: Date;                       // "YYYY-MM-DD"
   sex: "female" | "male" | "";            // matches <select> values
   Program: ProgramOption;            // capital P (as in your object)
+  checkoutTime?: string | null;
 
   parentOneName: string;             // required
   parentOneAddress: string;          // required

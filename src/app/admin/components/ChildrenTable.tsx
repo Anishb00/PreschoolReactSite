@@ -104,6 +104,7 @@ type ChildrenTableProps = {
   fullView?: boolean;
   showPrintControls?: boolean;
   initialClassFilter?: string;
+  showCheckoutTime?: boolean;
 };
 
 function DeleteButton() {
@@ -125,7 +126,8 @@ export default function ChildrenTable({
   isAdmin,
   fullView = false,
   showPrintControls = true,
-  initialClassFilter = "all",
+  initialClassFilter = "enrolled",
+  showCheckoutTime = true,
 }: ChildrenTableProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -137,7 +139,7 @@ export default function ChildrenTable({
   const [modalChildId, setModalChildId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [classFilter, setClassFilter] = useState(
-    initialClassFilter || (isAdmin ? "all" : "Caterpillar")
+    initialClassFilter || (isAdmin ? "enrolled" : "enrolled")
   );
   const [disabledIds, setDisabledIds] = useState<Set<number>>(new Set());
   const [classOverrides, setClassOverrides] = useState<Record<number, string>>({});
@@ -159,7 +161,27 @@ export default function ChildrenTable({
 
   const filteredChildren = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    return state.children.filter((child) => {
+    const coreClasses = new Set([
+      "Caterpillar",
+      "Chrysalis",
+      "Butterfly",
+      "Sunshine",
+      "Rainbow",
+    ]);
+
+    return state.children
+      .filter((child) => {
+        if (classFilter === "unassigned") {
+          return !child.className;
+        }
+        if (classFilter === "enrolled") {
+          return child.className ? coreClasses.has(child.className) : false;
+        }
+        if (classFilter === "all") return true;
+        if (classFilter === "Dismissed") return child.className === "Dismissed";
+        return child.className === classFilter;
+      })
+      .filter((child) => {
       const haystackValues = isAdmin
         ? [
             child.id,
@@ -168,7 +190,7 @@ export default function ChildrenTable({
             child.program,
             child.className,
             child.enrollDate,
-            child.checkoutTime ?? "",
+            showCheckoutTime ? child.checkoutTime ?? "" : "",
             child.fee,
             child.dropDate,
             fullView ? child.dob : "",
@@ -190,7 +212,7 @@ export default function ChildrenTable({
         .join(" ");
       return haystack.includes(query);
     });
-  }, [isAdmin, searchTerm, state.children, fullView]);
+  }, [isAdmin, searchTerm, state.children, fullView, classFilter]);
 
   const updateClass = async (childId: number, className: string) => {
     try {
@@ -415,11 +437,12 @@ export default function ChildrenTable({
               setClassFilter(value);
               setPrintError(null);
               const params = new URLSearchParams();
-              if (value !== "all") params.set("class", value);
+              if (value !== "enrolled") params.set("class", value);
               router.replace(`${pathname}?${params.toString()}`);
             }}
             className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
           >
+            <option value="enrolled">Enrolled Students</option>
             <option value="all">All Students</option>
             <option value="Caterpillar">Caterpillar</option>
             <option value="Chrysalis">Chrysalis</option>
@@ -430,6 +453,7 @@ export default function ChildrenTable({
             <option value="Registered">Registered</option>
             <option value="Waitlist">Waitlist</option>
             <option value="Test">Test</option>
+            <option value="Dismissed">Dismissed</option>
           </select>
         )}
         {!isAdmin && (
@@ -442,11 +466,13 @@ export default function ChildrenTable({
             }}
             className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
           >
+            <option value="enrolled">Enrolled Students</option>
             <option value="Caterpillar">Caterpillar</option>
             <option value="Chrysalis">Chrysalis</option>
             <option value="Butterfly">Butterfly</option>
             <option value="Sunshine">Sunshine</option>
             <option value="Rainbow">Rainbow</option>
+            <option value="Dismissed">Dismissed</option>
           </select>
         )}
         {showPrintControls && (
@@ -527,7 +553,7 @@ export default function ChildrenTable({
                 {fullView && <th className="p-3 text-left">Doctor Name</th>}
                 {fullView && <th className="p-3 text-left">Doctor Phone</th>}
                 <th className="p-3 text-left">Enroll Date</th>
-                <th className="p-3 text-left">Checkout Time</th>
+                {showCheckoutTime && <th className="p-3 text-left">Checkout Time</th>}
                 <th className="p-3 text-left">Fee</th>
                 <th className="p-3 text-left">Parent 1</th>
                 {fullView && <th className="p-3 text-left">Parent 1 Phone</th>}
@@ -543,7 +569,7 @@ export default function ChildrenTable({
               {filteredChildren.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={fullView ? 20 : 13}
+                    colSpan={fullView ? (showCheckoutTime ? 20 : 19) : (showCheckoutTime ? 13 : 12)}
                     className="p-6 text-center text-gray-500"
                   >
                     No children found.
@@ -665,6 +691,7 @@ export default function ChildrenTable({
                             <option value="Pre-Register">Pre-Register</option>
                             <option value="Registered">Registered</option>
                             <option value="Waitlist">Waitlist</option>
+                            <option value="Dismissed">Dismissed</option>
                             <option value="Test">Test</option>
                           </select>
                         ) : (
@@ -673,8 +700,10 @@ export default function ChildrenTable({
                       </td>
                       {fullView && <td className="p-3 text-gray-700">{child.doctorName ?? ""}</td>}
                       {fullView && <td className="p-3 text-gray-700">{child.doctorPhone ?? ""}</td>}
-                      <td className="p-3 text-gray-700">{child.enrollDate}</td>
-                      <td className="p-3 text-gray-700">{child.checkoutTime ?? ""}</td>
+                  <td className="p-3 text-gray-700">{child.enrollDate}</td>
+                  {showCheckoutTime && (
+                    <td className="p-3 text-gray-700">{child.checkoutTime ?? ""}</td>
+                  )}
                       <td className="p-3 text-gray-700">{child.fee}</td>
                       <td className="p-3 text-gray-700">{child.parent1Name}</td>
                       {fullView && <td className="p-3 text-gray-700">{child.parent1Phone ?? ""}</td>}

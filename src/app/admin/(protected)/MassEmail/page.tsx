@@ -2,9 +2,9 @@ import MassEmailTable, { MassEmailChild } from "@/app/admin/components/MassEmail
 import { authorizeUser } from "@/lib/authentication";
 import { MIN_ASSET_ROLE_ACCESS } from "@/lib/protectedassets";
 import { EndpointErrorResponse } from "@/lib/EndpointErrorResponse";
-import { getChildrenWithParents } from "@/lib/dbOperations";
+import { getChildrenWithParents, getChildrenWithParentsFull } from "@/lib/dbOperations";
 
-function mapChild(row: Awaited<ReturnType<typeof getChildrenWithParents>>[number]): MassEmailChild {
+function mapChild(row: Awaited<ReturnType<typeof getChildrenWithParentsFull>>[number]): MassEmailChild {
   const parent1Verified =
     row.Parent1_Verified == null ? undefined : row.Parent1_Verified === 1;
   const parent2Verified =
@@ -25,7 +25,7 @@ function mapChild(row: Awaited<ReturnType<typeof getChildrenWithParents>>[number
 export default async function MassEmailPage() {
   await authorizeUser("admin");
   const errorStatus = new EndpointErrorResponse();
-  const rows = await getChildrenWithParents(errorStatus);
+  const rows = await getChildrenWithParentsFull(errorStatus);
   const children = rows.map(mapChild);
 
   return (

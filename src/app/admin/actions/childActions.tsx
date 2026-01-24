@@ -66,6 +66,9 @@ export async function createChild(formData: FormData) {
     errorStatus.log(`recieved invalid drop date value: ${dropDateRaw}`);
   }
 
+  const checkoutTimeRaw = String(formData.get("checkoutTime") || "").trim();
+  const checkoutTime = checkoutTimeRaw || null;
+
   const registrationData: AddChildFullPayload = {
     childName: helpers.mustString(formData, "childName", errorStatus),
     dob: helpers.mustDOB(formData.get("dob") || "", errorStatus),
@@ -86,6 +89,7 @@ export async function createChild(formData: FormData) {
     ),
     enrollDate,
     dropDate,
+    checkoutTime,
     fee: feeValue,
     parentOneName: helpers.mustString(formData, "parentOneName", errorStatus),
     parentOneAddress: helpers.mustString(
@@ -210,6 +214,9 @@ export async function updateChild(formData: FormData) {
     errorStatus.log(`recieved invalid drop date value: ${dropDateRaw}`);
   }
 
+  const checkoutTimeRaw = String(formData.get("checkoutTime") || "").trim();
+  const checkoutTime = checkoutTimeRaw || null;
+
   const registrationData: UpdateChildPayload = {
     childId,
     childName: helpers.mustString(formData, "childName", errorStatus),
@@ -231,6 +238,7 @@ export async function updateChild(formData: FormData) {
     ),
     enrollDate,
     dropDate,
+    checkoutTime,
     fee: feeValue,
     parentOneId,
     parentOneName: helpers.mustString(formData, "parentOneName", errorStatus),

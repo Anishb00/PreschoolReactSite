@@ -47,20 +47,35 @@ function mapRow(row: ChildWithParentsFullRow): ChildRow {
 export default async function UnverifiedPage({
   searchParams,
 }: {
-  searchParams?: { class?: string };
+  searchParams?: Promise<{ class?: string }>;
 }) {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.VIEW_DASHBOARD);
   const isAdminUser = await isAdmin();
   const errorStatus = new EndpointErrorResponse();
-  const currentClass = searchParams?.class ?? null;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const currentClass =
+    resolvedSearchParams?.class === "unassigned"
+      ? "unassigned"
+      : resolvedSearchParams?.class ?? "enrolled";
+  const classNameParam =
+    currentClass && !["enrolled", "unassigned", "all"].includes(currentClass)
+      ? currentClass
+      : undefined;
   const rows = await getChildrenWithParentsFull(errorStatus, {
-    className: currentClass ?? undefined,
+    className: classNameParam,
   });
 
   const filtered = rows.filter((row) => {
     // Allow any class when a specific class is selected; otherwise limit to core set
     if (currentClass && currentClass !== "all") {
-      if (row.Class !== currentClass) return false;
+      if (currentClass === "enrolled") {
+        const classOk = row.Class ? TARGET_CLASSES.has(row.Class) : false;
+        if (!classOk) return false;
+      } else if (currentClass === "unassigned") {
+        if (row.Class) return false;
+      } else if (row.Class !== currentClass) {
+        return false;
+      }
     } else {
       const classOk = row.Class ? TARGET_CLASSES.has(row.Class) : false;
       if (!classOk) return false;
@@ -97,6 +112,7 @@ export default async function UnverifiedPage({
         isAdmin={isAdminUser}
         fullView={false}
         showPrintControls={false}
+        showCheckoutTime={false}
       />
     </div>
   );

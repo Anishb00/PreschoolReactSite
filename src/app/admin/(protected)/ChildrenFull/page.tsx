@@ -18,8 +18,13 @@ function formatDate(value: Date | null): string {
 
 function formatTime(value: Date | string | null | undefined): string {
   if (!value) return "";
-  const asString = value instanceof Date ? value.toTimeString() : String(value);
-  return asString.slice(0, 5);
+  const str = value instanceof Date ? value.toTimeString().slice(0, 5) : String(value).slice(0, 5);
+  const [hStr, m] = str.split(":");
+  const hNum = Number(hStr);
+  if (Number.isNaN(hNum)) return str;
+  const period = hNum >= 12 ? "PM" : "AM";
+  const hour12 = hNum % 12 === 0 ? 12 : hNum % 12;
+  return `${hour12}:${m ?? "00"} ${period}`;
 }
 
 function mapChildRow(row: ChildWithParentsFullRow): ChildRow {
@@ -58,14 +63,22 @@ type TableState = {
 export default async function ChildrenFullPage({
   searchParams,
 }: {
-  searchParams?: { class?: string };
+  searchParams?: Promise<{ class?: string }>;
 }) {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.VIEW_DASHBOARD);
   const isAdminUser = await isAdmin();
   const errorStatus = new EndpointErrorResponse();
-  const currentClass = searchParams?.class ?? null;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const currentClass =
+    resolvedSearchParams?.class === "unassigned"
+      ? "unassigned"
+      : resolvedSearchParams?.class ?? "enrolled";
+  const classNameParam =
+    currentClass && !["enrolled", "unassigned", "all"].includes(currentClass)
+      ? currentClass
+      : undefined;
   const rows = await getChildrenWithParentsFull(errorStatus, {
-    className: currentClass ?? undefined,
+    className: classNameParam,
   });
   const children = rows.map(mapChildRow);
 
@@ -116,14 +129,15 @@ export default async function ChildrenFullPage({
       </header>
 
       <section className="mt-6">
-        <ChildrenTable
-          key={currentClass ?? "all"}
-          initialChildren={children}
-          initialClassFilter={currentClass ?? "all"}
-          deleteChild={deleteChild}
-          isAdmin={isAdminUser}
-          fullView
-        />
+      <ChildrenTable
+        key={currentClass ?? "all"}
+        initialChildren={children}
+        initialClassFilter={currentClass ?? "all"}
+        deleteChild={deleteChild}
+        isAdmin={isAdminUser}
+        fullView
+        showCheckoutTime
+      />
       </section>
     </>
   );

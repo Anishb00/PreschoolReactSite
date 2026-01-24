@@ -68,10 +68,14 @@ export default function RegisterForm({serverAction,statusCodes,values}: {serverA
               className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8] focus:outline-none"
             >
               <option value="">Select</option>
+              <option value="1-day-full">1-Day — Full Day</option>
+              <option value="1-day-half">1-Day — Half Day</option>
               <option value="2-day-full">2-Day — Full Day</option>
               <option value="2-day-half">2-Day — Half Day</option>
               <option value="3-day-full">3-Day — Full Day</option>
               <option value="3-day-half">3-Day — Half Day</option>
+              <option value="4-day-full">4-Day — Full Day</option>
+              <option value="4-day-half">4-Day — Half Day</option>
               <option value="5-day-full">5-Day — Full Day</option>
               <option value="5-day-half">5-Day — Half Day</option>
             </select>

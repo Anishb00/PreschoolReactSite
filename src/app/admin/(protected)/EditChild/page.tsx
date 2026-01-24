@@ -14,6 +14,12 @@ function toDateOnly(value: Date | null): Date | null {
   return new Date(value.getFullYear(), value.getMonth(), value.getDate());
 }
 
+function toTimeString(value: Date | string | null | undefined): string {
+  if (!value) return "";
+  const str = value instanceof Date ? value.toTimeString().slice(0, 5) : String(value).slice(0, 5);
+  return str;
+}
+
 export default async function EditChildPage({ searchParams }: EditChildPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const status = resolvedSearchParams?.status ?? "";
@@ -58,6 +64,7 @@ export default async function EditChildPage({ searchParams }: EditChildPageProps
         fee: row.Fee ?? null,
         enrollDate: toDateOnly(row.Enroll_date),
         dropDate: toDateOnly(row.Drop_date),
+        checkoutTime: toTimeString(row.Checkout_time),
       }
     : undefined;
 

@@ -12,7 +12,7 @@ export const auth = betterAuth({
     },
     emailAndPassword: {
         enabled: true,
-        // disableSignUp: true,
+        disableSignUp: true,
         minPasswordLength:4,
         maxPasswordLength:20,
     },

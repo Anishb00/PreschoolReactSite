@@ -25,7 +25,7 @@ export const registerChild:RegisterChildFn = Object.assign(
     const params = registerChild.objParamOrder.map((val,index)=> {return formData[registerChild.objParamOrder[index]]})
     try{
       await pool.execute(
-      `CALL register_child(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `CALL register_child(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         params
       );
     } catch(err){
@@ -54,6 +54,7 @@ export const registerChild:RegisterChildFn = Object.assign(
       "doctorPhone",
       "Program",
       "pottyTrained",
+      "checkoutTime",
       "parentOneName",
       "parentOneAddress",
       "parentOnePhone",
@@ -172,6 +173,7 @@ export type AddChildFullPayload = {
   doctorPhone: string;
   enrollDate: string | null;
   dropDate: string | null;
+  checkoutTime: string | null;
   fee: number | null;
   parentOneName: string;
   parentOneAddress: string;
@@ -198,6 +200,7 @@ export async function addChildWithParentsFull(
     payload.doctorPhone,
     payload.enrollDate,
     payload.dropDate,
+    payload.checkoutTime,
     payload.fee,
     payload.parentOneName,
     payload.parentOneAddress,
@@ -210,7 +213,7 @@ export async function addChildWithParentsFull(
   ];
   try {
     await pool.execute(
-      "CALL add_child_with_parents_full(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "CALL add_child_with_parents_full(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       params
     );
   } catch (err) {
@@ -367,6 +370,7 @@ export type UpdateChildPayload = {
   doctorPhone: string;
   enrollDate: string | null;
   dropDate: string | null;
+  checkoutTime: string | null;
   fee: number | null;
   parentOneId: number;
   parentOneName: string;
@@ -396,6 +400,7 @@ export async function updateChildAndParents(
     payload.doctorPhone,
     payload.enrollDate,
     payload.dropDate,
+    payload.checkoutTime,
     payload.fee,
     payload.parentOneId,
     payload.parentOneName,
@@ -410,7 +415,7 @@ export async function updateChildAndParents(
   ];
   try {
     await pool.execute(
-      "CALL update_child_and_parents(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "CALL update_child_and_parents(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       params
     );
   } catch (err) {
