@@ -37,7 +37,7 @@ export default function Home() {
 
   return (
     <>
-      <Hero imagename="/herobg.jpeg" />
+      <Hero imagename="/HeroBG.png" />
       <About />
       <Learning />
       <PhotoCarousel filenames={carouselImageFilenames} />

@@ -35,8 +35,8 @@ export default function Director() {
           </p>
           <p className="italic">
             What truly makes our school special is the sense of
-            connection—between teachers, children, and parents. We’re not just
-            preparing children for kindergarten—we’re laying the foundation for
+            connection between teachers, children, and parents. We’re not just
+            preparing children for kindergarten; we’re laying the foundation for
             confident, lifelong learners. I invite you to come visit, meet our
             amazing team, and see the joyful learning in action. We’d love to
             welcome you into the Stepping Stone family!"

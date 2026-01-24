@@ -80,20 +80,19 @@ export default function Navbar({ forceActive = false }: { forceActive?: boolean 
         </Link>
 
         {/* Nav links */}
-        <nav className="hidden min-w-0 flex-1 items-center justify-between text-sm font-semibold uppercase md:flex">
+        <nav className="hidden min-w-0 flex-1 items-center justify-between px-6 lg:px-8 text-sm font-semibold uppercase md:flex">
           <Link href="/AboutUs" style={styleActive('AboutUs')}>About</Link>
           <Link href="/Programs" style={styleActive('Programs')}>Programs</Link>
           <Link href="/Calendar" style={styleActive('Calendar')}>Calendar</Link>
           <Link href="/Curriculum" style={styleActive('Curriculum')}>Curriculum</Link>
-          <Link href="/Register" style={styleActive('Register')}>Admissions</Link>
         </nav>
 
         {/* "Schedule a Tour" button */}
         <Link
-          href="/schedule"
+          href="/Register"
           className="flex w-1/2 max-w-xs flex-shrink-0 items-center justify-center rounded-full bg-yellow-400 px-3 py-2 text-sm font-semibold uppercase text-gray-900 transition hover:bg-yellow-500 md:w-auto md:max-w-none md:px-4 md:mx-0 mx-auto"
         >
-          Schedule a Tour
+          Register for Waitlist
         </Link>
 
         {/* Mobile menu button */}

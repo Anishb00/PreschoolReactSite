@@ -9,9 +9,9 @@ export default function AboutUs() {
   return (
     <>
       <Banner
-        imagename="/herobg.jpeg"
+        imagename="/HeroBG.png"
         title="About Us"
-        subtitle="Moorlands is the oldest prep school in Leeds, founded in 1897. The school moved to its current superb location in 1967."
+        subtitle="Stepping Stone World Preschool is a warm, community-first school in Milpitas where kids learn through joyful play, hands-on discovery, and close family partnerships."
       />
 
       <Mission />

@@ -6,7 +6,7 @@ export default function Programs() {
   return (
     <>
       <Banner
-        imagename="/herobg.jpeg"
+        imagename="/HeroBG.png"
         title="Calendar"
         subtitle="Stay up to date with important holidays, closures, and events throughout the school year."
       />

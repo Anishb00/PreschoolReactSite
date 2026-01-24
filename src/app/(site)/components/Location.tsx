@@ -1,8 +1,8 @@
 export default function Location() {
   return (
     <section className="w-full bg-gray-200 px-4 py-12 sm:px-8 lg:px-12">
-      <div className="mx-auto flex max-w-6xl flex-col items-stretch gap-8 lg:flex-row lg:items-center">
-        <div className="w-full rounded-2xl bg-[#3a249c] px-6 py-8 text-white shadow-lg sm:px-8 lg:max-w-md xl:max-w-lg">
+      <div className=" flex max-w-6xl flex-col items-stretch gap-8 lg:flex-row lg:items-center lg:justify-start">
+        <div className="w-full max-w-5xl rounded-2xl bg-[#3a249c] px-6 py-8 text-white shadow-lg md:w-1/2 sm:px-8">
           <h2 className="mb-4 text-3xl font-semibold leading-snug sm:text-4xl">
             A Welcoming Campus <br /> Near You
           </h2>

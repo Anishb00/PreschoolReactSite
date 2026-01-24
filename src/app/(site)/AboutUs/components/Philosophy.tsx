@@ -26,7 +26,7 @@ export default function Philosophy() {
       </div>
       <div className="w-full md:w-1/2">
         <img
-          src="classroom.jpg"
+          src="ChildrenWriting.png"
           alt="Classroom"
           className="h-full w-full rounded-xl object-cover"
         />

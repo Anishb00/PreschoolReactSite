@@ -5,10 +5,12 @@ import { gsap } from "gsap";
 
 type Props = {
   text?: string;
+  image?: string;
 };
 
 const CardWithAnimatedButton: React.FC<Props> = ({
   text = "Our Prospectus >",
+  image = "/herobg.jpeg",
 }) => {
   const buttonWrapperRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -61,14 +63,22 @@ const CardWithAnimatedButton: React.FC<Props> = ({
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="relative flex h-[500px] flex-1 flex-col justify-end overflow-hidden bg-[#3a249c] p-6 text-white"
+      className="relative flex min-h-[420px] md:min-h-[500px] flex-none md:flex-1 flex-col justify-end overflow-hidden bg-[#3a249c] p-6 text-white"
     >
-      <div className="border-t border-[#FFCC00] pt-4">
+      <div
+        className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-20"
+        style={{ backgroundImage: `url('${image}')` }}
+      />
+
+      <div className="relative z-10 border-t border-[#FFCC00] pt-4">
         <h2 className="text-3xl">{text}</h2>
       </div>
 
       {/* Animated Button Wrapper */}
-      <div ref={buttonWrapperRef} className="mt-4 h-0 overflow-hidden">
+      <div
+        ref={buttonWrapperRef}
+        className="relative z-10 mt-4 h-0 overflow-hidden"
+      >
         <button
           ref={buttonRef}
           className="rounded bg-[#FFCC00] px-4 py-2 font-semibold text-purple-900"

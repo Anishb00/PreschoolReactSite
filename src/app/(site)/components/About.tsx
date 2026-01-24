@@ -15,16 +15,16 @@ export default function About() {
       </div>
 
       {/* Middle Section - Two Column */}
-      <div className="mt-24 flex max-w-[1233px] flex-col items-center justify-center gap-[11px] lg:flex-row">
-        <h2 className="text-ce1nter text-5xl font-semibold lg:w-1/3">
+      <div className="mt-24 flex max-w-[1233px] flex-col items-center justify-center gap-[11px] min-[1154px]:flex-row">
+        <h2 className="text-ce1nter text-5xl font-semibold min-[1154px]:w-1/3">
           The Stepping
           <br />
           Stone Family
         </h2>
 
-        <div className="h-[543px] w-[100%] max-w-[543px] bg-gray-300 lg:w-[387px]" />
+        <div className="h-[543px] w-full max-w-[787px] bg-[url('/ChildrenFamilies.png')] bg-cover bg-center bg-no-repeat rounded-2xl min-[1154px]:w-[787px]" />
 
-        <p className="px-[10px] paragraph self-end lg:w-1/3 text-center">
+        <p className="px-[10px] paragraph self-end text-center min-[1154px]:w-1/3">
           We believe families are key to a child’s growth. That’s why we share regular updates,
           joyful photos, and little milestones, so you’re part of every step. Together, we build
           a bond of trust, joy, and celebration.
@@ -33,7 +33,7 @@ export default function About() {
 
       {/* Bottom Section - Image Left, Text Right */}
       <div className="mt-12 mb-12 flex w-full flex-col items-center justify-between gap-8 lg:flex-row">
-        <div className="h-[450px] w-[100%] max-w-[543px] bg-gray-300 lg:w-1/2 lg:max-w-none"/>
+        <div className="h-[450px] w-[100%] max-w-[543px] bg-[url('/Kidsplayingwithtrains.png')] bg-cover bg-center bg-no-repeat lg:w-1/2 lg:max-w-none"/>
 
         <div className="text-center lg:w-1/2 lg:text-center">
           <h2 className="mb-4 text-5xl font-semibold">First Steps</h2>
