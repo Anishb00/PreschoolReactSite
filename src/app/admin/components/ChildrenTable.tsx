@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
 
 const IconEdit = () => (
   <svg
@@ -73,6 +74,7 @@ export type ChildRow = {
   className: string;
   dob?: string;
   enrollDate: string;
+  checkoutTime?: string;
   fee: string;
   dropDate: string;
   doctorName?: string;
@@ -123,6 +125,7 @@ export default function ChildrenTable({
   fullView = false,
   showPrintControls = true,
 }: ChildrenTableProps) {
+  const router = useRouter();
   const actionColWidth = fullView ? "w-36" : "w-40";
   const actionColMinWidth = fullView ? "9rem" : "10rem";
   const [state, formAction] = React.useActionState(deleteChild, {
@@ -171,6 +174,7 @@ export default function ChildrenTable({
             child.program,
             child.className,
             child.enrollDate,
+            child.checkoutTime ?? "",
             child.fee,
             child.dropDate,
             fullView ? child.dob : "",
@@ -193,6 +197,19 @@ export default function ChildrenTable({
       return haystack.includes(query);
     });
   }, [classFilter, isAdmin, searchTerm, state.children]);
+
+  const updateClass = async (childId: number, className: string) => {
+    try {
+      await fetch("/api/set-class", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ childId, className }),
+      });
+      router.refresh();
+    } catch (err) {
+      console.error("Failed to update class", err);
+    }
+  };
 
   useEffect(() => {
     if (state.lastDeletedId != null) {
@@ -511,6 +528,7 @@ export default function ChildrenTable({
                 {fullView && <th className="p-3 text-left">Doctor Name</th>}
                 {fullView && <th className="p-3 text-left">Doctor Phone</th>}
                 <th className="p-3 text-left">Enroll Date</th>
+                <th className="p-3 text-left">Checkout Time</th>
                 <th className="p-3 text-left">Fee</th>
                 <th className="p-3 text-left">Parent 1</th>
                 {fullView && <th className="p-3 text-left">Parent 1 Phone</th>}
@@ -526,7 +544,7 @@ export default function ChildrenTable({
               {filteredChildren.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={fullView ? 19 : 12}
+                    colSpan={fullView ? 20 : 13}
                     className="p-6 text-center text-gray-500"
                   >
                     No children found.
@@ -620,10 +638,32 @@ export default function ChildrenTable({
                   <td className="p-3 text-gray-700">{child.sex}</td>
                   {fullView && <td className="p-3 text-gray-700">{child.dob ?? ""}</td>}
                   <td className="p-3 text-gray-700">{child.program}</td>
-                  <td className="p-3 text-gray-700">{child.className}</td>
+                  <td className="p-3 text-gray-700">
+                    {isAdmin ? (
+                      <select
+                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        value={child.className ?? ""}
+                        onChange={(e) => updateClass(child.id, e.target.value)}
+                      >
+                        <option value="">Unassigned</option>
+                        <option value="Caterpillar">Caterpillar</option>
+                        <option value="Chrysalis">Chrysalis</option>
+                        <option value="Butterfly">Butterfly</option>
+                        <option value="Sunshine">Sunshine</option>
+                        <option value="Rainbow">Rainbow</option>
+                        <option value="Pre-Register">Pre-Register</option>
+                        <option value="Registered">Registered</option>
+                        <option value="Waitlist">Waitlist</option>
+                        <option value="Test">Test</option>
+                      </select>
+                    ) : (
+                      child.className
+                    )}
+                  </td>
                   {fullView && <td className="p-3 text-gray-700">{child.doctorName ?? ""}</td>}
                   {fullView && <td className="p-3 text-gray-700">{child.doctorPhone ?? ""}</td>}
                   <td className="p-3 text-gray-700">{child.enrollDate}</td>
+                  <td className="p-3 text-gray-700">{child.checkoutTime ?? ""}</td>
                   <td className="p-3 text-gray-700">{child.fee}</td>
                   <td className="p-3 text-gray-700">{child.parent1Name}</td>
                   {fullView && <td className="p-3 text-gray-700">{child.parent1Phone ?? ""}</td>}

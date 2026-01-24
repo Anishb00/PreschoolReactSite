@@ -1,5 +1,5 @@
 import { revalidatePath } from "next/cache";
-import ChildrenTable from "@/app/admin/components/ChildrenTable";
+import ChildrenTable, { type ChildRow } from "@/app/admin/components/ChildrenTable";
 import { authorizeUser } from "@/lib/authentication";
 import { MIN_ASSET_ROLE_ACCESS } from "@/lib/protectedassets";
 import {
@@ -11,22 +11,7 @@ import { EndpointErrorResponse } from "@/lib/EndpointErrorResponse";
 import { isAdmin } from "@/lib/authentication";
 
 type TableState = {
-  children: {
-    id: number;
-    name: string;
-    sex: string;
-    program: string;
-    className: string;
-  enrollDate: string;
-  fee: string;
-  dropDate: string;
-  parent1Name: string;
-  parent1Email: string;
-  parent1Verified?: boolean;
-  parent2Name: string;
-  parent2Email: string;
-  parent2Verified?: boolean;
-  }[];
+  children: ChildRow[];
   lastDeletedId?: number;
   message?: string;
 };
@@ -39,6 +24,11 @@ function formatDate(value: Date | null): string {
 }
 
 function mapChildRow(row: ChildWithParentsFullRow) {
+  const formatTime = (value: Date | string | null | undefined): string => {
+    if (!value) return "";
+    const asString = value instanceof Date ? value.toTimeString() : String(value);
+    return asString.slice(0, 5);
+  };
   return {
     id: row.Child_ID,
     name: row.Child_name ?? "",
@@ -46,6 +36,7 @@ function mapChildRow(row: ChildWithParentsFullRow) {
     program: row.Program ?? "",
     className: row.Class ?? "",
     enrollDate: formatDate(row.Enroll_date ?? null),
+    checkoutTime: formatTime(row.Checkout_time),
     fee: row.Fee != null ? String(row.Fee) : "",
     dropDate: formatDate(row.Drop_date ?? null),
     parent1Name: row.Parent1_Name ?? "",

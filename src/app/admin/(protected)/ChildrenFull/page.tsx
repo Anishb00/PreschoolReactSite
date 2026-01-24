@@ -16,6 +16,12 @@ function formatDate(value: Date | null): string {
   return value.toISOString().split("T")[0];
 }
 
+function formatTime(value: Date | string | null | undefined): string {
+  if (!value) return "";
+  const asString = value instanceof Date ? value.toTimeString() : String(value);
+  return asString.slice(0, 5);
+}
+
 function mapChildRow(row: ChildWithParentsFullRow): ChildRow {
   return {
     id: row.Child_ID,
@@ -25,6 +31,7 @@ function mapChildRow(row: ChildWithParentsFullRow): ChildRow {
     className: row.Class ?? "",
     dob: formatDate(row.DOB ?? null),
     enrollDate: formatDate(row.Enroll_date ?? null),
+    checkoutTime: formatTime(row.Checkout_time),
     fee: row.Fee != null ? String(row.Fee) : "",
     dropDate: formatDate(row.Drop_date ?? null),
     doctorName: row.Doctor_name ?? "",

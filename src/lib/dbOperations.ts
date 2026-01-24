@@ -265,6 +265,7 @@ export type ChildWithParentsRow = {
   Doctor_phone: string | null;
   Fee: number | null;
   Drop_date: Date | null;
+  Checkout_time?: string | Date | null;
   Parent1_Name: string | null;
   Parent1_Email: string | null;
   Parent1_Verified?: number | null;
@@ -285,6 +286,7 @@ export type ChildWithParentsFullRow = {
   Doctor_phone: string | null;
   Enroll_date: Date | null;
   Drop_date: Date | null;
+  Checkout_time?: string | Date | null;
   Fee: number | null;
   Parent1_ID: number | null;
   Parent1_Name: string | null;
