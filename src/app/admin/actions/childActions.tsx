@@ -6,6 +6,7 @@ import { API_ERROR_CODES, DB_ERROR_CODES } from "@/lib/errorCodes";
 import * as helpers from "@/lib/registration-helpers";
 import {
   addChildWithParentsFull,
+  getChildByNameDobWithParentIds,
   updateChildAndParents,
   type AddChildFullPayload,
   type UpdateChildPayload,
@@ -126,6 +127,15 @@ export async function createChild(formData: FormData) {
 
   if (errorStatus.checkErrors() === 0) {
     await addChildWithParentsFull(registrationData, errorStatus);
+    // Verify the record exists after insertion
+    const inserted = await getChildByNameDobWithParentIds(
+      { childName: registrationData.childName, dob: registrationData.dob },
+      errorStatus
+    );
+    if (!inserted) {
+      errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
+      errorStatus.log("Post-insert verification failed: child not found");
+    }
   }
 
   if (errorStatus.uncaughtErrors.size > 0) {

@@ -27,6 +27,7 @@ DROP TABLE IF EXISTS Check_In_Out;
 DROP TABLE IF EXISTS filtered_students;
 DROP TABLE IF EXISTS schedule_items;
 DROP TABLE IF EXISTS schedules;
+DROP TABLE IF EXISTS email_verifications;
 DROP TABLE IF EXISTS Child_Parent;
 DROP TABLE IF EXISTS Parent;
 DROP TABLE IF EXISTS Child;
