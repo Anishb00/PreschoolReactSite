@@ -44,15 +44,28 @@ function mapRow(row: ChildWithParentsFullRow): ChildRow {
   };
 }
 
-export default async function UnverifiedPage() {
+export default async function UnverifiedPage({
+  searchParams,
+}: {
+  searchParams?: { class?: string };
+}) {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.VIEW_DASHBOARD);
   const isAdminUser = await isAdmin();
   const errorStatus = new EndpointErrorResponse();
-  const rows = await getChildrenWithParentsFull(errorStatus);
+  const currentClass = searchParams?.class ?? null;
+  const rows = await getChildrenWithParentsFull(errorStatus, {
+    className: currentClass ?? undefined,
+  });
 
   const filtered = rows.filter((row) => {
-    const classOk = row.Class ? TARGET_CLASSES.has(row.Class) : false;
-    if (!classOk) return false;
+    // Allow any class when a specific class is selected; otherwise limit to core set
+    if (currentClass && currentClass !== "all") {
+      if (row.Class !== currentClass) return false;
+    } else {
+      const classOk = row.Class ? TARGET_CLASSES.has(row.Class) : false;
+      if (!classOk) return false;
+    }
+
     const parent1Unverified = !!row.Parent1_Email && row.Parent1_Verified === 0;
     const parent2Unverified = !!row.Parent2_Email && row.Parent2_Verified === 0;
     return parent1Unverified || parent2Unverified;
@@ -77,7 +90,9 @@ export default async function UnverifiedPage() {
         </p>
       </header>
       <ChildrenTable
+        key={currentClass ?? "all"}
         initialChildren={children}
+        initialClassFilter={currentClass ?? "all"}
         deleteChild={deleteChild}
         isAdmin={isAdminUser}
         fullView={false}

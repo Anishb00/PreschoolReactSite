@@ -57,7 +57,7 @@ export default function CarouselEditor({
         <h3 className="text-xl font-semibold text-gray-800 mb-4">
           Add Photo
         </h3>
-        <form action={formAction} encType="multipart/form-data" className="space-y-4">
+        <form action={formAction} className="space-y-4">
           <input type="hidden" name="actionType" value="add" />
           <div>
             <label className="block text-sm font-semibold text-gray-700">

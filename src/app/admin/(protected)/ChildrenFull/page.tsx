@@ -55,11 +55,18 @@ type TableState = {
   message?: string;
 };
 
-export default async function ChildrenFullPage() {
+export default async function ChildrenFullPage({
+  searchParams,
+}: {
+  searchParams?: { class?: string };
+}) {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.VIEW_DASHBOARD);
   const isAdminUser = await isAdmin();
   const errorStatus = new EndpointErrorResponse();
-  const rows = await getChildrenWithParentsFull(errorStatus);
+  const currentClass = searchParams?.class ?? null;
+  const rows = await getChildrenWithParentsFull(errorStatus, {
+    className: currentClass ?? undefined,
+  });
   const children = rows.map(mapChildRow);
 
   const deleteChild = async (_prevState: TableState, formData: FormData): Promise<TableState> => {
@@ -68,7 +75,11 @@ export default async function ChildrenFullPage() {
     const childId = Number(formData.get("childId"));
     if (!Number.isFinite(childId)) {
       return {
-        children: (await getChildrenWithParentsFull(errorState)).map(mapChildRow),
+        children: (
+          await getChildrenWithParentsFull(errorState, {
+            className: currentClass ?? undefined,
+          })
+        ).map(mapChildRow),
         message: "Invalid child selected.",
       };
     }
@@ -76,14 +87,22 @@ export default async function ChildrenFullPage() {
     await deleteChildById(childId, errorState);
     if (errorState.uncaughtErrors.size > 0) {
       return {
-        children: (await getChildrenWithParentsFull(errorState)).map(mapChildRow),
+        children: (
+          await getChildrenWithParentsFull(errorState, {
+            className: currentClass ?? undefined,
+          })
+        ).map(mapChildRow),
         message: "Unable to delete child. Please try again.",
       };
     }
 
     revalidatePath("/admin/ChildrenFull");
     return {
-      children: (await getChildrenWithParentsFull(errorState)).map(mapChildRow),
+      children: (
+        await getChildrenWithParentsFull(errorState, {
+          className: currentClass ?? undefined,
+        })
+      ).map(mapChildRow),
       lastDeletedId: childId,
       message: "Child removed.",
     };
@@ -98,7 +117,9 @@ export default async function ChildrenFullPage() {
 
       <section className="mt-6">
         <ChildrenTable
+          key={currentClass ?? "all"}
           initialChildren={children}
+          initialClassFilter={currentClass ?? "all"}
           deleteChild={deleteChild}
           isAdmin={isAdminUser}
           fullView

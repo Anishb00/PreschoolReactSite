@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useFormStatus } from "react-dom";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const IconEdit = () => (
   <svg
@@ -103,6 +103,7 @@ type ChildrenTableProps = {
   isAdmin: boolean;
   fullView?: boolean;
   showPrintControls?: boolean;
+  initialClassFilter?: string;
 };
 
 function DeleteButton() {
@@ -124,8 +125,10 @@ export default function ChildrenTable({
   isAdmin,
   fullView = false,
   showPrintControls = true,
+  initialClassFilter = "all",
 }: ChildrenTableProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const actionColWidth = fullView ? "w-36" : "w-40";
   const actionColMinWidth = fullView ? "9rem" : "10rem";
   const [state, formAction] = React.useActionState(deleteChild, {
@@ -133,7 +136,11 @@ export default function ChildrenTable({
   });
   const [modalChildId, setModalChildId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [classFilter, setClassFilter] = useState(isAdmin ? "all" : "Caterpillar");
+  const [classFilter, setClassFilter] = useState(
+    initialClassFilter || (isAdmin ? "all" : "Caterpillar")
+  );
+  const [disabledIds, setDisabledIds] = useState<Set<number>>(new Set());
+  const [classOverrides, setClassOverrides] = useState<Record<number, string>>({});
   const [isGeneratingSheet, setIsGeneratingSheet] = useState(false);
   const [isGeneratingRoster, setIsGeneratingRoster] = useState(false);
   const [isGeneratingTeacherSheet, setIsGeneratingTeacherSheet] = useState(false);
@@ -151,21 +158,8 @@ export default function ChildrenTable({
   }, [modalChildId, state.children]);
 
   const filteredChildren = useMemo(() => {
-    const studentClasses = new Set<string>([
-      "Caterpillar",
-      "Chrysalis",
-      "Butterfly",
-      "Sunshine",
-      "Rainbow",
-    ]);
     const query = searchTerm.trim().toLowerCase();
-    const classFiltered = state.children.filter((child) => {
-      if (classFilter === "all") {
-        return studentClasses.has(child.className);
-      }
-      return child.className === classFilter;
-    });
-    return classFiltered.filter((child) => {
+    return state.children.filter((child) => {
       const haystackValues = isAdmin
         ? [
             child.id,
@@ -196,7 +190,7 @@ export default function ChildrenTable({
         .join(" ");
       return haystack.includes(query);
     });
-  }, [classFilter, isAdmin, searchTerm, state.children]);
+  }, [isAdmin, searchTerm, state.children, fullView]);
 
   const updateClass = async (childId: number, className: string) => {
     try {
@@ -205,7 +199,8 @@ export default function ChildrenTable({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ childId, className }),
       });
-      router.refresh();
+      setClassOverrides((prev) => ({ ...prev, [childId]: className }));
+      setDisabledIds((prev) => new Set(prev).add(childId));
     } catch (err) {
       console.error("Failed to update class", err);
     }
@@ -416,8 +411,12 @@ export default function ChildrenTable({
             name="classFilter"
             value={classFilter}
             onChange={(event) => {
-              setClassFilter(event.target.value);
+              const value = event.target.value;
+              setClassFilter(value);
               setPrintError(null);
+              const params = new URLSearchParams();
+              if (value !== "all") params.set("class", value);
+              router.replace(`${pathname}?${params.toString()}`);
             }}
             className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B1FA8]"
           >
@@ -524,7 +523,7 @@ export default function ChildrenTable({
                 <th className="p-3 text-left">Sex</th>
                 {fullView && <th className="p-3 text-left">DOB</th>}
                 <th className="p-3 text-left">Program</th>
-                <th className="p-3 text-left">Class</th>
+                <th className="p-3 text-left min-w-[140px]">Class</th>
                 {fullView && <th className="p-3 text-left">Doctor Name</th>}
                 {fullView && <th className="p-3 text-left">Doctor Phone</th>}
                 <th className="p-3 text-left">Enroll Date</th>
@@ -551,155 +550,168 @@ export default function ChildrenTable({
                   </td>
                 </tr>
               ) : (
-                filteredChildren.map((child) => (
-                  <tr key={child.id} className="border-t border-gray-200">
-                  <td
-                    className={`sticky left-0 z-10 bg-white p-3 ${actionColWidth}`}
-                    style={{ minWidth: actionColMinWidth }}
-                  >
-                    <div className="grid grid-cols-2 gap-1 sm:gap-2 items-stretch">
-                      <Link
-                        href={`/admin/EditChild?childId=${child.id}`}
-                        className="action-button w-full rounded-md border border-blue-600 px-3 py-2 text-center text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
-                        aria-label="Edit"
+                filteredChildren.map((child) => {
+                  const isDisabled = disabledIds.has(child.id);
+                  return (
+                    <tr
+                      key={child.id}
+                      className={`border-t border-gray-200 transition ${
+                        isDisabled ? "bg-gray-300 opacity-80" : ""
+                      }`}
+                    >
+                      <td
+                        className={`sticky left-0 z-10 bg-white p-3 ${actionColWidth} ${
+                          isDisabled ? "opacity-60 pointer-events-none" : ""
+                        }`}
+                        style={{ minWidth: actionColMinWidth }}
                       >
-                        <span className="action-icon">
-                          <IconEdit />
-                        </span>
-                        <span className="action-label">Edit</span>
-                      </Link>
-                      <button
-                        type="button"
-                        className="action-button w-full rounded-md border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
-                        aria-label="Email"
-                        onClick={() => {
-                          setEmailChild(child);
-                          setEmailSubject("");
-                          setEmailMessage("");
-                          setEmailAttachments(null);
-                        }}
+                        <div className="grid grid-cols-2 gap-1 sm:gap-2 items-stretch">
+                          <Link
+                            href={`/admin/EditChild?childId=${child.id}`}
+                            className="action-button w-full rounded-md border border-blue-600 px-3 py-2 text-center text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                            aria-label="Edit"
+                          >
+                            <span className="action-icon">
+                              <IconEdit />
+                            </span>
+                            <span className="action-label">Edit</span>
+                          </Link>
+                          <button
+                            type="button"
+                            className="action-button w-full rounded-md border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                            aria-label="Email"
+                            onClick={() => {
+                              setEmailChild(child);
+                              setEmailSubject("");
+                              setEmailMessage("");
+                              setEmailAttachments(null);
+                            }}
+                            disabled={isDisabled}
+                          >
+                            <span className="action-icon">
+                              <IconMail />
+                            </span>
+                            <span className="action-label">Email</span>
+                          </button>
+                          <Link
+                            href={`/admin/Receipt/${child.id}`}
+                            className="action-button w-full rounded-md border border-green-600 px-3 py-2 text-center text-xs font-semibold text-green-700 transition hover:bg-green-50"
+                            aria-label="Receipt"
+                          >
+                            <span className="action-icon">
+                              <IconReceipt />
+                            </span>
+                            <span className="action-label">Receipt</span>
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => setModalChildId(child.id)}
+                            className="action-button w-full rounded-md border border-red-600 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                            aria-label="Delete"
+                            disabled={isDisabled}
+                          >
+                            <span className="action-icon">
+                              <IconTrash />
+                            </span>
+                            <span className="action-label">Delete</span>
+                          </button>
+                        </div>
+                      </td>
+                      <td className="p-3 text-gray-900">{child.name}</td>
+                      <td className="p-3 text-gray-700">
+                        {(() => {
+                          const missing: string[] = [];
+                          if (child.parent1Verified === false) {
+                            missing.push("Parent 1 email is not verified");
+                          }
+                          if (child.parent2Email && child.parent2Verified === false) {
+                            missing.push("Parent 2 email is not verified");
+                          }
+                          const hasIssue = missing.length > 0;
+                          const title =
+                            missing.join(" & ") || "All parent emails are verified";
+                          return (
+                            <span
+                              className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
+                                hasIssue
+                                  ? "bg-amber-100 text-amber-700"
+                                  : "bg-green-100 text-green-700"
+                              }`}
+                              title={title}
+                              aria-label={title}
+                            >
+                              {hasIssue ? "!" : "✓"}
+                            </span>
+                          );
+                        })()}
+                      </td>
+                      <td className="p-3 text-gray-700">{child.sex}</td>
+                      {fullView && <td className="p-3 text-gray-700">{child.dob ?? ""}</td>}
+                      <td className="p-3 text-gray-700">{child.program}</td>
+                      <td className="p-3 text-gray-700 min-w-[140px]">
+                        {isAdmin ? (
+                          <select
+                            className="w-full rounded border border-gray-300 px-2 py-1 text-sm disabled:opacity-60"
+                            value={classOverrides[child.id] ?? child.className ?? ""}
+                            disabled={isDisabled}
+                            onChange={(e) => updateClass(child.id, e.target.value)}
+                          >
+                            <option value="">Unassigned</option>
+                            <option value="Caterpillar">Caterpillar</option>
+                            <option value="Chrysalis">Chrysalis</option>
+                            <option value="Butterfly">Butterfly</option>
+                            <option value="Sunshine">Sunshine</option>
+                            <option value="Rainbow">Rainbow</option>
+                            <option value="Pre-Register">Pre-Register</option>
+                            <option value="Registered">Registered</option>
+                            <option value="Waitlist">Waitlist</option>
+                            <option value="Test">Test</option>
+                          </select>
+                        ) : (
+                          classOverrides[child.id] ?? child.className
+                        )}
+                      </td>
+                      {fullView && <td className="p-3 text-gray-700">{child.doctorName ?? ""}</td>}
+                      {fullView && <td className="p-3 text-gray-700">{child.doctorPhone ?? ""}</td>}
+                      <td className="p-3 text-gray-700">{child.enrollDate}</td>
+                      <td className="p-3 text-gray-700">{child.checkoutTime ?? ""}</td>
+                      <td className="p-3 text-gray-700">{child.fee}</td>
+                      <td className="p-3 text-gray-700">{child.parent1Name}</td>
+                      {fullView && <td className="p-3 text-gray-700">{child.parent1Phone ?? ""}</td>}
+                      {fullView && <td className="p-3 text-gray-700">{child.parent1Address ?? ""}</td>}
+                      <td
+                        className={`p-3 text-gray-700 ${
+                          child.parent1Verified === false ? "bg-amber-50 text-amber-800" : ""
+                        }`}
+                        title={
+                          child.parent1Verified === false
+                            ? "Parent 1 email is not verified"
+                            : undefined
+                        }
                       >
-                        <span className="action-icon">
-                          <IconMail />
-                        </span>
-                        <span className="action-label">Email</span>
-                      </button>
-                      <Link
-                        href={`/admin/Receipt/${child.id}`}
-                        className="action-button w-full rounded-md border border-green-600 px-3 py-2 text-center text-xs font-semibold text-green-700 transition hover:bg-green-50"
-                        aria-label="Receipt"
+                        {child.parent1Email}
+                      </td>
+                      <td className="p-3 text-gray-700">{child.parent2Name}</td>
+                      {fullView && <td className="p-3 text-gray-700">{child.parent2Phone ?? ""}</td>}
+                      {fullView && <td className="p-3 text-gray-700">{child.parent2Address ?? ""}</td>}
+                      <td
+                        className={`p-3 text-gray-700 ${
+                          child.parent2Email && child.parent2Verified === false
+                            ? "bg-amber-50 text-amber-800"
+                            : ""
+                        }`}
+                        title={
+                          child.parent2Email && child.parent2Verified === false
+                            ? "Parent 2 email is not verified"
+                            : undefined
+                        }
                       >
-                        <span className="action-icon">
-                          <IconReceipt />
-                        </span>
-                        <span className="action-label">Receipt</span>
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => setModalChildId(child.id)}
-                        className="action-button w-full rounded-md border border-red-600 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                        aria-label="Delete"
-                      >
-                        <span className="action-icon">
-                          <IconTrash />
-                        </span>
-                        <span className="action-label">Delete</span>
-                      </button>
-                    </div>
-                  </td>
-                  <td className="p-3 text-gray-900">{child.name}</td>
-                  <td className="p-3 text-gray-700">
-                    {(() => {
-                      const missing: string[] = [];
-                      if (child.parent1Verified === false) {
-                        missing.push("Parent 1 email is not verified");
-                      }
-                      if (child.parent2Email && child.parent2Verified === false) {
-                        missing.push("Parent 2 email is not verified");
-                      }
-                      const hasIssue = missing.length > 0;
-                      const title =
-                        missing.join(" & ") || "All parent emails are verified";
-                      return (
-                        <span
-                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
-                            hasIssue
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-green-100 text-green-700"
-                          }`}
-                          title={title}
-                          aria-label={title}
-                        >
-                          {hasIssue ? "!" : "✓"}
-                        </span>
-                      );
-                    })()}
-                  </td>
-                  <td className="p-3 text-gray-700">{child.sex}</td>
-                  {fullView && <td className="p-3 text-gray-700">{child.dob ?? ""}</td>}
-                  <td className="p-3 text-gray-700">{child.program}</td>
-                  <td className="p-3 text-gray-700">
-                    {isAdmin ? (
-                      <select
-                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
-                        value={child.className ?? ""}
-                        onChange={(e) => updateClass(child.id, e.target.value)}
-                      >
-                        <option value="">Unassigned</option>
-                        <option value="Caterpillar">Caterpillar</option>
-                        <option value="Chrysalis">Chrysalis</option>
-                        <option value="Butterfly">Butterfly</option>
-                        <option value="Sunshine">Sunshine</option>
-                        <option value="Rainbow">Rainbow</option>
-                        <option value="Pre-Register">Pre-Register</option>
-                        <option value="Registered">Registered</option>
-                        <option value="Waitlist">Waitlist</option>
-                        <option value="Test">Test</option>
-                      </select>
-                    ) : (
-                      child.className
-                    )}
-                  </td>
-                  {fullView && <td className="p-3 text-gray-700">{child.doctorName ?? ""}</td>}
-                  {fullView && <td className="p-3 text-gray-700">{child.doctorPhone ?? ""}</td>}
-                  <td className="p-3 text-gray-700">{child.enrollDate}</td>
-                  <td className="p-3 text-gray-700">{child.checkoutTime ?? ""}</td>
-                  <td className="p-3 text-gray-700">{child.fee}</td>
-                  <td className="p-3 text-gray-700">{child.parent1Name}</td>
-                  {fullView && <td className="p-3 text-gray-700">{child.parent1Phone ?? ""}</td>}
-                  {fullView && <td className="p-3 text-gray-700">{child.parent1Address ?? ""}</td>}
-                  <td
-                    className={`p-3 text-gray-700 ${
-                      child.parent1Verified === false ? "bg-amber-50 text-amber-800" : ""
-                    }`}
-                    title={
-                      child.parent1Verified === false
-                        ? "Parent 1 email is not verified"
-                        : undefined
-                    }
-                  >
-                    {child.parent1Email}
-                  </td>
-                  <td className="p-3 text-gray-700">{child.parent2Name}</td>
-                  {fullView && <td className="p-3 text-gray-700">{child.parent2Phone ?? ""}</td>}
-                  {fullView && <td className="p-3 text-gray-700">{child.parent2Address ?? ""}</td>}
-                  <td
-                    className={`p-3 text-gray-700 ${
-                      child.parent2Email && child.parent2Verified === false
-                        ? "bg-amber-50 text-amber-800"
-                        : ""
-                    }`}
-                    title={
-                      child.parent2Email && child.parent2Verified === false
-                        ? "Parent 2 email is not verified"
-                        : undefined
-                    }
-                  >
-                    {child.parent2Email}
-                  </td>
-                </tr>
-              ))
-            )}
+                        {child.parent2Email}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
           </tbody>
           </table>
         ) : (
