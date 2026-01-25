@@ -10,7 +10,6 @@ export default function Hero({ imagename }: { imagename: string }) {
       <Button>
         Now accepting students for {String(new Date().getFullYear())}
       </Button>
-      <div>Item2</div>
     </div>
   );
 }
