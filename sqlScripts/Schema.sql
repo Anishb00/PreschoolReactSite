@@ -16,6 +16,7 @@ DROP PROCEDURE IF EXISTS register_child;
 DROP PROCEDURE IF EXISTS get_waitlist_child_with_parents;
 DROP PROCEDURE IF EXISTS get_child_with_parents_by_id;
 DROP PROCEDURE IF EXISTS set_child_class;
+DROP PROCEDURE IF EXISTS set_child_checkout_time;
 DROP PROCEDURE IF EXISTS refresh_filtered_students;
 DROP PROCEDURE IF EXISTS generate_unique_child_pin;
 
