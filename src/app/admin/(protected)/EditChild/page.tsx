@@ -1,10 +1,11 @@
+import Link from "next/link";
 import ChildForm from "@/app/admin/components/ChildForm";
 import type { RegistrationData } from "@/lib/types/Registertypes";
 import { EndpointErrorResponse } from "@/lib/EndpointErrorResponse";
 import { getChildWithParentsById } from "@/lib/dbOperations";
 
 type EditChildPageProps = {
-  searchParams?: Promise<{ childId?: string; status?: string }>;
+  searchParams?: Promise<{ childId?: string; status?: string; class?: string }>;
 };
 
 function toDateOnly(value: Date | null): Date | null {
@@ -23,6 +24,7 @@ function toTimeString(value: Date | string | null | undefined): string {
 export default async function EditChildPage({ searchParams }: EditChildPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const status = resolvedSearchParams?.status ?? "";
+  const selectedClass = resolvedSearchParams?.class ?? "";
 
   const childId = Number(resolvedSearchParams?.childId);
   const errorStatus = new EndpointErrorResponse();
@@ -73,6 +75,14 @@ export default async function EditChildPage({ searchParams }: EditChildPageProps
       <header className="mb-6">
         <h2 className="text-3xl font-semibold text-gray-800">Edit Child</h2>
         <p className="text-gray-600">Update an existing child record.</p>
+        <div className="mt-3">
+          <Link
+            href={selectedClass ? `/admin/home?class=${encodeURIComponent(selectedClass)}` : "/admin/home"}
+            className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+          >
+            ← Back to home ({selectedClass || "all classes"})
+          </Link>
+        </div>
       </header>
       {status && (
         <div

@@ -620,7 +620,7 @@ export default function ChildrenTable({
                       >
                         <div className="grid grid-cols-2 gap-1 sm:gap-2 items-stretch">
                           <Link
-                            href={`/admin/EditChild?childId=${child.id}`}
+                            href={`/admin/EditChild?childId=${child.id}&class=${encodeURIComponent(classFilter)}`}
                             className="action-button w-full rounded-md border border-blue-600 px-3 py-2 text-center text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
                             aria-label="Edit"
                           >
