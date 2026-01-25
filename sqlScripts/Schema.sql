@@ -19,8 +19,13 @@ DROP PROCEDURE IF EXISTS set_child_class;
 DROP PROCEDURE IF EXISTS set_child_checkout_time;
 DROP PROCEDURE IF EXISTS refresh_filtered_students;
 DROP PROCEDURE IF EXISTS generate_unique_child_pin;
+DROP FUNCTION IF EXISTS normalize_phone;
 
 DROP TRIGGER IF EXISTS delete_orphan_parent_after_child;
+DROP TRIGGER IF EXISTS normalize_parent_phone_bi;
+DROP TRIGGER IF EXISTS normalize_parent_phone_bu;
+DROP TRIGGER IF EXISTS normalize_child_doctor_phone_bi;
+DROP TRIGGER IF EXISTS normalize_child_doctor_phone_bu;
 
 DROP VIEW IF EXISTS ChildWithParents;
 
@@ -37,14 +42,14 @@ DROP TABLE IF EXISTS Child;
 
 CREATE TABLE Child (
   Child_ID INT NOT NULL AUTO_INCREMENT,
-  Child_name VARCHAR(30) NOT NULL,
+  Child_name VARCHAR(100) NOT NULL,
   DOB DATE NOT NULL,
   Sex VARCHAR(10) CHECK (Sex in ('male', 'female'))NOT NULL ,
   Program VARCHAR(30) NOT NULL,
   Class VARCHAR(20) CHECK (Class IN ('Waitlist','Pre-Register', 'Registered', 'Caterpillar', 'Chrysalis', 'Butterfly', 'Sunshine', 'Rainbow','Test','Dismissed')) DEFAULT NULL,
   Potty_trained BOOLEAN NOT NULL DEFAULT FALSE,
-  Doctor_name VARCHAR(30) NOT NULL,
-  Doctor_phone VARCHAR(19) NOT NULL,
+  Doctor_name VARCHAR(100) NOT NULL,
+  Doctor_phone VARCHAR(19) NULL,
   Enroll_date DATE DEFAULT NULL,
   Drop_date DATE DEFAULT NULL,
   Checkout_time TIME DEFAULT NULL,
@@ -56,17 +61,49 @@ CREATE TABLE Child (
   CONSTRAINT DOCTOR_PHONE_FORMAT CHECK (Doctor_phone REGEXP '^[0-9]{11}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+DELIMITER $$
+CREATE TRIGGER normalize_child_doctor_phone_bi
+BEFORE INSERT ON Child
+FOR EACH ROW
+BEGIN
+    SET NEW.Doctor_phone = normalize_phone(NEW.Doctor_phone);
+END$$
+
+CREATE TRIGGER normalize_child_doctor_phone_bu
+BEFORE UPDATE ON Child
+FOR EACH ROW
+BEGIN
+    SET NEW.Doctor_phone = normalize_phone(NEW.Doctor_phone);
+END$$
+DELIMITER ;
+
 CREATE TABLE Parent (
   Parent_ID INT NOT NULL AUTO_INCREMENT,
-  Name VARCHAR(50) NOT NULL,
+  Name VARCHAR(100) NOT NULL,
   Address LONGTEXT NOT NULL,
-  Phone VARCHAR(19) NOT NULL,
+  Phone VARCHAR(19) NULL,
   Email VARCHAR(50) NOT NULL,
   Email_verified BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (Parent_ID),
   UNIQUE KEY UQ_PARENT_IDENTITY (Name, Phone, Email),
   CONSTRAINT PARENT_PHONE_FORMAT CHECK (Phone REGEXP '^[0-9]{11}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DELIMITER $$
+CREATE TRIGGER normalize_parent_phone_bi
+BEFORE INSERT ON Parent
+FOR EACH ROW
+BEGIN
+    SET NEW.Phone = normalize_phone(NEW.Phone);
+END$$
+
+CREATE TRIGGER normalize_parent_phone_bu
+BEFORE UPDATE ON Parent
+FOR EACH ROW
+BEGIN
+    SET NEW.Phone = normalize_phone(NEW.Phone);
+END$$
+DELIMITER ;
 
 CREATE TABLE email_verifications (
   Verification_ID INT NOT NULL AUTO_INCREMENT,
@@ -181,6 +218,22 @@ CREATE TABLE `schedule_items` (
 ) ENGINE=InnoDB AUTO_INCREMENT=92 DEFAULT CHARSET=utf8mb4;
 
 DELIMITER ;;
+CREATE FUNCTION normalize_phone(p_phone VARCHAR(255))
+RETURNS VARCHAR(20) DETERMINISTIC
+BEGIN
+    DECLARE clean VARCHAR(20);
+    SET clean = REGEXP_REPLACE(IFNULL(p_phone,''), '[^0-9]', '');
+    IF LENGTH(clean) = 11 THEN
+        RETURN clean;
+    ELSEIF LENGTH(clean) = 10 THEN
+        RETURN CONCAT('1', clean);
+    ELSE
+        RETURN NULL;
+    END IF;
+END ;;
+DELIMITER ;
+
+DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generate_unique_child_pin`(OUT new_pin INT)
 BEGIN
     DECLARE is_unique BOOLEAN DEFAULT FALSE;
@@ -250,21 +303,21 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE register_child (
-    IN p_child_name VARCHAR(30),
+    IN p_child_name VARCHAR(100),
     IN p_dob DATE,
     IN p_sex ENUM('male','female'),
-    IN p_doctor_name VARCHAR(50),
+    IN p_doctor_name VARCHAR(100),
     IN p_doctor_phone VARCHAR(20),
     IN p_program VARCHAR(30),
     IN p_potty_trained BOOLEAN,
     IN p_checkout_time TIME,
 
-    IN p_parent1_name VARCHAR(50),
+    IN p_parent1_name VARCHAR(100),
     IN p_parent1_address VARCHAR(100),
     IN p_parent1_phone VARCHAR(20),
     IN p_parent1_email VARCHAR(50),
 
-    IN p_parent2_name VARCHAR(50),
+    IN p_parent2_name VARCHAR(100),
     IN p_parent2_address VARCHAR(100),
     IN p_parent2_phone VARCHAR(20),
     IN p_parent2_email VARCHAR(50)
@@ -356,13 +409,13 @@ DELIMITER $$
 CREATE PROCEDURE update_child_and_parents(
     -- Child info
     IN p_child_id INT,
-    IN p_child_name VARCHAR(30),
+    IN p_child_name VARCHAR(100),
     IN p_dob DATE,
     IN p_sex VARCHAR(10),
     IN p_program VARCHAR(30),
     IN p_potty_trained BOOLEAN,
     IN p_class VARCHAR(20),
-    IN p_doctor_name VARCHAR(30),
+    IN p_doctor_name VARCHAR(100),
     IN p_doctor_phone VARCHAR(19),
     IN p_enroll_date DATE,
     IN p_drop_date DATE,
@@ -371,14 +424,14 @@ CREATE PROCEDURE update_child_and_parents(
 
     -- Parent 1 info
     IN p_parent1_id INT,
-    IN p_parent1_name VARCHAR(50),
+    IN p_parent1_name VARCHAR(100),
     IN p_parent1_address LONGTEXT,
     IN p_parent1_phone VARCHAR(19),
     IN p_parent1_email VARCHAR(50),
 
     -- Parent 2 info (optional)
     IN p_parent2_id INT,
-    IN p_parent2_name VARCHAR(50),
+    IN p_parent2_name VARCHAR(100),
     IN p_parent2_address LONGTEXT,
     IN p_parent2_phone VARCHAR(19),
     IN p_parent2_email VARCHAR(50)
@@ -434,25 +487,25 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE add_child_with_parents_full (
-    IN p_child_name VARCHAR(30),
+    IN p_child_name VARCHAR(100),
     IN p_dob DATE,
     IN p_sex VARCHAR(10),
     IN p_program VARCHAR(30),
     IN p_potty_trained BOOLEAN,
     IN p_class VARCHAR(20),
-    IN p_doctor_name VARCHAR(30),
+    IN p_doctor_name VARCHAR(100),
     IN p_doctor_phone VARCHAR(19),
     IN p_enroll_date DATE,
     IN p_drop_date DATE,
     IN p_checkout_time TIME,
     IN p_fee INT,
 
-    IN p_parent1_name VARCHAR(50),
+    IN p_parent1_name VARCHAR(100),
     IN p_parent1_address LONGTEXT,
     IN p_parent1_phone VARCHAR(19),
     IN p_parent1_email VARCHAR(50),
 
-    IN p_parent2_name VARCHAR(50),
+    IN p_parent2_name VARCHAR(100),
     IN p_parent2_address LONGTEXT,
     IN p_parent2_phone VARCHAR(19),
     IN p_parent2_email VARCHAR(50)
@@ -669,7 +722,7 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE get_waitlist_child_with_parents(
-    IN p_child_name VARCHAR(30),
+    IN p_child_name VARCHAR(100),
     IN p_dob DATE
 )
 BEGIN
@@ -707,7 +760,7 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE get_child_by_name_dob_with_parents(
-    IN p_child_name VARCHAR(30),
+    IN p_child_name VARCHAR(100),
     IN p_dob DATE
 )
 BEGIN
@@ -748,7 +801,7 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE fuzzy_find_child_parent (
-    IN p_search VARCHAR(100)
+    IN p_search VARCHAR(255)
 )
 BEGIN
     SELECT
