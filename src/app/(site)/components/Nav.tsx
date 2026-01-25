@@ -81,7 +81,7 @@ export default function Navbar({ forceActive = false }: { forceActive?: boolean 
 
         {/* Nav links */}
         <nav className="hidden min-w-0 flex-1 items-center justify-between px-6 lg:px-8 text-sm font-semibold uppercase md:flex">
-          <Link href="/AboutUs" style={styleActive('AboutUs')}>About</Link>
+          <Link href="/AboutUs" style={styleActive('AboutUs')}>About Us</Link>
           <Link href="/Programs" style={styleActive('Programs')}>Programs</Link>
           <Link href="/Calendar" style={styleActive('Calendar')}>Calendar</Link>
           <Link href="/Curriculum" style={styleActive('Curriculum')}>Curriculum</Link>

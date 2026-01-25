@@ -1,19 +1,22 @@
 "use client";
 
 import React, { useRef } from "react";
+import Link from "next/link";
 import { gsap } from "gsap";
 
 type Props = {
   text?: string;
   image?: string;
+  href?: string;
 };
 
 const CardWithAnimatedButton: React.FC<Props> = ({
   text = "Our Prospectus >",
   image = "/herobg.jpeg",
+  href = "#",
 }) => {
   const buttonWrapperRef = useRef<HTMLDivElement | null>(null);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const buttonRef = useRef<HTMLAnchorElement | null>(null);
 
   const handleMouseEnter = () => {
     if (buttonWrapperRef.current && buttonRef.current) {
@@ -79,20 +82,51 @@ const CardWithAnimatedButton: React.FC<Props> = ({
         ref={buttonWrapperRef}
         className="relative z-10 mt-4 h-0 overflow-hidden"
       >
-        <button
+        <AnchorButton
           ref={buttonRef}
-          className="rounded bg-[#FFCC00] px-4 py-2 font-semibold text-purple-900"
-          style={{
-            opacity: 0,
-            visibility: "hidden",
-            transform: "translateY(10px)",
-          }}
-        >
-          Learn More
-        </button>
+          href={href}
+        />
       </div>
     </div>
   );
 };
+
+type AnchorButtonProps = {
+  href: string;
+};
+
+const AnchorButton = React.forwardRef<HTMLAnchorElement, AnchorButtonProps>(
+  function AnchorButton({ href }, ref) {
+    const isExternal = href.startsWith("http");
+    const className =
+      "inline-block rounded bg-[#FFCC00] px-4 py-2 font-semibold text-purple-900";
+    const style = {
+      opacity: 0,
+      visibility: "hidden",
+      transform: "translateY(10px)",
+    } as React.CSSProperties;
+
+    if (isExternal) {
+      return (
+        <a
+          ref={ref}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={className}
+          style={style}
+        >
+          Learn More
+        </a>
+      );
+    }
+
+    return (
+      <Link ref={ref} href={href} className={className} style={style}>
+        Learn More
+      </Link>
+    );
+  },
+);
 
 export default CardWithAnimatedButton;

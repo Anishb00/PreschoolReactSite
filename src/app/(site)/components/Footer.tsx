@@ -44,41 +44,27 @@ export default function Footer() {
           <h4 className="mb-2 font-semibold uppercase">Quick Links</h4>
           <ul className="space-y-1">
             <li>
-              <Link href="/" className="hover:underline">
-                Our School
-              </Link>
+              <Link href="/AboutUs" >About Us</Link>
             </li>
             <li>
-              <Link href="/" className="hover:underline">
-                Parent Zone
-              </Link>
+              <Link href="/Programs">Programs</Link>
             </li>
             <li>
-              <Link href="/" className="hover:underline">
-                Admissions
-              </Link>
+              <Link href="/Calendar" >Calendar</Link>
             </li>
             <li>
-              <Link href="/" className="hover:underline">
-                Fees
-              </Link>
+              <Link href="/Curriculum">Curriculum</Link>
+
             </li>
             <li>
-              <Link href="/" className="hover:underline">
-                Contact Us
-              </Link>
-            </li>
-            <li>
-              <Link href="/admin" className="hover:underline">
-                Admin Portal
-              </Link>
+               <Link href="/Register">Register Waitlist</Link>
             </li>
           </ul>
         </div>
       </div>
 
       <div className="mt-12 border-t border-gray-300 pt-6 text-center text-xs text-gray-500">
-        © 2025 Stepping Stone World Preschool. Developed by Your Team |{" "}
+        © 2025 Stepping Stone World Preschool. Developed by Your Team{" "}
       </div>
     </footer>
   );
