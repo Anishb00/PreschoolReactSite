@@ -223,13 +223,10 @@ RETURNS VARCHAR(20) DETERMINISTIC
 BEGIN
     DECLARE clean VARCHAR(20);
     SET clean = REGEXP_REPLACE(IFNULL(p_phone,''), '[^0-9]', '');
-    IF LENGTH(clean) = 11 THEN
+    IF LENGTH(clean) = 11 AND SUBSTRING(clean,1,1) = '1' THEN
         RETURN clean;
-    ELSEIF LENGTH(clean) = 10 THEN
-        RETURN CONCAT('1', clean);
-    ELSE
-        RETURN NULL;
     END IF;
+    RETURN NULL; -- reject anything not exactly 11 digits starting with 1
 END ;;
 DELIMITER ;
 
