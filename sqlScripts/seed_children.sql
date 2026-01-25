@@ -13,12 +13,12 @@ BEGIN
 
   WHILE i <= total DO
     SET program_value = CASE MOD(i, 6)
-      WHEN 0 THEN '2-day-full'
-      WHEN 1 THEN '3-day-full'
-      WHEN 2 THEN '5-day-full'
-      WHEN 3 THEN '2-day-half'
-      WHEN 4 THEN '3-day-half'
-      ELSE '5-day-half'
+      WHEN 0 THEN 'Full Time 2 days'
+      WHEN 1 THEN 'Full Time 3 days'
+      WHEN 2 THEN 'Full Time 5 days'
+      WHEN 3 THEN 'Half Time 2 days'
+      WHEN 4 THEN 'Half Time 3 days'
+      ELSE 'Half Time 5 days'
     END;
 
     CALL add_child_with_parents_full(

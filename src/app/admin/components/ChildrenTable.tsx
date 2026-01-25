@@ -281,6 +281,13 @@ export default function ChildrenTable({
       return;
     }
 
+    const namesWithCheckout = childrenForClass.map((child) => {
+      const match = (child.checkoutTime ?? "").replace(/\s+/g, "").match(/^(\d{1,2}:\d{2})/);
+      const hhmm = match ? match[1] : "";
+      if (!hhmm) return child.name;
+      return `${child.name} checkout:(${hhmm})`;
+    });
+
     setIsGeneratingSheet(true);
     try {
       const response = await fetch("/api/signin-sheet", {
@@ -290,7 +297,7 @@ export default function ChildrenTable({
         },
         body: JSON.stringify({
           className: classFilter,
-          childNames: childrenForClass.map((child) => child.name),
+          childNames: namesWithCheckout,
         }),
       });
 
@@ -369,6 +376,13 @@ export default function ChildrenTable({
       return;
     }
 
+    const namesWithCheckout = childrenForClass.map((child) => {
+      const trimmed = (child.checkoutTime ?? "").trim();
+      if (!trimmed) return child.name;
+      const hhmm = trimmed.length >= 5 ? trimmed.slice(0, 5) : trimmed;
+      return `${child.name} (${hhmm})`;
+    });
+
     setIsGeneratingTeacherSheet(true);
     try {
       const response = await fetch("/api/teacher-signin-sheet", {
@@ -378,7 +392,7 @@ export default function ChildrenTable({
         },
         body: JSON.stringify({
           className: classFilter,
-          childNames: childrenForClass.map((child) => child.name),
+          childNames: namesWithCheckout,
         }),
       });
 

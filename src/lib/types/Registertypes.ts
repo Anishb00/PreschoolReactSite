@@ -5,16 +5,17 @@ import {EndpointErrorResponse} from "@/lib/EndpointErrorResponse";
 * 
 * */
 export const PROGRAM_CHOICES = [
-  "1-day-full",
-  "1-day-half",
-  "2-day-full",
-  "2-day-half",
-  "3-day-full",
-  "3-day-half",
-  "4-day-full",
-  "4-day-half",
-  "5-day-full",
-  "5-day-half",
+  "Full Time 5 days",
+  "Full Time 4 days",
+  "Full Time 3 days",
+  "Full Time 2 days",
+  "Full Time 1 day",
+  "Half Time 5 days",
+  "Half Time 4 days",
+  "Half Time 3 days",
+  "Half Time 2 days",
+  "Half Time 1 day",
+  "TBD",
   ""
 ] as const;
 

@@ -28,6 +28,14 @@ function sanitizeChildNames(names: unknown): string[] {
     .filter((value) => value.length > 0);
 }
 
+function formatNameWithCheckout(name: string, checkoutTime?: string | null): string {
+  // Strip whitespace and keep only the leading HH:MM portion; drop trailing AM/PM letters
+  const match = (checkoutTime ?? "").replace(/\s+/g, "").match(/^(\d{1,2}:\d{2})/);
+  const hhmm = match ? match[1] : "";
+  if (!hhmm) return name;
+  return `${name} checkout:(${hhmm})`;
+}
+
 function chunkNames(names: string[], chunkSize: number): string[][] {
   const chunks: string[][] = [];
   for (let i = 0; i < names.length; i += chunkSize) {
@@ -76,7 +84,11 @@ export async function POST(req: NextRequest) {
     }
     childNames = rows
       .filter((row) => (row.Class ?? "").trim() === className)
-      .map((row) => (row.Child_name ?? "").trim())
+      .map((row) => {
+        const name = (row.Child_name ?? "").trim();
+        if (!name) return "";
+        return formatNameWithCheckout(name, (row as any).Checkout_time);
+      })
       .filter((name) => name.length > 0)
       .sort((a, b) => a.localeCompare(b));
   }
