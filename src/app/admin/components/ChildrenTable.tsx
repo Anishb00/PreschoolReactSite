@@ -151,6 +151,8 @@ export default function ChildrenTable({
   const [emailSubject, setEmailSubject] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
   const [emailAttachments, setEmailAttachments] = useState<FileList | null>(null);
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailNotice, setEmailNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const modalChild = useMemo(() => {
     if (modalChildId == null) {
@@ -429,6 +431,17 @@ export default function ChildrenTable({
       {state.message && (
         <div className="rounded-md border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm">
           {state.message}
+        </div>
+      )}
+      {emailNotice && (
+        <div
+          className={`rounded-md border px-4 py-3 text-sm shadow-sm ${
+            emailNotice.type === "success"
+              ? "border-green-200 bg-green-50 text-green-800"
+              : "border-red-200 bg-red-50 text-red-800"
+          }`}
+        >
+          {emailNotice.message}
         </div>
       )}
       <div className="flex flex-wrap items-center gap-3">
@@ -852,19 +865,70 @@ export default function ChildrenTable({
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  const attachments =
-                    emailAttachments ? Array.from(emailAttachments).map((f) => f.name) : [];
-                  console.log("[Email UI] Child:", emailChild.name);
-                  console.log("[Email UI] To:", emailChild.parent1Email, emailChild.parent2Email);
-                  console.log("[Email UI] Subject:", emailSubject);
-                  console.log("[Email UI] Message:", emailMessage);
-                  console.log("[Email UI] Attachments:", attachments);
-                  setEmailChild(null);
+                onClick={async () => {
+                  if (!emailChild) return;
+                  const recipients = [emailChild.parent1Email, emailChild.parent2Email].filter(
+                    (v): v is string => Boolean(v)
+                  );
+                  if (recipients.length === 0) {
+                    setEmailNotice({
+                      type: "error",
+                      message: "No parent email addresses available for this child.",
+                    });
+                    return;
+                  }
+
+                  setEmailSending(true);
+                  setEmailNotice(null);
+                  try {
+                    const response = await fetch("/api/send-email", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        recipients,
+                        subject: emailSubject,
+                        message: emailMessage,
+                      }),
+                    });
+
+                    const data = (await response.json()) as {
+                      success?: boolean;
+                      sent?: string[];
+                      failed?: { email: string; error: string }[];
+                      error?: string;
+                    };
+
+                    if (!response.ok || data?.success === false) {
+                      const failedList =
+                        data?.failed?.map((f) => `${f.email} (${f.error})`).join(", ") || "";
+                      throw new Error(data?.error || failedList || "Failed to send email.");
+                    }
+
+                    const sentList = data?.sent ?? [];
+                    if (sentList.length > 0) {
+                      setEmailNotice({
+                        type: "success",
+                        message: `Email sent to: ${sentList.join(", ")}`,
+                      });
+                    } else {
+                      setEmailNotice({
+                        type: "error",
+                        message: "Parents did not receive email.",
+                      });
+                    }
+                  } catch (err) {
+                    const msg = err instanceof Error ? err.message : "Parents did not receive email.";
+                    setEmailNotice({ type: "error", message: msg });
+                  } finally {
+                    setEmailSending(false);
+                    setEmailChild(null);
+                    setEmailAttachments(null);
+                  }
                 }}
                 className="rounded-md bg-[#3B1FA8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d1882]"
+                disabled={emailSending}
               >
-                Send Email
+                {emailSending ? "Sending..." : "Send Email"}
               </button>
             </div>
           </div>
