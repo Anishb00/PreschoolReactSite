@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Button from "@/app/components/ui/button";
 
 export default function Hero({ imagename }: { imagename: string }) {
@@ -7,9 +8,11 @@ export default function Hero({ imagename }: { imagename: string }) {
       style={{ backgroundImage: `url(${imagename})` }}
     >
       <div className="h-[50%]"></div>
-      <Button>
-        Now accepting students for {String(new Date().getFullYear())}
-      </Button>
+      <Link href="/Register">
+        <Button>
+          Now accepting students for {String(new Date().getFullYear())}
+        </Button>
+      </Link>
     </div>
   );
 }
