@@ -201,6 +201,7 @@ export async function updateCarousel(
         message: "Photo not found.",
       };
     }
+    console.log(currentEntries,"THIS IS INIT VALUE____________________")
     const nextOrder = currentEntries
       .filter((e) => e.inCarousel)
       .map((e) => e.file)
