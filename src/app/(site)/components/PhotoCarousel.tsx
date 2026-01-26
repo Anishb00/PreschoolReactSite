@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function PhotoCarousel({ filenames }: { filenames: string[] }) {
+  const [images, setImages] = useState(() => filenames.filter(Boolean));
   const [currIndex, setCurrIndex] = useState(0);
 
-  if (filenames.length === 0) {
+  // Keep local list in sync with prop changes
+  useEffect(() => {
+    setImages(filenames.filter(Boolean));
+    setCurrIndex(0);
+  }, [filenames]);
+
+  if (images.length === 0) {
     return (
       <section className="mx-auto -mt-50 mb-20 w-[90%] max-w-5xl rounded-2xl border border-dashed border-gray-200 p-10 text-center text-gray-500">
         No photos in the carousel yet.
@@ -14,8 +21,18 @@ export default function PhotoCarousel({ filenames }: { filenames: string[] }) {
   }
 
   const goPrev = () =>
-    setCurrIndex((currIndex - 1 + filenames.length) % filenames.length);
-  const goNext = () => setCurrIndex((currIndex + 1) % filenames.length);
+    setCurrIndex((currIndex - 1 + images.length) % images.length);
+  const goNext = () => setCurrIndex((currIndex + 1) % images.length);
+
+  const handleImageError = (badIndex: number) => {
+    setImages((prev) => {
+      const next = prev.filter((_, i) => i !== badIndex);
+      setCurrIndex((idx) =>
+        next.length === 0 ? 0 : Math.min(idx, next.length - 1)
+      );
+      return next;
+    });
+  };
 
   return (
     <section className="relative mx-auto -mt-30 mb-20 h-[500px] w-full max-w-5xl overflow-hidden shadow-xl drop-shadow-lg md:w-[90%] md:rounded-2xl">
@@ -24,13 +41,14 @@ export default function PhotoCarousel({ filenames }: { filenames: string[] }) {
         className="flex h-full w-full transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${currIndex * 100}%)` }}
       >
-        {filenames.map((file, i) => (
+        {images.map((file, i) => (
           <img
             key={file}
             src={`/photocarousel/${file}`}
             alt={`Carousel image ${i + 1}`}
             loading="lazy"
             className="h-full w-full flex-shrink-0 object-cover"
+            onError={() => handleImageError(i)}
           />
         ))}
       </div>
