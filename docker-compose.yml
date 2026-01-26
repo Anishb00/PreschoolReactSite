@@ -19,6 +19,9 @@ services:
       SES_SOURCE_EMAIL: ${SES_SOURCE_EMAIL}
     networks:
       - appnet
+    volumes:
+      - ./public/photocarousel:/app/public/photocarousel
+      - ./src/app/(site)/Calendar/data:/app/src/app/(site)/Calendar/data
 
     healthcheck:
       test:
@@ -125,4 +128,3 @@ volumes:
     name: preschool_mysql_data
   certbot-etc:
   certbot-var:
-

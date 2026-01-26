@@ -29,7 +29,7 @@ export default function AdminLoginForm() {
               href="https://steppingstoneworld.com/"
               className="text-sm font-semibold text-blue-600 hover:text-blue-800"
             >
-              ← Back to masssssssssssssin site
+              ← Back to main site
             </a>
           </div>
           <form
