@@ -1,6 +1,6 @@
 export default function CoreLearningAreas() {
   return (
-    <section className="bg-gray-100 px-6 py-20 md:px-20">
+    <section className="bg-gray-200 px-6 py-20 md:px-20">
       <h2 className="mb-6 text-3xl font-semibold text-[#3B1FA8]">
         Core Learning Areas
       </h2>
