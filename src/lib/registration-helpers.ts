@@ -42,14 +42,14 @@ export function normalizeAndValidatePhone(fd: FormData, key: string, errorStatus
 export function normalizeAndValidatePhone(fd: FormData, key: string, errorStatus:EndpointErrorResponse,errorCode: AnyErrorCode, opts: {required:boolean}): string | null {
     const phoneNum = String(fd.get(key)) || "";
     const normalizedPhoneNumber = String(phoneNum).replace(/[^\d]/g, "");
-    console.log(normalizedPhoneNumber, normalizedPhoneNumber.length > 1 && normalizedPhoneNumber.length < 11)
+
     if(!opts.required && normalizedPhoneNumber.length == 1){
         return null;
     }else if(!opts.required && (normalizedPhoneNumber.length > 1 && normalizedPhoneNumber.length < 11)){
         errorStatus.add(errorCode);
         return phoneNum;
     }else if (opts.required && normalizedPhoneNumber.length < 11){
-        errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR)
+        errorStatus.add(errorCode);
         errorStatus.log(`recieved invalid ${key} value: ${phoneNum}`);
         return phoneNum;
     }

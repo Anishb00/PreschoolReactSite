@@ -146,7 +146,7 @@ export default function RegisterForm({serverAction,statusCodes,values}: {serverA
         <h3 className="mb-4 text-xl font-semibold text-[#3B1FA8]">
           Parent 1 <span className="font-light text-red-600">(Required)</span>
           <span className="block text-base font-normal text-gray-600 mt-1">
-            (This email will be used for billing and registration forms)
+            (This email will be used for billing)
           </span>
         </h3>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -195,10 +195,10 @@ export default function RegisterForm({serverAction,statusCodes,values}: {serverA
                 defaultValue={values.parentOneEmail}
                 aria-invalid={statusCodes.has("P1_EMAIL_INVALID")}
                 required
-                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8] 
-                focus:outline-none aria-[invalid=true]:border-red-500 
-                aria-[invalid=true]:ring-1 
-                aria-[invalid=true]:ring-red-500 
+                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#3B1FA8]
+                focus:outline-none aria-[invalid=true]:border-red-500
+                aria-[invalid=true]:ring-1
+                aria-[invalid=true]:ring-red-500
                 focus:aria-[invalid=true]:ring-red-600"
               />
             </div>
@@ -253,11 +253,11 @@ export default function RegisterForm({serverAction,statusCodes,values}: {serverA
               name="parentTwoEmail"
               defaultValue={values.parentTwoEmail ?? ""}
               aria-invalid={statusCodes.has("P2_EMAIL_INVALID")}
-              className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 
+              className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2
               focus:ring-[#3B1FA8] focus:outline-none
-              aria-[invalid=true]:border-red-500 
-              aria-[invalid=true]:ring-1 
-              aria-[invalid=true]:ring-red-500 
+              aria-[invalid=true]:border-red-500
+              aria-[invalid=true]:ring-1
+              aria-[invalid=true]:ring-red-500
               focus:aria-[invalid=true]:ring-red-600"
             />
           </div>

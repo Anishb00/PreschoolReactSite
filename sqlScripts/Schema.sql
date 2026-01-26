@@ -466,7 +466,7 @@ BEGIN
         Email   = p_parent1_email
     WHERE Parent_ID = p_parent1_id;
 
-    -- Update Parent 2 (only if it exists)
+    -- Update Parent 2 (if it exists), otherwise create/link when provided
     IF p_parent2_id IS NOT NULL THEN
         UPDATE Parent
         SET Name    = p_parent2_name,
@@ -474,6 +474,14 @@ BEGIN
             Phone   = p_parent2_phone,
             Email   = p_parent2_email
         WHERE Parent_ID = p_parent2_id;
+    ELSEIF p_parent2_name IS NOT NULL
+       AND p_parent2_address IS NOT NULL
+       AND p_parent2_email IS NOT NULL THEN
+        INSERT INTO Parent (Name, Address, Phone, Email)
+        VALUES (p_parent2_name, p_parent2_address, p_parent2_phone, p_parent2_email);
+
+        INSERT INTO Child_Parent (child_id, parent_id)
+        VALUES (p_child_id, LAST_INSERT_ID());
     END IF;
 
     COMMIT;

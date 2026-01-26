@@ -93,9 +93,8 @@ export async function sendEnrollmentForms({
   const subject =
     attachments.length === 1
       ? `Enrollment form for ${children[0].name}`
-      : "Enrollment forms for your child(ren)";
-  const text =
-    "Please find attached the enrollment form(s) for your child(ren). Reply if you have any questions.";
+      : "Enrollment forms for your child";
+  const text = "Please find the attached enrollment form for your child.";
 
   const rawData = buildRawEmail({
     to: toEmail,

@@ -210,7 +210,7 @@ export default function ChildForm({
         <h3 className="mb-4 text-xl font-semibold text-[#3B1FA8]">
           Parent 1 <span className="font-light text-red-600">(Required)</span>
           <span className="block text-base font-normal text-gray-600 mt-1">
-            (This email will be used for billing and registration forms)
+            (This email will be used for billing)
           </span>
         </h3>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
