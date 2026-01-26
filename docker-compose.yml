@@ -21,6 +21,7 @@ services:
       - appnet
     volumes:
       - ./public/photocarousel:/app/public/photocarousel
+      - ./public/events:/app/public/events
       - ./src/app/(site)/Calendar/data:/app/src/app/(site)/Calendar/data
 
     healthcheck:

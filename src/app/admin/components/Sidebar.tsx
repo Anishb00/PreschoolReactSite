@@ -73,10 +73,15 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isAdmin }) => {
     <div className="pt-4 mt-4 border-t border-gray-800 space-y-3">
       {isAdmin && (
         <>
-          <SidebarLink
+              <SidebarLink
                 collapsed={collapsed}
                 label="Edit Calendar"
                 href="/admin/Events"
+              />
+              <SidebarLink
+                collapsed={collapsed}
+                label="Edit Event Photos"
+                href="/admin/EventPhotos"
               />
               <SidebarLink
                 collapsed={collapsed}
@@ -97,6 +102,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isAdmin }) => {
             collapsed={collapsed}
             label="Back to site"
             href="https://steppingstoneworld.com/"
+          />
+          <SidebarLink
+            collapsed={collapsed}
+            label="Event Photos (Public)"
+            href="https://steppingstoneworld.com/Events"
           />
         </div>
       </nav>

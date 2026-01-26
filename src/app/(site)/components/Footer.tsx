@@ -53,6 +53,9 @@ export default function Footer() {
               <Link href="/Calendar" >Calendar</Link>
             </li>
             <li>
+              <Link href="/Events">Events</Link>
+            </li>
+            <li>
               <Link href="/Curriculum">Curriculum</Link>
 
             </li>

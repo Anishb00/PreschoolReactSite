@@ -50,6 +50,8 @@ scripts
 public/photocarousel/*
 !public/photocarousel/.gitkeep
 !public/photocarousel/photocarousel.json
+public/events/*
+!public/events/.gitkeep
 documents/*
 !documents/.gitkeep
 
