@@ -1,6 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Setup
+0. set Userid and group id environmnet variables:
+export HOST_UID=$(id -u)
+export HOST_GID=$(id -g)
 
 1. unlock the sign-up endpoint so it can be used without authentication:
 
