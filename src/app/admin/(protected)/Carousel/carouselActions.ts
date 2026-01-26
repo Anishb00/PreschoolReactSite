@@ -9,6 +9,7 @@ import {
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
+import { revalidatePath } from "next/cache";
 
 export type CarouselEntry = {
   file: string;
@@ -21,14 +22,7 @@ export type CarouselEditorState = {
 };
 
 const carouselDir = path.join(process.cwd(), "public", "photocarousel");
-const orderFilePath = path.join(
-  process.cwd(),
-  "src",
-  "app",
-  "(site)",
-  "data",
-  "photocarousel.json"
-);
+const orderFilePath = path.join(carouselDir, "photocarousel.json");
 
 const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
@@ -111,6 +105,10 @@ export async function loadCarouselImages(): Promise<CarouselEntry[]> {
   const files = await listDiskImages();
   const order = await readOrder();
   const orderedIncluded = mergeOrder(order, files);
+  // If the saved order referenced missing files, rewrite it without them
+  if (orderedIncluded.length !== order.length) {
+    await saveOrder(orderedIncluded);
+  }
   const includedSet = new Set(orderedIncluded);
   const excluded = files.filter((f) => !includedSet.has(f)).sort((a, b) => a.localeCompare(b));
 
@@ -159,6 +157,7 @@ export async function updateCarousel(
     const withoutNew = currentIncluded.filter((name) => name !== finalName);
     const nextOrder = [...withoutNew, finalName];
     await saveOrder(nextOrder);
+    revalidatePath("/");
     return {
       entries: await loadCarouselImages(),
       message: `Added ${finalName}.`,
@@ -185,6 +184,7 @@ export async function updateCarousel(
       .filter((e) => e.inCarousel && e.file !== safeFilename)
       .map((e) => e.file);
     await saveOrder(nextOrder);
+    revalidatePath("/");
     return {
       entries: await loadCarouselImages(),
       message: `Deleted ${safeFilename}.`,
@@ -201,15 +201,20 @@ export async function updateCarousel(
         message: "Photo not found.",
       };
     }
-    let nextOrder = currentEntries.filter((e) => e.inCarousel).map((e) => e.file);
+    const nextOrder = currentEntries
+      .filter((e) => e.inCarousel)
+      .map((e) => e.file)
+      .filter((f) => f !== safeFilename);
+
+
+    console.log(include,"THIS IS INCLUDE VALUE____________________",nextOrder)
     if (include) {
-      if (!nextOrder.includes(safeFilename)) {
-        nextOrder.push(safeFilename);
-      }
-    } else {
-      nextOrder = nextOrder.filter((f) => f !== safeFilename);
-    }
+      // add to the end
+      nextOrder.push(safeFilename);
+    } // else already removed above
+
     await saveOrder(nextOrder);
+    revalidatePath("/");
     return {
       entries: await loadCarouselImages(),
       message: include
@@ -239,6 +244,7 @@ export async function updateCarousel(
     }
 
     await saveOrder(next);
+    revalidatePath("/");
     return {
       entries: await loadCarouselImages(),
       message: "Updated carousel order.",

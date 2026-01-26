@@ -11,10 +11,8 @@ import Location from "./components/Location";
 export default function Home() {
   const orderFilePath = path.join(
     process.cwd(),
-    "src",
-    "app",
-    "(site)",
-    "data",
+    "public",
+    "photocarousel",
     "photocarousel.json"
   );
   const isImageFile = (file: string) => /\.(jpg|jpeg|png|webp)$/i.test(file);
@@ -28,7 +26,13 @@ export default function Home() {
       if (!Array.isArray(parsed)) {
         return [];
       }
-      return parsed.filter((file) => typeof file === "string" && isImageFile(file));
+      return parsed.filter((file) => {
+        const valid =
+          typeof file === "string" &&
+          isImageFile(file) &&
+          fs.existsSync(path.join(process.cwd(), "public", "photocarousel", file));
+        return valid;
+      });
     } catch {
       return [];
     }

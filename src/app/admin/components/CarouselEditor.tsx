@@ -120,19 +120,14 @@ export default function CarouselEditor({
                     >
                       <input type="hidden" name="actionType" value="toggle" />
                       <input type="hidden" name="filename" value={entry.file} />
-                      <input type="hidden" name="include" value={entry.inCarousel ? "1" : "0"} />
                       <label className="flex items-center gap-2 text-sm text-gray-700">
                         <input
                           type="checkbox"
+                          name="include"
+                          value="1"
                           defaultChecked={entry.inCarousel}
                           onChange={(e) => {
-                            const form = e.currentTarget.form;
-                            if (!form) return;
-                            const hidden = form.querySelector('input[name="include"]') as HTMLInputElement | null;
-                            if (hidden) {
-                              hidden.value = e.currentTarget.checked ? "1" : "0";
-                            }
-                            form.requestSubmit();
+                            e.currentTarget.form?.requestSubmit();
                           }}
                           className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />

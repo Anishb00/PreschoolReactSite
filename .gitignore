@@ -49,6 +49,7 @@ scripts
 # track directory, ignore contents
 public/photocarousel/*
 !public/photocarousel/.gitkeep
+!public/photocarousel/photocarousel.json
 documents/*
 !documents/.gitkeep
 
