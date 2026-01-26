@@ -15,9 +15,14 @@ export default function Location() {
             and easily accessible location in the heart of the community.
           </p>
 
-          <button className="w-fit rounded bg-[#FFCC00] px-4 py-2 font-semibold text-black">
+          <a
+            href="https://www.google.com/maps/place/Stepping+Stone+World+Preschool/@37.411487,-121.901983,17z/data=!4m15!1m8!3m7!1s0x808fceb53571e2bd:0xa48ecda0d053d2c5!2sStepping+Stone+World+Preschool!8m2!3d37.4114431!4d-121.9014929!10e5!16s%2Fg%2F11ckbqng5_!3m5!1s0x808fceb53571e2bd:0xa48ecda0d053d2c5!8m2!3d37.4114431!4d-121.9014929!16s%2Fg%2F11ckbqng5_?entry=ttu&g_ep=EgoyMDI2MDEyMS4wIKXMDSoASAFQAw%3D%3D"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-fit items-center rounded bg-[#FFCC00] px-4 py-2 font-semibold text-black"
+          >
             Find Us Here!
-          </button>
+          </a>
         </div>
       </div>
     </section>
