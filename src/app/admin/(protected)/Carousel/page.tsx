@@ -5,7 +5,7 @@ import { loadCarouselImages, updateCarousel } from "./carouselActions";
 
 export default async function CarouselPage() {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.EDIT_CAROUSEL);
-  const images = await loadCarouselImages();
+  const entries = await loadCarouselImages();
 
   return (
     <>
@@ -17,7 +17,7 @@ export default async function CarouselPage() {
           Add, remove, and reorder photos shown on the homepage carousel.
         </p>
       </header>
-      <CarouselEditor initialImages={images} updateCarousel={updateCarousel} />
+      <CarouselEditor initialEntries={entries} updateCarousel={updateCarousel} />
     </>
   );
 }

@@ -10,8 +10,13 @@ import {
 } from "node:fs/promises";
 import path from "node:path";
 
+export type CarouselEntry = {
+  file: string;
+  inCarousel: boolean;
+};
+
 export type CarouselEditorState = {
-  images: string[];
+  entries: CarouselEntry[];
   message?: string;
 };
 
@@ -102,10 +107,18 @@ function mergeOrder(order: string[], files: string[]): string[] {
   return [...ordered, ...remaining];
 }
 
-export async function loadCarouselImages(): Promise<string[]> {
+export async function loadCarouselImages(): Promise<CarouselEntry[]> {
   const files = await listDiskImages();
   const order = await readOrder();
-  return mergeOrder(order, files);
+  const orderedIncluded = mergeOrder(order, files);
+  const includedSet = new Set(orderedIncluded);
+  const excluded = files.filter((f) => !includedSet.has(f)).sort((a, b) => a.localeCompare(b));
+
+  const entries: CarouselEntry[] = [
+    ...orderedIncluded.map((file) => ({ file, inCarousel: true })),
+    ...excluded.map((file) => ({ file, inCarousel: false })),
+  ];
+  return entries;
 }
 
 async function saveOrder(images: string[]): Promise<void> {
@@ -124,7 +137,7 @@ export async function updateCarousel(
     const file = formData.get("photo");
     if (!(file instanceof File) || file.size === 0) {
       return {
-        images: await loadCarouselImages(),
+        entries: await loadCarouselImages(),
         message: "Choose a photo to upload.",
       };
     }
@@ -132,7 +145,7 @@ export async function updateCarousel(
     const sanitized = sanitizeFilename(file.name || "carousel-image");
     if (!sanitized) {
       return {
-        images: await loadCarouselImages(),
+        entries: await loadCarouselImages(),
         message: "Only JPG, PNG, and WebP files are allowed.",
       };
     }
@@ -141,12 +154,13 @@ export async function updateCarousel(
     const buffer = Buffer.from(await file.arrayBuffer());
     await writeFile(path.join(carouselDir, finalName), buffer);
 
-    const current = await loadCarouselImages();
-    const withoutNew = current.filter((name) => name !== finalName);
-    const next = [...withoutNew, finalName];
-    await saveOrder(next);
+    const currentEntries = await loadCarouselImages();
+    const currentIncluded = currentEntries.filter((e) => e.inCarousel).map((e) => e.file);
+    const withoutNew = currentIncluded.filter((name) => name !== finalName);
+    const nextOrder = [...withoutNew, finalName];
+    await saveOrder(nextOrder);
     return {
-      images: next,
+      entries: await loadCarouselImages(),
       message: `Added ${finalName}.`,
     };
   }
@@ -155,7 +169,7 @@ export async function updateCarousel(
   const safeFilename = path.basename(filename);
   if (!safeFilename || safeFilename !== filename || !isImageFile(safeFilename)) {
     return {
-      images: await loadCarouselImages(),
+      entries: await loadCarouselImages(),
       message: "Invalid filename.",
     };
   }
@@ -166,27 +180,58 @@ export async function updateCarousel(
     } catch {
       // ignore missing files
     }
-    const current = await loadCarouselImages();
-    const next = current.filter((name) => name !== safeFilename);
-    await saveOrder(next);
+    const currentEntries = await loadCarouselImages();
+    const nextOrder = currentEntries
+      .filter((e) => e.inCarousel && e.file !== safeFilename)
+      .map((e) => e.file);
+    await saveOrder(nextOrder);
     return {
-      images: next,
+      entries: await loadCarouselImages(),
       message: `Deleted ${safeFilename}.`,
+    };
+  }
+
+  if (actionType === "toggle") {
+    const include = String(formData.get("include") || "").trim() === "1";
+    const currentEntries = await loadCarouselImages();
+    const filesOnDisk = currentEntries.map((e) => e.file);
+    if (!filesOnDisk.includes(safeFilename)) {
+      return {
+        entries: currentEntries,
+        message: "Photo not found.",
+      };
+    }
+    let nextOrder = currentEntries.filter((e) => e.inCarousel).map((e) => e.file);
+    if (include) {
+      if (!nextOrder.includes(safeFilename)) {
+        nextOrder.push(safeFilename);
+      }
+    } else {
+      nextOrder = nextOrder.filter((f) => f !== safeFilename);
+    }
+    await saveOrder(nextOrder);
+    return {
+      entries: await loadCarouselImages(),
+      message: include
+        ? `Added ${safeFilename} to carousel.`
+        : `Removed ${safeFilename} from carousel.`,
     };
   }
 
   if (actionType === "move") {
     const direction = String(formData.get("direction") || "").trim();
-    const current = await loadCarouselImages();
-    const index = current.indexOf(safeFilename);
+    const currentIncluded = (await loadCarouselImages())
+      .filter((e) => e.inCarousel)
+      .map((e) => e.file);
+    const index = currentIncluded.indexOf(safeFilename);
     if (index === -1) {
       return {
-        images: current,
-        message: "Photo not found.",
+        entries: await loadCarouselImages(),
+        message: "Photo not found or not in carousel.",
       };
     }
 
-    const next = [...current];
+    const next = [...currentIncluded];
     if (direction === "up" && index > 0) {
       [next[index - 1], next[index]] = [next[index], next[index - 1]];
     } else if (direction === "down" && index < next.length - 1) {
@@ -195,10 +240,10 @@ export async function updateCarousel(
 
     await saveOrder(next);
     return {
-      images: next,
+      entries: await loadCarouselImages(),
       message: "Updated carousel order.",
     };
   }
 
-  return { images: await loadCarouselImages() };
+  return { entries: await loadCarouselImages() };
 }
