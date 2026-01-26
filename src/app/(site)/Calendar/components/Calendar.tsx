@@ -1,9 +1,21 @@
+"use client";
+
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import listPlugin from "@fullcalendar/list";
-import events from "../data/events.json";
 
-export default function Calendar() {
+type CalendarEvent = {
+  id: string;
+  title: string;
+  date: string;
+  end?: string;
+};
+
+type CalendarProps = {
+  events: CalendarEvent[];
+};
+
+export default function Calendar({ events }: CalendarProps) {
   const calendarEvents = events.map((event) => {
     if (!event.end) {
       return event;
