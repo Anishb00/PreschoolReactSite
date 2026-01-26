@@ -212,9 +212,10 @@ export async function updateCarousel(
       // add to the end
       nextOrder.push(safeFilename);
     } // else already removed above
-
+    console.log(nextOrder,"NEXTLOG_____________________________")
     await saveOrder(nextOrder);
     revalidatePath("/");
+    console.log(nextOrder,"LASTLOG________________________________")
     return {
       entries: await loadCarouselImages(),
       message: include
