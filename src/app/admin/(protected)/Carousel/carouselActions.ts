@@ -193,30 +193,22 @@ export async function updateCarousel(
 
   if (actionType === "toggle") {
     const include = String(formData.get("include") || "").trim() === "1";
-    const currentEntries = await loadCarouselImages();
-    const filesOnDisk = currentEntries.map((e) => e.file);
+    const filesOnDisk = await listDiskImages();
     if (!filesOnDisk.includes(safeFilename)) {
       return {
-        entries: currentEntries,
+        entries: await loadCarouselImages(),
         message: "Photo not found.",
       };
     }
-    console.log(currentEntries,"THIS IS INIT VALUE____________________")
-    const nextOrder = currentEntries
-      .filter((e) => e.inCarousel)
-      .map((e) => e.file)
-      .filter((f) => f !== safeFilename);
 
-
-    console.log(include,"THIS IS INCLUDE VALUE____________________",nextOrder)
+    const currentOrder = (await readOrder()).filter((f) => filesOnDisk.includes(f));
+    let nextOrder = currentOrder.filter((f) => f !== safeFilename);
     if (include) {
-      // add to the end
-      nextOrder.push(safeFilename);
-    } // else already removed above
-    console.log(nextOrder,"NEXTLOG_____________________________")
+      nextOrder.push(safeFilename); // append to end
+    }
+
     await saveOrder(nextOrder);
     revalidatePath("/");
-    console.log(nextOrder,"LASTLOG________________________________")
     return {
       entries: await loadCarouselImages(),
       message: include
@@ -227,9 +219,8 @@ export async function updateCarousel(
 
   if (actionType === "move") {
     const direction = String(formData.get("direction") || "").trim();
-    const currentIncluded = (await loadCarouselImages())
-      .filter((e) => e.inCarousel)
-      .map((e) => e.file);
+    const filesOnDisk = await listDiskImages();
+    const currentIncluded = (await readOrder()).filter((f) => filesOnDisk.includes(f));
     const index = currentIncluded.indexOf(safeFilename);
     if (index === -1) {
       return {
