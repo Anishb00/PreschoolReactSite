@@ -134,6 +134,7 @@ export default async function Dashboard({
         isAdmin={isAdminUser}
         fullView={false}
         showCheckoutTime
+        showRecordCount
       />
     </section>
   </>

@@ -105,6 +105,7 @@ type ChildrenTableProps = {
   showPrintControls?: boolean;
   initialClassFilter?: string;
   showCheckoutTime?: boolean;
+  showRecordCount?: boolean;
 };
 
 function DeleteButton() {
@@ -128,6 +129,7 @@ export default function ChildrenTable({
   showPrintControls = true,
   initialClassFilter = "enrolled",
   showCheckoutTime = true,
+  showRecordCount = false,
 }: ChildrenTableProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -501,6 +503,12 @@ export default function ChildrenTable({
             <option value="Rainbow">Rainbow</option>
             <option value="Dismissed">Dismissed</option>
           </select>
+        )}
+        {showRecordCount && (
+          <span className="text-sm font-semibold text-gray-700">
+            Showing {filteredChildren.length}{" "}
+            {filteredChildren.length === 1 ? "record" : "records"}
+          </span>
         )}
         {showPrintControls && (
           <>
