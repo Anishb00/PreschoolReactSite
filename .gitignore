@@ -52,6 +52,7 @@ public/photocarousel/*
 !public/photocarousel/photocarousel.json
 public/events/*
 !public/events/.gitkeep
+!public/events/events-order.json
 documents/*
 !documents/.gitkeep
 

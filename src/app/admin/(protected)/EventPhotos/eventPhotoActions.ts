@@ -1,6 +1,6 @@
 "use server";
 
-import { access, mkdir, readdir, rm, unlink, writeFile } from "node:fs/promises";
+import { access, mkdir, readdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 
@@ -22,6 +22,7 @@ export type EventAlbumState = {
 
 const eventsDir = path.join(process.cwd(), "public", "events");
 const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+const orderFilePath = path.join(eventsDir, "events-order.json");
 
 function isImageFile(filename: string): boolean {
   return allowedExtensions.has(path.extname(filename).toLowerCase());
@@ -44,6 +45,25 @@ async function listEventImages(eventName: string): Promise<string[]> {
   } catch {
     return [];
   }
+}
+
+async function readOrder(): Promise<string[]> {
+  try {
+    const data = await readFile(orderFilePath, "utf-8");
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed.filter((item) => typeof item === "string" && isSafeName(item));
+  } catch {
+    return [];
+  }
+}
+
+async function saveOrder(events: string[]): Promise<void> {
+  await ensureEventsDir();
+  const unique = Array.from(new Set(events));
+  await writeFile(orderFilePath, JSON.stringify(unique, null, 2) + "\n", "utf-8");
 }
 
 function sanitizeEventName(value: string): string | null {
@@ -105,13 +125,24 @@ async function ensureUniqueFilename(eventName: string, filename: string): Promis
 
 export async function loadEventPhotos(): Promise<EventPhotoEntry[]> {
   const folders = await listEventFolders();
+  const order = await readOrder();
+  const ordered = order.filter((name) => folders.includes(name));
+  const remainder = folders
+    .filter((name) => !ordered.includes(name))
+    .sort((a, b) => a.localeCompare(b));
+  const nextOrder = [...ordered, ...remainder];
+
+  if (nextOrder.length !== order.length) {
+    await saveOrder(nextOrder);
+  }
+
   const entries = await Promise.all(
-    folders.map(async (event) => ({
+    nextOrder.map(async (event) => ({
       event,
       count: (await listEventImages(event)).length,
     }))
   );
-  return entries.sort((a, b) => a.event.localeCompare(b.event));
+  return entries;
 }
 
 export async function updateEventPhotos(
@@ -131,6 +162,10 @@ export async function updateEventPhotos(
       return { events: await loadEventPhotos(), message: "Invalid event name." };
     }
     await mkdir(path.join(eventsDir, eventName), { recursive: true });
+    const currentOrder = await readOrder();
+    if (!currentOrder.includes(eventName)) {
+      await saveOrder([...currentOrder, eventName]);
+    }
     revalidatePath("/Events");
     return { events: await loadEventPhotos(), message: `Created ${eventName}.` };
   }
@@ -145,9 +180,43 @@ export async function updateEventPhotos(
     } catch {
       // ignore delete failures
     }
+    const nextOrder = (await readOrder()).filter((name) => name !== eventName);
+    await saveOrder(nextOrder);
     revalidatePath("/Events");
     revalidatePath(`/Events/${encodeURIComponent(eventName)}`);
     return { events: await loadEventPhotos(), message: `Deleted ${eventName}.` };
+  }
+
+  if (actionType === "move-event") {
+    const eventName = String(formData.get("eventName") || "").trim();
+    const direction = String(formData.get("direction") || "").trim();
+    if (!isSafeName(eventName)) {
+      return { events: await loadEventPhotos(), message: "Invalid event selected." };
+    }
+    const folders = await listEventFolders();
+    const currentOrder = (await readOrder()).filter((name) => folders.includes(name));
+    const remainder = folders
+      .filter((name) => !currentOrder.includes(name))
+      .sort((a, b) => a.localeCompare(b));
+    const workingOrder = [...currentOrder, ...remainder];
+    const index = workingOrder.indexOf(eventName);
+    if (index === -1) {
+      return { events: await loadEventPhotos(), message: "Event not found." };
+    }
+    if (direction === "up" && index > 0) {
+      [workingOrder[index - 1], workingOrder[index]] = [
+        workingOrder[index],
+        workingOrder[index - 1],
+      ];
+    } else if (direction === "down" && index < workingOrder.length - 1) {
+      [workingOrder[index + 1], workingOrder[index]] = [
+        workingOrder[index],
+        workingOrder[index + 1],
+      ];
+    }
+    await saveOrder(workingOrder);
+    revalidatePath("/Events");
+    return { events: await loadEventPhotos(), message: "Updated event order." };
   }
 
   return { events: await loadEventPhotos() };

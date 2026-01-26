@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { readdir } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import Banner from "../components/Banner";
 
@@ -12,6 +12,7 @@ type EventSummary = {
 };
 
 const eventsDir = path.join(process.cwd(), "public", "events");
+const orderFilePath = path.join(eventsDir, "events-order.json");
 const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 function isImageFile(filename: string): boolean {
@@ -22,8 +23,21 @@ async function loadEvents(): Promise<EventSummary[]> {
   try {
     const dirents = await readdir(eventsDir, { withFileTypes: true });
     const folders = dirents.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+    let order: string[] = [];
+    try {
+      const data = await readFile(orderFilePath, "utf-8");
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        order = parsed.filter((item) => typeof item === "string");
+      }
+    } catch {
+      order = [];
+    }
+    const ordered = order.filter((name) => folders.includes(name));
+    const remainder = folders.filter((name) => !ordered.includes(name)).sort((a, b) => a.localeCompare(b));
+    const list = [...ordered, ...remainder];
     const summaries = await Promise.all(
-      folders.map(async (name) => {
+      list.map(async (name) => {
         try {
           const files = await readdir(path.join(eventsDir, name));
           const images = files.filter(isImageFile);

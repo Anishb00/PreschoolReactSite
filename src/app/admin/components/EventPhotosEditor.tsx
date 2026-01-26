@@ -91,7 +91,7 @@ export default function EventPhotosEditor({
             No event albums yet.
           </div>
         ) : (
-          state.events.map((event) => (
+          state.events.map((event, index) => (
             <div
               key={event.event}
               className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
@@ -103,8 +103,31 @@ export default function EventPhotosEditor({
                 <p className="text-sm text-gray-500">
                   {event.count} {event.count === 1 ? "photo" : "photos"}
                 </p>
+                <p className="text-xs text-gray-400">Position {index + 1}</p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
+                <form action={formAction}>
+                  <input type="hidden" name="actionType" value="move-event" />
+                  <input type="hidden" name="direction" value="up" />
+                  <input type="hidden" name="eventName" value={event.event} />
+                  <ActionButton
+                    className="border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    disabled={index === 0}
+                  >
+                    Move Up
+                  </ActionButton>
+                </form>
+                <form action={formAction}>
+                  <input type="hidden" name="actionType" value="move-event" />
+                  <input type="hidden" name="direction" value="down" />
+                  <input type="hidden" name="eventName" value={event.event} />
+                  <ActionButton
+                    className="border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    disabled={index === state.events.length - 1}
+                  >
+                    Move Down
+                  </ActionButton>
+                </form>
                 <Link
                   href={`/admin/EventPhotos/${encodeURIComponent(event.event)}`}
                   className="text-sm font-semibold text-[#3B1FA8] hover:text-[#2d1882]"
