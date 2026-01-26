@@ -91,32 +91,23 @@ async function readOrder(): Promise<string[]> {
   }
 }
 
-function mergeOrder(order: string[], files: string[]): string[] {
-  const fileSet = new Set(files);
-  const ordered = order.filter((file) => fileSet.has(file));
-  const orderedSet = new Set(ordered);
-  const remaining = files
-    .filter((file) => !orderedSet.has(file))
-    .sort((a, b) => a.localeCompare(b));
-  return [...ordered, ...remaining];
-}
-
 export async function loadCarouselImages(): Promise<CarouselEntry[]> {
   const files = await listDiskImages();
   const order = await readOrder();
-  const orderedIncluded = mergeOrder(order, files);
-  // If the saved order referenced missing files, rewrite it without them
-  if (orderedIncluded.length !== order.length) {
-    await saveOrder(orderedIncluded);
+  const included = order.filter((f) => files.includes(f));
+
+  // rewrite order if it referenced missing files
+  if (included.length !== order.length) {
+    await saveOrder(included);
   }
-  const includedSet = new Set(orderedIncluded);
+
+  const includedSet = new Set(included);
   const excluded = files.filter((f) => !includedSet.has(f)).sort((a, b) => a.localeCompare(b));
 
-  const entries: CarouselEntry[] = [
-    ...orderedIncluded.map((file) => ({ file, inCarousel: true })),
+  return [
+    ...included.map((file) => ({ file, inCarousel: true })),
     ...excluded.map((file) => ({ file, inCarousel: false })),
   ];
-  return entries;
 }
 
 async function saveOrder(images: string[]): Promise<void> {

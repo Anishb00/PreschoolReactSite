@@ -120,14 +120,13 @@ export default function CarouselEditor({
                     >
                       <input type="hidden" name="actionType" value="toggle" />
                       <input type="hidden" name="filename" value={entry.file} />
-                      {/* hidden fallback so unchecked submits "0" */}
-                      <input type="hidden" name="include" value="0" />
                       <label className="flex items-center gap-2 text-sm text-gray-700">
                         <input
                           type="checkbox"
                           name="include"
                           value="1"
-                          checked={entry.inCarousel}
+                          key={`${entry.file}-${entry.inCarousel ? "1" : "0"}`}
+                          defaultChecked={entry.inCarousel}
                           onChange={(e) => {
                             e.currentTarget.form?.requestSubmit();
                           }}
