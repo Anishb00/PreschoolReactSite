@@ -5,7 +5,6 @@ import { AdminSigninServerAction } from "@/lib/actions/AdminLogin";
 import { useFormStatus } from "react-dom";
 import { useActionState } from "react";
 import { authClient } from "@/lib/auth-client";
-import Nav from "@/app/(site)/components/Nav";
 
 export default function AdminLoginForm() {
 
@@ -23,12 +22,19 @@ export default function AdminLoginForm() {
 
   return (
     <>
-      <Nav forceActive />
-      <main className="min-h-screen bg-gray-100 pt-28">
-        <div className="flex min-h-[calc(100vh-7rem)] items-center justify-center px-4">
+      <main className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6">
+          <div className="flex justify-end">
+            <a
+              href="https://steppingstoneworld.com/"
+              className="text-sm font-semibold text-blue-600 hover:text-blue-800"
+            >
+              ← Back to main site
+            </a>
+          </div>
           <form
             action={formAction}
-            className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6"
+            className="space-y-6"
           >
             <h2 className="text-2xl font-bold text-center text-gray-800">
               Admin Login

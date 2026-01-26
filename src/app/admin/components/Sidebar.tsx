@@ -92,6 +92,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isAdmin }) => {
             </>
           )}
         </div>
+        <div className="pt-4 mt-4 border-t border-gray-800">
+          <SidebarLink
+            collapsed={collapsed}
+            label="Back to site"
+            href="https://steppingstoneworld.com/"
+          />
+        </div>
       </nav>
 
       {/* Bottom actions */}
