@@ -21,6 +21,7 @@ export default async function registerChild(
     dob:       helpers.mustDOB(formData.get("dob") || "",errorStatus),
     sex:       helpers.validateSex(String(formData.get('sex')),errorStatus),
     Program:   helpers.validateProgram(helpers.mustString(formData, "Program",errorStatus),errorStatus),
+    checkoutTime: null,
     pottyTrained: helpers.parseYesNoBoolean(formData, "pottyTrained", errorStatus),
 
     parentOneName:    helpers.mustString(formData, "parentOneName",errorStatus),
