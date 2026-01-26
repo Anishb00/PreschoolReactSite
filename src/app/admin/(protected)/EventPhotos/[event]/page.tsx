@@ -4,13 +4,14 @@ import { MIN_ASSET_ROLE_ACCESS } from "@/lib/protectedassets";
 import EventAlbumEditor from "@/app/admin/components/EventAlbumEditor";
 import { loadEventAlbum, updateEventAlbum } from "../eventPhotoActions";
 
-export default async function EventPhotoDetailPage({
-  params,
-}: {
-  params: { event: string };
-}) {
+type PageProps = {
+  params: Promise<{ event: string }>;
+};
+
+export default async function EventPhotoDetailPage({ params }: PageProps) {
   await authorizeUser(MIN_ASSET_ROLE_ACCESS.EDIT_EVENT_PHOTOS);
-  const eventName = decodeURIComponent(params.event);
+  const resolvedParams = await params;
+  const eventName = decodeURIComponent(resolvedParams.event);
   const images = await loadEventAlbum(eventName);
 
   if (!images) {

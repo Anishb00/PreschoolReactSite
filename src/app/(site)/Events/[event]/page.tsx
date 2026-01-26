@@ -26,12 +26,13 @@ async function loadEventImages(eventName: string): Promise<string[] | null> {
   }
 }
 
-export default async function EventDetailPage({
-  params,
-}: {
-  params: { event: string };
-}) {
-  const eventName = decodeURIComponent(params.event);
+type PageProps = {
+  params: Promise<{ event: string }>;
+};
+
+export default async function EventDetailPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const eventName = decodeURIComponent(resolvedParams.event);
   const images = await loadEventImages(eventName);
 
   if (!images) {
