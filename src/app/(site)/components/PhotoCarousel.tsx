@@ -44,7 +44,7 @@ export default function PhotoCarousel({ filenames }: { filenames: string[] }) {
         {images.map((file, i) => (
           <img
             key={file}
-            src={`/photocarousel/${file}`}
+            src={`/_dynamic/photocarousel/${file}`}
             alt={`Carousel image ${i + 1}`}
             loading="lazy"
             className="h-full w-full flex-shrink-0 object-cover"

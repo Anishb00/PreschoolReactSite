@@ -15,12 +15,9 @@ export const dynamic = "force-dynamic";
 export default async function Programs() {
   const eventsFilePath = path.join(
     process.cwd(),
-    "src",
-    "app",
-    "(site)",
-    "Calendar",
-    "data",
-    "events.json"
+    "public",
+    "_dynamic",
+    "calendar_events.json"
   );
   let events: CalendarEvent[] = [];
   try {

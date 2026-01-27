@@ -55,8 +55,7 @@ documents/*
 !documents/.gitkeep
 
 # runtime data files
-public/photocarousel/photocarousel.json
-public/events/events-order.json
-src/app/(site)/Calendar/data/events.json
+public/_dynamic/*
+!public/_dynamic/.gitkeep
 
 Preschool_data.sql

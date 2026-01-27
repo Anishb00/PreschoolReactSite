@@ -6,7 +6,7 @@ import EventGallery from "../components/EventGallery";
 
 export const dynamic = "force-dynamic";
 
-const eventsDir = path.join(process.cwd(), "public", "events");
+const eventsDir = path.join(process.cwd(), "public", "_dynamic", "events");
 const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 function isImageFile(filename: string): boolean {

@@ -20,9 +20,9 @@ export type EventAlbumState = {
   message?: string;
 };
 
-const eventsDir = path.join(process.cwd(), "public", "events");
+const eventsDir = path.join(process.cwd(), "public", "_dynamic", "events");
 const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
-const orderFilePath = path.join(eventsDir, "events-order.json");
+const orderFilePath = path.join(eventsDir, "event_order.json");
 
 function isImageFile(filename: string): boolean {
   return allowedExtensions.has(path.extname(filename).toLowerCase());

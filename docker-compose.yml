@@ -3,6 +3,7 @@ services:
     build: .
     image: preschoolreactsite
     container_name: preschoolreactsite-web
+    profiles: ["prod"]
     env_file:
       - .env
     environment:
@@ -19,9 +20,7 @@ services:
     networks:
       - appnet
     volumes:
-      - ./public/photocarousel:/app/public/photocarousel
-      - ./public/events:/app/public/events
-      - ./src/app/(site)/Calendar/data:/app/src/app/(site)/Calendar/data
+      - public_data:/app/public/_dynamic
 
     healthcheck:
       test:
@@ -40,32 +39,34 @@ services:
       db:
         condition: service_healthy
 
-  # web-dev:
-  #   image: node:20-bookworm-slim
-  #   container_name: preschoolreactsite-web-dev
-  #   working_dir: /app
-  #   command: sh -c "npm install && NEXT_DISABLE_TURBOPACK=1 npm run dev -- --hostname 0.0.0.0 --port 3000"
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     DB_HOST: db
-  #     DB_PORT: "3306"
-  #     DB_NAME: ${DB_NAME}
-  #     DB_USER: ${DB_USER}
-  #     DB_PASSWORD: ${DB_PASSWORD}
-  #     SES_REGION: ${SES_REGION}
-  #     SES_SOURCE_EMAIL: ${SES_SOURCE_EMAIL}
-  #     APP_BASE_URL: ${APP_BASE_URL}
-  #   volumes:
-  #     - .:/app
-  #     - /app/node_modules
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - appnet
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
+  web-dev:
+    image: node:20-bookworm-slim
+    container_name: preschoolreactsite-web-dev
+    profiles: ["dev"]
+    working_dir: /app
+    command: sh -c "npm install && NEXT_DISABLE_TURBOPACK=1 npm run dev -- --hostname 0.0.0.0 --port 3000"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      AWS_REGION: ${AWS_REGION}
+      SES_SOURCE_EMAIL: ${SES_SOURCE_EMAIL}
+      APP_BASE_URL: ${APP_BASE_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - public_data:/app/public/_dynamic
+    ports:
+      - "3000:3000"
+    networks:
+      - appnet
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:8.0
@@ -95,6 +96,7 @@ services:
   nginx:
     image: nginx:1.25-alpine
     container_name: nginx-proxy
+    profiles: ["prod"]
     depends_on:
       - web
     ports:
@@ -110,6 +112,7 @@ services:
   certbot:
     image: certbot/certbot
     container_name: certbot
+    profiles: ["certbot"]
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/www/certbot
@@ -128,3 +131,4 @@ volumes:
     name: preschool_mysql_data
   certbot-etc:
   certbot-var:
+  public_data:

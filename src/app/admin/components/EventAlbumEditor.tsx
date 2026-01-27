@@ -93,7 +93,7 @@ export default function EventAlbumEditor({
               className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white"
             >
               <img
-                src={`/events/${encodeURIComponent(eventName)}/${encodeURIComponent(
+                src={`/_dynamic/events/${encodeURIComponent(eventName)}/${encodeURIComponent(
                   image
                 )}`}
                 alt={image}

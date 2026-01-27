@@ -5,6 +5,15 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 export HOST_UID=$(id -u)
 export HOST_GID=$(id -g)
 
+0.5 set the compose profile (dev or prod) in .env:
+SETUP=dev
+COMPOSE_PROFILES=dev
+
+0.75 When running docker copose up you need to select profile
+dev docker compose up -d
+prod docker compose up -d
+
+
 1. unlock the sign-up endpoint so it can be used without authentication:
 
 comment the following like in src/lib/auth.ts in the emailAndPassword object
@@ -64,7 +73,14 @@ docker compose up --build web
 - docker compose up --build               # recreates all containers
 - docker compose up --build <servicename> # recreates specific service
 
-
+### Reissue certification
+The cron job reissues certificaiton every month with this command
+COMPOSE_PROFILES=certbot docker compose run --rm --entrypoint certbot certbot \
+  certonly --webroot -w /var/www/certbot \
+  -d steppingstoneworld.com -d www.steppingstoneworld.com \
+  -d steppingstoneworldpreschool.com -d www.steppingstoneworldpreschool.com \
+  -d admin.steppingstoneworld.com -d www.admin.steppingstoneworld.com \
+  --email <EMIAL HERE> --agree-tos --no-eff-email
 
 
 
@@ -209,4 +225,3 @@ In Next.js, allowedOrigins doesn’t make Server Actions into public endpoints y
 
 What is the purpose of the API routes if you are just using serveractions?
 How did he find out that you can get the user data from session
-

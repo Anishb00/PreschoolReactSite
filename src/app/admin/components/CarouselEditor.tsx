@@ -105,7 +105,7 @@ export default function CarouselEditor({
               >
                 <div className="flex items-center gap-4">
                   <img
-                    src={`/photocarousel/${entry.file}`}
+                    src={`/_dynamic/photocarousel/${entry.file}`}
                     alt={entry.file}
                     className="h-20 w-32 rounded-md object-cover"
                   />
@@ -139,7 +139,7 @@ export default function CarouselEditor({
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <a
-                    href={`/photocarousel/${entry.file}`}
+                    href={`/_dynamic/photocarousel/${entry.file}`}
                     download
                     className="rounded-md border border-blue-600 px-3 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50"
                   >

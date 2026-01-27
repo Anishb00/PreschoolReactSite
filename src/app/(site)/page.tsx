@@ -12,8 +12,9 @@ export default function Home() {
   const orderFilePath = path.join(
     process.cwd(),
     "public",
+    "_dynamic",
     "photocarousel",
-    "photocarousel.json"
+    "carousel.json"
   );
   const isImageFile = (file: string) => /\.(jpg|jpeg|png|webp)$/i.test(file);
   const orderedFiles = (() => {
@@ -36,7 +37,9 @@ export default function Home() {
         const valid =
           typeof file === "string" &&
           isImageFile(file) &&
-          fs.existsSync(path.join(process.cwd(), "public", "photocarousel", file));
+          fs.existsSync(
+            path.join(process.cwd(), "public", "_dynamic", "photocarousel", file)
+          );
         return valid;
       });
     } catch {

@@ -21,8 +21,8 @@ export type CarouselEditorState = {
   message?: string;
 };
 
-const carouselDir = path.join(process.cwd(), "public", "photocarousel");
-const orderFilePath = path.join(carouselDir, "photocarousel.json");
+const carouselDir = path.join(process.cwd(), "public", "_dynamic", "photocarousel");
+const orderFilePath = path.join(carouselDir, "carousel.json");
 
 const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 

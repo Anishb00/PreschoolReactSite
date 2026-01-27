@@ -9,7 +9,7 @@ type EventGalleryProps = {
 
 export default function EventGallery({ eventName, images }: EventGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const basePath = `/events/${encodeURIComponent(eventName)}`;
+  const basePath = `/_dynamic/events/${encodeURIComponent(eventName)}`;
   const hasImages = images.length > 0;
   const goNext = () => {
     if (!hasImages || activeIndex === null) return;

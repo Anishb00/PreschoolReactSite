@@ -17,12 +17,9 @@ type EventEditorState = {
 
 const eventsFilePath = path.join(
   process.cwd(),
-  "src",
-  "app",
-  "(site)",
-  "Calendar",
-  "data",
-  "events.json"
+  "public",
+  "_dynamic",
+  "calendar_events.json"
 );
 
 async function loadEvents(): Promise<CalendarEvent[]> {

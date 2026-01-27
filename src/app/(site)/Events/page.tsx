@@ -11,8 +11,8 @@ type EventSummary = {
   cover?: string;
 };
 
-const eventsDir = path.join(process.cwd(), "public", "events");
-const orderFilePath = path.join(eventsDir, "events-order.json");
+const eventsDir = path.join(process.cwd(), "public", "_dynamic", "events");
+const orderFilePath = path.join(eventsDir, "event_order.json");
 const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 function isImageFile(filename: string): boolean {
@@ -90,7 +90,7 @@ export default async function EventsPage() {
                   <div className="h-24 w-full overflow-hidden rounded-lg bg-gray-100 sm:h-20 sm:w-32">
                     {event.cover ? (
                       <img
-                        src={`/events/${encodeURIComponent(event.name)}/${encodeURIComponent(event.cover)}`}
+                        src={`/_dynamic/events/${encodeURIComponent(event.name)}/${encodeURIComponent(event.cover)}`}
                         alt={`${event.name} cover`}
                         className="h-full w-full object-cover"
                       />
