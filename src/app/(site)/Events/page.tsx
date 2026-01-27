@@ -51,7 +51,7 @@ async function loadEvents(): Promise<EventSummary[]> {
         }
       })
     );
-    return summaries.sort((a, b) => a.name.localeCompare(b.name));
+    return summaries;
   } catch {
     return [];
   }
