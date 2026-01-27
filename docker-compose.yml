@@ -106,6 +106,7 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/www/certbot
+      - public_data:/usr/share/nginx/html/_dynamic:ro
     networks:
       - appnet
 
