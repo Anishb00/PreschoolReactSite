@@ -1,5 +1,7 @@
 import fs from "fs";
 import path from "path";
+
+export const dynamic = "force-dynamic";
 import Hero from "@/app/(site)/components/Hero";
 import About from "./components/About";
 import Learning from "./components/Learning";
