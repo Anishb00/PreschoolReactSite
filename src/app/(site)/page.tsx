@@ -18,6 +18,12 @@ export default function Home() {
   const isImageFile = (file: string) => /\.(jpg|jpeg|png|webp)$/i.test(file);
   const orderedFiles = (() => {
     if (!fs.existsSync(orderFilePath)) {
+      try {
+        fs.mkdirSync(path.dirname(orderFilePath), { recursive: true });
+        fs.writeFileSync(orderFilePath, "[]\n", "utf-8");
+      } catch {
+        // ignore write failures
+      }
       return [];
     }
     try {

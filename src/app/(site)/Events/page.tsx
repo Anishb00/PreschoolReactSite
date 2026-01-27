@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import Banner from "../components/Banner";
 
@@ -31,6 +31,11 @@ async function loadEvents(): Promise<EventSummary[]> {
         order = parsed.filter((item) => typeof item === "string");
       }
     } catch {
+      try {
+        await writeFile(orderFilePath, "[]\n", "utf-8");
+      } catch {
+        // ignore write failures
+      }
       order = [];
     }
     const ordered = order.filter((name) => folders.includes(name));

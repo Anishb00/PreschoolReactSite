@@ -26,9 +26,18 @@ const eventsFilePath = path.join(
 );
 
 async function loadEvents(): Promise<CalendarEvent[]> {
-  const data = await readFile(eventsFilePath, "utf-8");
-  const parsed = JSON.parse(data) as CalendarEvent[];
-  return Array.isArray(parsed) ? parsed : [];
+  try {
+    const data = await readFile(eventsFilePath, "utf-8");
+    const parsed = JSON.parse(data) as CalendarEvent[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    try {
+      await saveEvents([]);
+    } catch {
+      // ignore write failures
+    }
+    return [];
+  }
 }
 
 async function saveEvents(events: CalendarEvent[]): Promise<void> {

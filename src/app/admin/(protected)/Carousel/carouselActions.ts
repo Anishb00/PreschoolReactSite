@@ -87,6 +87,11 @@ async function readOrder(): Promise<string[]> {
     }
     return parsed.filter((item) => typeof item === "string" && isImageFile(item));
   } catch {
+    try {
+      await saveOrder([]);
+    } catch {
+      // ignore write failures
+    }
     return [];
   }
 }

@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import Banner from "../components/Banner";
 import Calendar from "./components/Calendar";
@@ -30,6 +30,11 @@ export default async function Programs() {
       events = parsed;
     }
   } catch {
+    try {
+      await writeFile(eventsFilePath, "[]\n", "utf-8");
+    } catch {
+      // ignore write failures
+    }
     events = [];
   }
 

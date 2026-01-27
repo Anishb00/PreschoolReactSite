@@ -49,11 +49,14 @@ scripts
 # track directory, ignore contents
 public/photocarousel/*
 !public/photocarousel/.gitkeep
-!public/photocarousel/photocarousel.json
 public/events/*
 !public/events/.gitkeep
-!public/events/events-order.json
 documents/*
 !documents/.gitkeep
+
+# runtime data files
+public/photocarousel/photocarousel.json
+public/events/events-order.json
+src/app/(site)/Calendar/data/events.json
 
 Preschool_data.sql
