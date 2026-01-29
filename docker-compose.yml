@@ -72,11 +72,13 @@ services:
     image: mysql:8.0
     container_name: mysql-db
     restart: unless-stopped
+    command: --default-time-zone=America/Los_Angeles
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: America/Los_Angeles
     # ports:
     #   - "127.0.0.1:3306:3306" # remove if you want to use app outside of docker containers
     volumes:
