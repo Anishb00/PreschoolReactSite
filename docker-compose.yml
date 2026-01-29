@@ -81,8 +81,9 @@ services:
     #   - "127.0.0.1:3306:3306" # remove if you want to use app outside of docker containers
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sqlScripts/Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-      - ./sqlScripts/better-auth-tables.sql:/docker-entrypoint-initdb.d/02-better-auth.sql:ro
+      - ./sqlScripts/Schema.sql:/docker-entrypoint-initdb.d/01-tables.sql:ro
+      - ./sqlScripts/ProceduresAndTriggers.sql:/docker-entrypoint-initdb.d/02-procedures.sql:ro
+      - ./sqlScripts/better-auth-tables.sql:/docker-entrypoint-initdb.d/03-better-auth.sql:ro
       #- ./Preschool_data.sql:/docker-entrypoint-initdb.d/03-Preschool_data.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p${DB_ROOT_PASSWORD} || exit 1"]

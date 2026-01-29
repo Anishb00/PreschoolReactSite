@@ -59,12 +59,9 @@ export default function MassEmailTable({ initialChildren }: Props) {
       return childClass === classFilter;
     };
 
-    if (!query) {
-      return initialChildren.filter((child) => classAllowed(child.className));
-    }
-
-    return initialChildren.filter((child) => {
+    const matches = (child: MassEmailChild) => {
       if (!classAllowed(child.className)) return false;
+      if (!query) return true;
       const haystack = [
         child.childName,
         child.className,
@@ -76,7 +73,11 @@ export default function MassEmailTable({ initialChildren }: Props) {
         .map((value) => String(value ?? "").toLowerCase())
         .join(" ");
       return haystack.includes(query);
-    });
+    };
+
+    return initialChildren
+      .filter(matches)
+      .sort((a, b) => a.childName.localeCompare(b.childName, undefined, { sensitivity: "base" }));
   }, [classFilter, initialChildren, searchTerm]);
 
   const toggleId = (id: number) => {

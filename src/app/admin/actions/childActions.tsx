@@ -21,6 +21,7 @@ const classOptions = new Set([
   "Butterfly",
   "Sunshine",
   "Rainbow",
+  "Dismissed",
   "Test",
 ]);
 
@@ -29,8 +30,11 @@ export async function createChild(formData: FormData) {
 
   const classRaw = String(formData.get("childClass") || "").trim();
   const classValue = classRaw ? classRaw : null;
-  if (classValue && !classOptions.has(classValue)) {
-    errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
+  if (!classValue) {
+    errorStatus.add(API_ERROR_CODES.CLASS_REQUIRED);
+    errorStatus.log("recieved empty class value");
+  } else if (!classOptions.has(classValue)) {
+    errorStatus.add(API_ERROR_CODES.CLASS_INVALID);
     errorStatus.log(`recieved invalid class value: ${classValue}`);
   }
 
@@ -177,8 +181,11 @@ export async function updateChild(formData: FormData) {
 
   const classRaw = String(formData.get("childClass") || "").trim();
   const classValue = classRaw ? classRaw : null;
-  if (classValue && !classOptions.has(classValue)) {
-    errorStatus.add(API_ERROR_CODES.UNKOWN_API_ERROR);
+  if (!classValue) {
+    errorStatus.add(API_ERROR_CODES.CLASS_REQUIRED);
+    errorStatus.log("recieved empty class value");
+  } else if (!classOptions.has(classValue)) {
+    errorStatus.add(API_ERROR_CODES.CLASS_INVALID);
     errorStatus.log(`recieved invalid class value: ${classValue}`);
   }
 

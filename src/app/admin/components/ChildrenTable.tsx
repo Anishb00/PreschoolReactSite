@@ -155,6 +155,8 @@ export default function ChildrenTable({
   const [emailAttachments, setEmailAttachments] = useState<FileList | null>(null);
   const [emailSending, setEmailSending] = useState(false);
   const [emailNotice, setEmailNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [sortKey, setSortKey] = useState<"name" | "enrollDate">("name");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const modalChild = useMemo(() => {
     if (modalChildId == null) {
@@ -173,7 +175,7 @@ export default function ChildrenTable({
       "Rainbow",
     ]);
 
-    return state.children
+    const filtered = state.children
       .filter((child) => {
         if (classFilter === "unassigned") {
           return !child.className;
@@ -216,7 +218,41 @@ export default function ChildrenTable({
         .join(" ");
       return haystack.includes(query);
     });
-  }, [isAdmin, searchTerm, state.children, fullView, classFilter]);
+    const compareNames = (a: ChildRow, b: ChildRow) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+
+    if (sortKey === "enrollDate") {
+      return [...filtered].sort((a, b) => {
+        const aVal = a.enrollDate ?? "";
+        const bVal = b.enrollDate ?? "";
+        const aHas = aVal !== "";
+        const bHas = bVal !== "";
+        if (!aHas && !bHas) return compareNames(a, b);
+        if (!aHas) return 1;
+        if (!bHas) return -1;
+        const dateCompare = aVal.localeCompare(bVal);
+        const adjusted = sortDir === "asc" ? dateCompare : -dateCompare;
+        return adjusted === 0 ? compareNames(a, b) : adjusted;
+      });
+    }
+
+    return [...filtered].sort((a, b) => {
+      const nameCompare = compareNames(a, b);
+      return sortDir === "asc" ? nameCompare : -nameCompare;
+    });
+  }, [isAdmin, searchTerm, state.children, fullView, classFilter, sortKey, sortDir]);
+
+  const handleNameSort = () => {
+    setSortDir((prev) => (sortKey === "name" ? (prev === "asc" ? "desc" : "asc") : "asc"));
+    setSortKey("name");
+  };
+
+  const handleEnrollSort = () => {
+    setSortKey("enrollDate");
+    setSortDir((prev) =>
+      sortKey === "enrollDate" ? (prev === "asc" ? "desc" : "asc") : "asc"
+    );
+  };
 
   const updateClass = async (childId: number, className: string) => {
     try {
@@ -579,7 +615,27 @@ export default function ChildrenTable({
                  >
                   Actions
                 </th>
-                <th className="p-3 text-left">Child Name</th>
+                <th
+                  className="p-3 text-left"
+                  aria-sort={
+                    sortKey === "name"
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
+                >
+                  <button
+                    type="button"
+                    onClick={handleNameSort}
+                    className="inline-flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900"
+                  >
+                    <span>Child Name</span>
+                    {sortKey === "name" && (
+                      <span aria-hidden="true">{sortDir === "asc" ? "▲" : "▼"}</span>
+                    )}
+                  </button>
+                </th>
                 <th className="p-3 text-left">Status</th>
                 <th className="p-3 text-left">Sex</th>
                 {fullView && <th className="p-3 text-left">DOB</th>}
@@ -587,7 +643,27 @@ export default function ChildrenTable({
                 <th className="p-3 text-left min-w-[140px]">Class</th>
                 {fullView && <th className="p-3 text-left">Doctor Name</th>}
                 {fullView && <th className="p-3 text-left">Doctor Phone</th>}
-                <th className="p-3 text-left">Enroll Date</th>
+                <th
+                  className="p-3 text-left"
+                  aria-sort={
+                    sortKey === "enrollDate"
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
+                >
+                  <button
+                    type="button"
+                    onClick={handleEnrollSort}
+                    className="inline-flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900"
+                  >
+                    <span>Enroll Date</span>
+                    {sortKey === "enrollDate" && (
+                      <span aria-hidden="true">{sortDir === "asc" ? "▲" : "▼"}</span>
+                    )}
+                  </button>
+                </th>
                 {showCheckoutTime && <th className="p-3 text-left">Checkout Time</th>}
                 <th className="p-3 text-left">Fee</th>
                 <th className="p-3 text-left">Parent 1</th>
@@ -782,7 +858,27 @@ export default function ChildrenTable({
           <table className="min-w-full w-full text-sm">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
-                <th className="p-3 text-left">Child Name</th>
+                <th
+                  className="p-3 text-left"
+                  aria-sort={
+                    sortKey === "name"
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
+                >
+                  <button
+                    type="button"
+                    onClick={handleNameSort}
+                    className="inline-flex items-center gap-1 font-semibold text-gray-700 hover:text-gray-900"
+                  >
+                    <span>Child Name</span>
+                    {sortKey === "name" && (
+                      <span aria-hidden="true">{sortDir === "asc" ? "▲" : "▼"}</span>
+                    )}
+                  </button>
+                </th>
               </tr>
             </thead>
             <tbody>
