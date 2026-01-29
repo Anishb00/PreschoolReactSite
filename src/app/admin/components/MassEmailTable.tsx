@@ -7,6 +7,7 @@ export type MassEmailChild = {
   id: number;
   childName: string;
   className: string;
+  dob?: string;
   parent1Name: string;
   parent1Email: string;
   parent1Verified?: boolean;
@@ -31,6 +32,21 @@ export default function MassEmailTable({ initialChildren }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [failedRecipients, setFailedRecipients] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
+
+  const computeAge = (dob?: string) => {
+    if (!dob) return "";
+    const parts = dob.split("-").map((value) => Number(value));
+    if (parts.length < 3 || parts.some((value) => Number.isNaN(value))) return "";
+    const [year, month, day] = parts;
+    if (!year || !month || !day) return "";
+    const today = new Date();
+    let age = today.getFullYear() - year;
+    const monthDiff = today.getMonth() + 1 - month;
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
+      age -= 1;
+    }
+    return age >= 0 ? String(age) : "";
+  };
 
   const fileToBase64 = async (file: File) => {
     const buffer = await file.arrayBuffer();
@@ -260,6 +276,7 @@ export default function MassEmailTable({ initialChildren }: Props) {
                 />
               </th>
               <th className="p-3 text-left">Child</th>
+              <th className="p-3 text-left">Age</th>
               <th className="p-3 text-left">Status</th>
               <th className="p-3 text-left">Class</th>
               <th className="p-3 text-left">Parent 1</th>
@@ -271,7 +288,7 @@ export default function MassEmailTable({ initialChildren }: Props) {
           <tbody>
             {filteredChildren.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-6 text-center text-gray-500">
+                <td colSpan={9} className="p-6 text-center text-gray-500">
                   No children found.
                 </td>
               </tr>
@@ -287,6 +304,7 @@ export default function MassEmailTable({ initialChildren }: Props) {
                     />
                   </td>
                   <td className="p-3 text-gray-900">{child.childName}</td>
+                  <td className="p-3 text-gray-700">{computeAge(child.dob) || "N/A"}</td>
                   <td className="p-3 text-gray-700">
                     {(() => {
                       const missing: string[] = [];

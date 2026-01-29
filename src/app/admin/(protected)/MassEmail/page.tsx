@@ -12,13 +12,14 @@ function mapChild(row: Awaited<ReturnType<typeof getChildrenWithParentsFull>>[nu
   return {
     id: row.Child_ID,
     childName: row.Child_name ?? "",
-  className: row.Class ?? "",
-  parent1Name: row.Parent1_Name ?? "",
-  parent1Email: row.Parent1_Email ?? "",
-  parent1Verified,
-  parent2Name: row.Parent2_Name ?? "",
-  parent2Email: row.Parent2_Email ?? "",
-  parent2Verified,
+    className: row.Class ?? "",
+    dob: row.DOB ? row.DOB.toISOString().split("T")[0] : "",
+    parent1Name: row.Parent1_Name ?? "",
+    parent1Email: row.Parent1_Email ?? "",
+    parent1Verified,
+    parent2Name: row.Parent2_Name ?? "",
+    parent2Email: row.Parent2_Email ?? "",
+    parent2Verified,
   };
 }
 

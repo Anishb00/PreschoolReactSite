@@ -158,6 +158,21 @@ export default function ChildrenTable({
   const [sortKey, setSortKey] = useState<"name" | "enrollDate">("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
+  const computeAge = (dob?: string) => {
+    if (!dob) return "";
+    const parts = dob.split("-").map((value) => Number(value));
+    if (parts.length < 3 || parts.some((value) => Number.isNaN(value))) return "";
+    const [year, month, day] = parts;
+    if (!year || !month || !day) return "";
+    const today = new Date();
+    let age = today.getFullYear() - year;
+    const monthDiff = today.getMonth() + 1 - month;
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
+      age -= 1;
+    }
+    return age >= 0 ? String(age) : "";
+  };
+
   const modalChild = useMemo(() => {
     if (modalChildId == null) {
       return null;
@@ -636,6 +651,7 @@ export default function ChildrenTable({
                     )}
                   </button>
                 </th>
+                <th className="p-3 text-left">Age</th>
                 <th className="p-3 text-left">Status</th>
                 <th className="p-3 text-left">Sex</th>
                 {fullView && <th className="p-3 text-left">DOB</th>}
@@ -680,7 +696,7 @@ export default function ChildrenTable({
               {filteredChildren.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={fullView ? (showCheckoutTime ? 20 : 19) : (showCheckoutTime ? 13 : 12)}
+                    colSpan={fullView ? (showCheckoutTime ? 21 : 20) : (showCheckoutTime ? 14 : 13)}
                     className="p-6 text-center text-gray-500"
                   >
                     No children found.
@@ -755,6 +771,7 @@ export default function ChildrenTable({
                         </div>
                       </td>
                       <td className="p-3 text-gray-900">{child.name}</td>
+                      <td className="p-3 text-gray-700">{computeAge(child.dob) || "N/A"}</td>
                       <td className="p-3 text-gray-700">
                         {(() => {
                           const missing: string[] = [];
@@ -879,17 +896,21 @@ export default function ChildrenTable({
                     )}
                   </button>
                 </th>
+                <th className="p-3 text-left">Age</th>
               </tr>
             </thead>
             <tbody>
               {filteredChildren.length === 0 ? (
                 <tr>
-                  <td className="p-6 text-center text-gray-500">No children found.</td>
+                  <td colSpan={2} className="p-6 text-center text-gray-500">
+                    No children found.
+                  </td>
                 </tr>
               ) : (
                 filteredChildren.map((child) => (
                   <tr key={child.id} className="border-t border-gray-200">
                     <td className="p-3 text-gray-900">{child.name}</td>
+                    <td className="p-3 text-gray-700">{computeAge(child.dob) || "N/A"}</td>
                   </tr>
                 ))
               )}

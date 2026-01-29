@@ -119,7 +119,9 @@ export default function ReceiptForm({
       }
 
       const cacheBust = Date.now();
-      router.push(`/admin/Receipt/${childId}/view?ts=${cacheBust}`);
+      const month = encodeURIComponent(fields.month);
+      const year = encodeURIComponent(fields.year);
+      router.push(`/admin/Receipt/${childId}/view?ts=${cacheBust}&month=${month}&year=${year}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unable to generate receipt.";
       setError(message);

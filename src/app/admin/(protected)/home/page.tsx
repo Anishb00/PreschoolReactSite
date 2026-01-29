@@ -40,6 +40,7 @@ function mapChildRow(row: ChildWithParentsFullRow) {
     sex: row.Sex ?? "",
     program: row.Program ?? "",
     className: row.Class ?? "",
+    dob: formatDate(row.DOB ?? null),
     enrollDate: formatDate(row.Enroll_date ?? null),
     checkoutTime: formatTime(row.Checkout_time),
     fee: row.Fee != null ? String(row.Fee) : "",

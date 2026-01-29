@@ -14,6 +14,8 @@ const OUTPUT_PATH = path.join(process.cwd(), "documents", "filled_reciept.pdf");
 
 type ReceiptEmailBody = {
   childId?: number;
+  month?: string;
+  year?: string;
 };
 
 export async function POST(req: NextRequest) {
@@ -74,8 +76,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const subject = `Receipt for ${childRow.Child_name ?? "your child"}`;
-  const message = "Please find the receipt attached.";
+  const month = typeof body.month === "string" ? body.month.trim() : "";
+  const year = typeof body.year === "string" ? body.year.trim() : "";
+  const period = month && year ? `${month} ${year}` : "";
+
+  const subject = period
+    ? `Receipt for ${childRow.Child_name ?? "your child"} - ${period}`
+    : `Receipt for ${childRow.Child_name ?? "your child"}`;
+  const message = period
+    ? `Please find the receipt attached for ${childRow.Child_name ?? "your child"} for ${period}.`
+    : `Please find the receipt attached for ${childRow.Child_name ?? "your child"}.`;
 
   const sent: string[] = [];
   const failed: { email: string; error: string }[] = [];
