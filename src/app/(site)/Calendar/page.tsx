@@ -38,7 +38,7 @@ export default async function Programs() {
   return (
     <>
       <Banner
-        imagename="/HeroBG.png"
+        imagename="/siteimages/HeroBG.webp"
         title="Calendar"
         subtitle="Stay up to date with important holidays, closures, and events throughout the school year."
       />

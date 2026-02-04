@@ -68,7 +68,7 @@ export default async function EventsPage() {
   return (
     <>
       <Banner
-        imagename="/HeroBG.png"
+        imagename="/siteimages/HeroBG.webp"
         title="Event Photos"
         subtitle="Browse highlights from our community events and celebrations."
       />

@@ -35,7 +35,7 @@ export default function ResendVerificationPage() {
   return (
     <>
       <Banner
-        imagename="/HeroBG.png"
+        imagename="/siteimages/HeroBG.webp"
         title="Resend Verification Email"
         subtitle="Request a new link to verify your email."
       />

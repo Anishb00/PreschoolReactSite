@@ -12,7 +12,7 @@ type Props = {
 
 const CardWithAnimatedButton: React.FC<Props> = ({
   text = "Our Prospectus >",
-  image = "/herobg.jpeg",
+  image = "/siteimages/HeroBG.webp",
   href = "#",
 }) => {
   const buttonWrapperRef = useRef<HTMLDivElement | null>(null);

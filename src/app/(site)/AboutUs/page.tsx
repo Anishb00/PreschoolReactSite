@@ -9,7 +9,7 @@ export default function AboutUs() {
   return (
     <>
       <Banner
-        imagename="/HeroBG.png"
+        imagename="/siteimages/HeroBG.webp"
         title="About Us"
         subtitle="Stepping Stone World Preschool is a warm, community-first school in Milpitas where kids learn through joyful play, hands-on discovery, and close family partnerships."
       />

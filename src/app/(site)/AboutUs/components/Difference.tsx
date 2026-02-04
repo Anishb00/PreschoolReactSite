@@ -1,17 +1,17 @@
 export default function SteppingStoneDifference() {
   const sections = [
     {
-      image: "/ChildrenHoli.png", // Replace with actual image paths
+      image: "/siteimages/ChildrenHoli.webp", // Replace with actual image paths
       title: "Embracing Our Community",
       text: "Our community is a reflection of the rich cultural diversity of the Bay Area, and we embrace that fully in everything we do. Our teachers and students come from many backgrounds, and we make it a priority to expose children to a variety of languages and cultural experiences.",
     },
     {
-      image: "/ChildrenYoga.png",
+      image: "/siteimages/ChildrenYoga.webp",
       title: "Language & Cultural Exploration",
       text: "Children at Stepping Stone are introduced to Hindi/Indian, Spanish/Mexican, and Mandarin/Chinese language and culture through stories, songs, celebrations, and activities. We encourage them to express their heritage and share traditions from home, whether that is through food, festivals, music, or dress.",
     },
     {
-      image: "/cowboykids.png",
+      image: "/siteimages/cowboykids.webp",
       title: "Celebrating What Makes Us Unique",
       text: "Celebrating diversity isn’t just something we do; it’s who we are. It helps foster empathy, inclusion, and curiosity about the world, which we believe are just as important as academic skills.",
     },

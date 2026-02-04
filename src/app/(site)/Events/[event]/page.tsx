@@ -42,7 +42,7 @@ export default async function EventDetailPage({ params }: PageProps) {
   return (
     <>
       <Banner
-        imagename="/HeroBG.png"
+        imagename="/siteimages/HeroBG.webp"
         title={eventName}
         subtitle="Tap a photo to view it larger."
       />

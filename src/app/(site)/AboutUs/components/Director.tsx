@@ -13,7 +13,7 @@ export default function Director() {
         {/* Middle Column: Director Image */}
         <div className="w-2/3 md:w-1/4">
           <img
-            src="/director.jpg" // Make sure this path matches your static directory
+            src="/siteimages/director.webp" // Make sure this path matches your static directory
             alt="Director Manisha Sharma"
             className="w-full rounded-lg object-cover shadow-md"
           />

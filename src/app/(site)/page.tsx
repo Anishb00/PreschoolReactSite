@@ -52,7 +52,7 @@ export default function Home() {
 
   return (
     <>
-      <Hero imagename="/HeroBG.png" />
+      <Hero imagename="/siteimages/HeroBG.webp" />
       <About />
       <Learning />
       <PhotoCarousel filenames={carouselImageFilenames} />

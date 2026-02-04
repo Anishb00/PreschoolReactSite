@@ -10,7 +10,7 @@ export default function Footer() {
         {/* Logo Column */}
         <div className="flex flex-col items-center md:items-start">
           <Image
-            src="/Badgelogo.png" // ✅ Replace with your actual logo file path in the /public folder
+            src="/siteimages/Badgelogo.webp" // ✅ Replace with your actual logo file path in the /public folder
             alt="Logo"
             width={240}
             height={240}

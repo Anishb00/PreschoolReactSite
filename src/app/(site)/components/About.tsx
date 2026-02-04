@@ -22,7 +22,7 @@ export default function About() {
           Stone Family
         </h2>
 
-        <div className="h-[543px] w-full max-w-[787px] bg-[url('/ChildrenFamilies.png')] bg-cover bg-center bg-no-repeat rounded-2xl min-[1154px]:w-[787px]" />
+        <div className="h-[543px] w-full max-w-[787px] bg-[url('/siteimages/ChildrenFamilies.webp')] bg-cover bg-center bg-no-repeat rounded-2xl min-[1154px]:w-[787px]" />
 
         <p className="px-[10px] paragraph self-end text-center min-[1154px]:w-1/3">
           We believe families are key to a child’s growth. That’s why we share regular updates,
@@ -33,7 +33,7 @@ export default function About() {
 
       {/* Bottom Section - Image Left, Text Right */}
       <div className="mt-12 mb-12 flex w-full flex-col items-center justify-between gap-8 lg:flex-row">
-        <div className="h-[450px] w-[100%] max-w-[543px] bg-[url('/Kidsplayingwithtrains.png')] bg-cover bg-center bg-no-repeat lg:w-1/2 lg:max-w-none"/>
+        <div className="h-[450px] w-[100%] max-w-[543px] bg-[url('/siteimages/Kidsplayingwithtrains.webp')] bg-cover bg-center bg-no-repeat lg:w-1/2 lg:max-w-none"/>
 
         <div className="text-center lg:w-1/2 lg:text-center">
           <h2 className="mb-4 text-5xl font-semibold">First Steps</h2>

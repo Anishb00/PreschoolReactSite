@@ -50,7 +50,7 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
   return (
     <>
       <Banner
-        imagename="/HeroBG.png"
+        imagename="/siteimages/HeroBG.webp"
         title="Email Verification"
         subtitle="Confirm your email to finish registering."
       />

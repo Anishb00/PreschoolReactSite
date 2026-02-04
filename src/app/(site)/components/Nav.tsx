@@ -54,7 +54,7 @@ export default function Navbar({ forceActive = false }: { forceActive?: boolean 
         {/* Logo + wordmark on wide screens */}
         <Link href="/" className="hidden flex-shrink-0 items-center space-x-3 xl:flex">
           <Image
-            src="/preschoollogo.png"
+            src="/siteimages/preschoollogo.webp"
             alt="SSW"
             width={95}
             height={95}
@@ -71,7 +71,7 @@ export default function Navbar({ forceActive = false }: { forceActive?: boolean 
         {/* Compact logo when space is tight */}
         <Link href="/" className="flex flex-shrink-0 items-center xl:hidden">
           <Image
-            src="/preschoollogowithtext.png"
+            src="/siteimages/preschoollogowithtext.webp"
             alt="Stepping Stone World Preschool"
             width={95}
             height={95}

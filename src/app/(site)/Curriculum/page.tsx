@@ -8,7 +8,7 @@ export default function Curriculum() {
   return (
     <>
       <Banner
-        imagename="/HeroBG.png"
+        imagename="/siteimages/HeroBG.webp"
         title="Our Curriculum"
         subtitle="A balanced, hands-on curriculum that fosters creativity, confidence, and curiosity in every learner."
       />

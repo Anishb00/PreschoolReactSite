@@ -5,17 +5,17 @@ export default function Navigate() {
     <div className="flex flex-col gap-3 p-3 md:flex-row">
       <CardWithAnimatedButton
         text="Reviews"
-        image="/Childrenclasroomactivity.png"
+        image="/siteimages/Childrenclasroomactivity.webp"
         href="https://www.yelp.com/biz/stepping-stone-world-milpitas?osq=Stepping+Stone+world+preschool"
       />
       <CardWithAnimatedButton
         text="Our Values"
-        image="/ChildrenGraduation.png"
+        image="/siteimages/ChildrenGraduation.webp"
         href="/AboutUs"
       />
       <CardWithAnimatedButton
         text="Join Us"
-        image="/Children.png"
+        image="/siteimages/Children.webp"
         href="/Register"
       />
     </div>

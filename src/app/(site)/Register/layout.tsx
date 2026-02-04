@@ -5,7 +5,7 @@ export default function RegisterLayout({children}:{children: React.ReactNode}){
     return(
         <>
             <Banner
-            imagename="/HeroBG.png"
+            imagename="/siteimages/HeroBG.webp"
             title={pageName}
             subtitle={pageDescription}
             />

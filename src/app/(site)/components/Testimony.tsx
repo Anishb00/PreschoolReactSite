@@ -1,7 +1,7 @@
 export default function Testimony() {
   return (
     <section className="relative flex w-full items-center justify-start overflow-hidden bg-black px-8 py-16">
-      <div className="pointer-events-none absolute inset-0 bg-[url('/ChildreninClass.png')] bg-cover bg-top opacity-50 scale-x-[-1]" />
+      <div className="pointer-events-none absolute inset-0 bg-[url('/siteimages/ChildreninClass.webp')] bg-cover bg-top opacity-50 scale-x-[-1]" />
 
       <div className="relative w-full max-w-5xl rounded-xl bg-[#FFCC00] p-10 text-black shadow-lg md:w-1/2">
         <p className="mb-6 text-lg leading-relaxed">
