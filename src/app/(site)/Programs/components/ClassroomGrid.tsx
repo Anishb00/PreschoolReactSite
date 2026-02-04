@@ -2,73 +2,61 @@ const programs = [
   {
     name: "Caterpillar Class",
     emoji: "🐛",
-    ageRange: "18 months – 2.5 years",
+    ageRange: "3 – 4.5 years",
     description:
-      "Our littlest learners explore through movement, play, and social interaction. We build trust, routines, and early communication skills.",
+      "Caterpillar children follow a balanced preschool day with art, circle learning, outdoor play, and rest while building strong classroom routines.",
     bullets: [
-      "Sensory activities and fine motor play",
-      "First words and early social bonding",
-      "Music, story time, and parallel play",
+      "Art, cutting, and coloring to strengthen fine-motor skills",
+      "Circle time, worksheets, and early word-reading practice",
+      "Morning/afternoon outdoor play with nap and calm transitions",
     ],
   },
   {
     name: "Chrysalis Class",
     emoji: "🐚",
-    ageRange: "2.5 – 3.5 years",
+    ageRange: "2 – 3 years",
     description:
-      "This class supports growing independence, potty training, and structured group play while introducing early academics.",
+      "Chrysalis is a nurturing 2–3 classroom focused on gentle routines, language growth, and social confidence through short, engaging activities.",
     bullets: [
-      "Following simple instructions",
-      "Expanding vocabulary and expression",
-      "Dress-up, puzzles, and creative art",
+      "Art and free play to build curiosity and hand skills",
+      "Circle time, stories, music, and dance for communication",
+      "Snack, bathroom support, nap, and predictable transitions",
     ],
   },
   {
     name: "Butterfly Class",
     emoji: "🦋",
-    ageRange: "3.5 – 4.5 years",
+    ageRange: "4 – 5 years",
     description:
-      "Foundational academic concepts emerge through phonics, number sense, and team-based learning in a nurturing space.",
+      "Butterfly builds kindergarten readiness with a structured day that blends academics, movement, and independence for older preschoolers.",
     bullets: [
-      "Letter recognition and phonics",
-      "Group activities and problem-solving",
-      "STEM-based discovery and pretend play",
+      "Circle time and worksheets for focused learning habits",
+      "Learn-to-read words, storytelling, and classroom discussion",
+      "Outdoor play, self-help routines, and confident transitions",
     ],
   },
   {
     name: "Sunshine Class",
     emoji: "☀️",
-    ageRange: "4.5 – 5 years",
+    ageRange: "3 – 4 years",
     description:
-      "A Transitional Kindergarten (TK) experience focused on readiness for formal schooling, teamwork, and confidence-building.",
+      "Sunshine supports ages 3–4 with an active daily flow of creative work, outdoor exploration, and early academics in a playful setting.",
     bullets: [
-      "Pre-writing, counting, calendar time",
-      "Team games and classroom roles",
-      "Storytelling and emotional regulation",
+      "Circle time, story, music, dance, and worksheet practice",
+      "Morning and afternoon outdoor play for healthy movement",
+      "Lunch, nap, then rhymes and review to reinforce learning",
     ],
   },
   {
     name: "Rainbow Class",
     emoji: "🌈",
-    ageRange: "5 – 6 years",
+    ageRange: "2 – 3 years",
     description:
-      "Our Kindergarten-equivalent class strengthens writing, comprehension, early math, and independent learning habits.",
+      "Rainbow is another 2–3 classroom with supportive routines that help toddlers grow independence, communication, and early learning skills.",
     bullets: [
-      "Writing full sentences and short stories",
-      "Math centers and hands-on problem solving",
-      "Book buddies, projects, and presentations",
-    ],
-  },
-  {
-    name: "Starlight Class",
-    emoji: "🌟",
-    ageRange: "Multi-age Enrichment Group",
-    description:
-      "A creative enrichment group for advanced learners or transition support, blending art, culture, and project-based learning.",
-    bullets: [
-      "Mixed-age exploration and mentoring",
-      "Science, storytelling, beginner Spanish",
-      "Group murals, puppet shows, cultural themes",
+      "Art and free-choice play to encourage creativity",
+      "Circle time, rhymes, stories, and music for language growth",
+      "Outdoor play, nap, and guided transitions through the day",
     ],
   },
 ];

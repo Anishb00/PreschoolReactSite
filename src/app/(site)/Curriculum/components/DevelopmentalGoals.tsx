@@ -7,32 +7,32 @@ export default function DevelopmentalGoals() {
       <div className="space-y-6 text-base text-gray-800">
         <div>
           <h3 className="text-xl font-bold text-[#3B1FA8]">
-            Toddlers (18 months – 2.5 years)
+            Early Preschool (2 – 3 years)
           </h3>
           <p>
-            Focused on building trust and basic routines, toddlers begin
-            developing early language, fine motor skills, and simple social
-            behaviors through play.
+            Children in our Chrysalis and Rainbow classes build confidence with
+            daily routines while developing language, social skills, and fine
+            motor control through art, circle time, songs, and guided play.
           </p>
         </div>
         <div>
           <h3 className="text-xl font-bold text-[#3B1FA8]">
-            Preschoolers (2.5 – 4.5 years)
+            Preschool (3 – 4.5 years)
           </h3>
           <p>
-            Children learn foundational concepts in math and literacy, grow in
-            independence, and refine social-emotional skills through structured
-            group activities and creative exploration.
+            In Sunshine and Caterpillar, students strengthen independence and
+            early academics through structured circle time, worksheets, stories,
+            movement, and regular outdoor play.
           </p>
         </div>
         <div>
           <h3 className="text-xl font-bold text-[#3B1FA8]">
-            Pre-K / Kindergarten (4.5 – 6 years)
+            Pre-K Readiness (4 – 5 years)
           </h3>
           <p>
-            Learners prepare for elementary school by strengthening early
-            reading, writing, and numeracy. Emphasis is placed on critical
-            thinking, collaboration, and confidence in self-expression.
+            Our Butterfly class focuses on kindergarten readiness with stronger
+            early reading, writing practice, classroom responsibility, and
+            collaborative learning habits.
           </p>
         </div>
       </div>
