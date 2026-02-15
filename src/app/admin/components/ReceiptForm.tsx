@@ -173,7 +173,16 @@ export default function ReceiptForm({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Start Date</label>
+          <label className="block text-sm font-medium text-gray-700">Received Amount</label>
+          <input
+            type="text"
+            value={fields.recieved_amount}
+            onChange={(e) => handleChange("recieved_amount", e.target.value)}
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Receipt Start Date</label>
           <div className="mt-1 grid grid-cols-2 gap-2">
             <input
               type="date"
@@ -185,7 +194,9 @@ export default function ReceiptForm({
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">End Date (Optional)</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Receipt End Date (Optional)
+          </label>
           <div className="mt-1 grid grid-cols-2 gap-2">
             <input
               type="date"
@@ -196,7 +207,7 @@ export default function ReceiptForm({
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Date</label>
+          <label className="block text-sm font-medium text-gray-700">Receipt Send Date</label>
           <input
             type="date"
             value={fields.date}
@@ -237,15 +248,6 @@ export default function ReceiptForm({
             type="text"
             value={fields.past_credit}
             onChange={(e) => handleChange("past_credit", e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Received Amount</label>
-          <input
-            type="text"
-            value={fields.recieved_amount}
-            onChange={(e) => handleChange("recieved_amount", e.target.value)}
             className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
           />
         </div>
