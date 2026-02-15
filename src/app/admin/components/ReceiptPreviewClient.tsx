@@ -22,6 +22,7 @@ export default function ReceiptPreviewClient({
 }: ReceiptPreviewClientProps) {
   const [emailSending, setEmailSending] = useState(false);
   const [notice, setNotice] = useState<ReceiptNotice | null>(null);
+  const receiptPreviewSrc = `/api/receipt-file?ts=${cacheBust}#zoom=200`;
 
   const sendReceiptEmail = async () => {
     setEmailSending(true);
@@ -100,7 +101,7 @@ export default function ReceiptPreviewClient({
       <div className="h-[80vh] w-full overflow-hidden rounded border border-gray-200 shadow-sm md:h-[82vh] lg:h-[84vh]">
         <iframe
           title="Filled Receipt"
-          src={`/api/receipt-file?ts=${cacheBust}`}
+          src={receiptPreviewSrc}
           className="h-full w-full"
         />
       </div>
