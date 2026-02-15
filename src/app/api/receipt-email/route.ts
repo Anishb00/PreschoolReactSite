@@ -14,6 +14,7 @@ const OUTPUT_PATH = path.join(process.cwd(), "documents", "filled_reciept.pdf");
 
 type ReceiptEmailBody = {
   childId?: number;
+  period?: string;
   month?: string;
   year?: string;
 };
@@ -76,9 +77,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const explicitPeriod = typeof body.period === "string" ? body.period.trim() : "";
   const month = typeof body.month === "string" ? body.month.trim() : "";
   const year = typeof body.year === "string" ? body.year.trim() : "";
-  const period = month && year ? `${month} ${year}` : "";
+  const period = explicitPeriod || (month && year ? `${month} ${year}` : "");
 
   const subject = period
     ? `Receipt for ${childRow.Child_name ?? "your child"} - ${period}`

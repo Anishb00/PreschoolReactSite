@@ -4,7 +4,7 @@ import ReceiptPreviewClient from "@/app/admin/components/ReceiptPreviewClient";
 
 type PageProps = {
   params: Promise<{ childId: string }>;
-  searchParams: Promise<{ ts?: string; month?: string; year?: string }>;
+  searchParams: Promise<{ ts?: string; period?: string }>;
 };
 
 export default async function ReceiptPreviewPage({ params, searchParams }: PageProps) {
@@ -27,8 +27,7 @@ export default async function ReceiptPreviewPage({ params, searchParams }: PageP
     <ReceiptPreviewClient
       childId={childId}
       cacheBust={cacheBust}
-      month={search?.month}
-      year={search?.year}
+      period={search?.period}
     />
   );
 }

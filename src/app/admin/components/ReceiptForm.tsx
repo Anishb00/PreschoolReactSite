@@ -18,6 +18,8 @@ type ReceiptFormProps = {
 type ReceiptFields = {
   month: string;
   year: string;
+  end_month: string;
+  end_year: string;
   date: string;
   preschool_fee: string;
   hot_lunch: string;
@@ -48,6 +50,9 @@ export default function ReceiptForm({
     "November",
     "December",
   ];
+  const yearOptions = Array.from({ length: 6 }).map((_, idx) =>
+    String(new Date().getFullYear() - idx)
+  );
 
   const [fields, setFields] = useState<ReceiptFields>(() => {
     const now = new Date();
@@ -61,6 +66,8 @@ export default function ReceiptForm({
     return {
       month: defaultMonth,
       year: defaultYear,
+      end_month: "",
+      end_year: "",
       date: defaultDate,
       preschool_fee: preschoolFee,
       hot_lunch: "",
@@ -95,13 +102,18 @@ export default function ReceiptForm({
     setIsSubmitting(true);
 
     try {
+      const startPeriod = `${fields.month} / ${fields.year}`;
+      const endMonth = fields.end_month.trim();
+      const endYear = fields.end_year.trim();
+      const period = endMonth && endYear ? `${startPeriod} - ${endMonth} / ${endYear}` : startPeriod;
+
       const response = await fetch("/api/receipt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           childId,
           ...fields,
-          month: `${fields.month} / ${fields.year}`,
+          month: period,
         }),
       });
 
@@ -119,9 +131,8 @@ export default function ReceiptForm({
       }
 
       const cacheBust = Date.now();
-      const month = encodeURIComponent(fields.month);
-      const year = encodeURIComponent(fields.year);
-      router.push(`/admin/Receipt/${childId}/view?ts=${cacheBust}&month=${month}&year=${year}`);
+      const encodedPeriod = encodeURIComponent(period);
+      router.push(`/admin/Receipt/${childId}/view?ts=${cacheBust}&period=${encodedPeriod}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unable to generate receipt.";
       setError(message);
@@ -161,7 +172,7 @@ export default function ReceiptForm({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Month / Year</label>
+          <label className="block text-sm font-medium text-gray-700">Start Month / Year</label>
           <div className="mt-1 grid grid-cols-2 gap-2">
             <select
               value={fields.month}
@@ -179,14 +190,40 @@ export default function ReceiptForm({
               onChange={(e) => handleChange("year", e.target.value)}
               className="rounded-md border border-gray-300 px-3 py-2 text-sm"
             >
-              {Array.from({ length: 6 }).map((_, idx) => {
-                const year = String(new Date().getFullYear() - idx);
-                return (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                );
-              })}
+              {yearOptions.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">End Month / Year (Optional)</label>
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            <select
+              value={fields.end_month}
+              onChange={(e) => handleChange("end_month", e.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            >
+              <option value="">None</option>
+              {monthOptions.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+            <select
+              value={fields.end_year}
+              onChange={(e) => handleChange("end_year", e.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            >
+              <option value="">None</option>
+              {yearOptions.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
             </select>
           </div>
         </div>

@@ -5,8 +5,7 @@ import { useState } from "react";
 type ReceiptPreviewClientProps = {
   childId: number;
   cacheBust: string;
-  month?: string;
-  year?: string;
+  period?: string;
 };
 
 type ReceiptNotice = {
@@ -19,8 +18,7 @@ type ReceiptNotice = {
 export default function ReceiptPreviewClient({
   childId,
   cacheBust,
-  month,
-  year,
+  period,
 }: ReceiptPreviewClientProps) {
   const [emailSending, setEmailSending] = useState(false);
   const [notice, setNotice] = useState<ReceiptNotice | null>(null);
@@ -33,7 +31,7 @@ export default function ReceiptPreviewClient({
       const response = await fetch("/api/receipt-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ childId, month, year }),
+        body: JSON.stringify({ childId, period }),
       });
 
       const data = (await response.json().catch(() => ({}))) as {
