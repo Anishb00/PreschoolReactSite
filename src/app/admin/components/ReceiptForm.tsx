@@ -8,6 +8,13 @@ function toAmount(value: string): number {
   return Number.isFinite(num) ? num : 0;
 }
 
+function toDateInputValue(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 type ReceiptFormProps = {
   childId: number;
   childName: string;
@@ -61,12 +68,14 @@ export default function ReceiptForm({
 
   const [fields, setFields] = useState<ReceiptFields>(() => {
     const now = new Date();
-    const defaultDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    const defaultDate = toDateInputValue(now);
+    const defaultStartDate = toDateInputValue(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+    const defaultEndDate = toDateInputValue(new Date(now.getFullYear(), now.getMonth(), 0));
     const defaultFee = toAmount(preschoolFee);
 
     return {
-      start_date: defaultDate,
-      end_date: "",
+      start_date: defaultStartDate,
+      end_date: defaultEndDate,
       date: defaultDate,
       preschool_fee: preschoolFee,
       hot_lunch: "",
