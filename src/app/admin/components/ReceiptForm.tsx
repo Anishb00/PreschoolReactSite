@@ -16,10 +16,8 @@ type ReceiptFormProps = {
 };
 
 type ReceiptFields = {
-  month: string;
-  year: string;
-  end_month: string;
-  end_year: string;
+  start_date: string;
+  end_date: string;
   date: string;
   preschool_fee: string;
   hot_lunch: string;
@@ -36,38 +34,39 @@ export default function ReceiptForm({
   preschoolFee,
 }: ReceiptFormProps) {
   const router = useRouter();
-  const monthOptions = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const yearOptions = Array.from({ length: 6 }).map((_, idx) =>
-    String(new Date().getFullYear() - idx)
-  );
+
+  const formatDateForReceipt = (value: string): string => {
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+
+    const [yearStr, monthStr, dayStr] = trimmed.split("-");
+    const year = Number(yearStr);
+    const month = Number(monthStr);
+    const day = Number(dayStr);
+    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+      return trimmed;
+    }
+
+    const parsed = new Date(year, month - 1, day);
+    if (Number.isNaN(parsed.getTime())) {
+      return trimmed;
+    }
+
+    return new Intl.DateTimeFormat("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }).format(parsed);
+  };
 
   const [fields, setFields] = useState<ReceiptFields>(() => {
     const now = new Date();
-    const defaultMonth = new Intl.DateTimeFormat("en-US", {
-      month: "long",
-    }).format(now); // e.g., "March"
     const defaultDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
-    const defaultYear = String(now.getFullYear());
     const defaultFee = toAmount(preschoolFee);
 
     return {
-      month: defaultMonth,
-      year: defaultYear,
-      end_month: "",
-      end_year: "",
+      start_date: defaultDate,
+      end_date: "",
       date: defaultDate,
       preschool_fee: preschoolFee,
       hot_lunch: "",
@@ -102,10 +101,12 @@ export default function ReceiptForm({
     setIsSubmitting(true);
 
     try {
-      const startPeriod = `${fields.month} / ${fields.year}`;
-      const endMonth = fields.end_month.trim();
-      const endYear = fields.end_year.trim();
-      const period = endMonth && endYear ? `${startPeriod} - ${endMonth} / ${endYear}` : startPeriod;
+      const startPeriod = formatDateForReceipt(fields.start_date);
+      if (!startPeriod) {
+        throw new Error("Start date is required.");
+      }
+      const endPeriod = formatDateForReceipt(fields.end_date);
+      const period = endPeriod ? `${startPeriod} - ${endPeriod}` : startPeriod;
 
       const response = await fetch("/api/receipt", {
         method: "POST",
@@ -172,65 +173,32 @@ export default function ReceiptForm({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Start Month / Year</label>
+          <label className="block text-sm font-medium text-gray-700">Start Date</label>
           <div className="mt-1 grid grid-cols-2 gap-2">
-            <select
-              value={fields.month}
-              onChange={(e) => handleChange("month", e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            >
-              {monthOptions.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-            <select
-              value={fields.year}
-              onChange={(e) => handleChange("year", e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            >
-              {yearOptions.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+            <input
+              type="date"
+              required
+              value={fields.start_date}
+              onChange={(e) => handleChange("start_date", e.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm md:col-span-2"
+            />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">End Month / Year (Optional)</label>
+          <label className="block text-sm font-medium text-gray-700">End Date (Optional)</label>
           <div className="mt-1 grid grid-cols-2 gap-2">
-            <select
-              value={fields.end_month}
-              onChange={(e) => handleChange("end_month", e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            >
-              <option value="">None</option>
-              {monthOptions.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-            <select
-              value={fields.end_year}
-              onChange={(e) => handleChange("end_year", e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            >
-              <option value="">None</option>
-              {yearOptions.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+            <input
+              type="date"
+              value={fields.end_date}
+              onChange={(e) => handleChange("end_date", e.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm md:col-span-2"
+            />
           </div>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Date</label>
           <input
-            type="text"
+            type="date"
             value={fields.date}
             onChange={(e) => handleChange("date", e.target.value)}
             className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
