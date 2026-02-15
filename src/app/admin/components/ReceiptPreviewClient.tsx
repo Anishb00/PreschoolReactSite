@@ -62,10 +62,10 @@ export default function ReceiptPreviewClient({
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center space-y-6 px-4">
+    <div className="flex min-h-screen w-[calc(100%+3rem)] -mx-6 flex-col gap-6 px-4 py-4 md:px-6 md:py-6">
       {notice && (
         <div
-          className={`w-full max-w-4xl rounded-md border px-4 py-3 text-sm shadow-sm ${
+          className={`w-full rounded-md border px-4 py-3 text-sm shadow-sm ${
             notice.type === "success"
               ? "border-green-200 bg-green-50 text-green-800"
               : "border-red-200 bg-red-50 text-red-800"
@@ -92,12 +92,12 @@ export default function ReceiptPreviewClient({
         </div>
       )}
 
-      <header className="mb-2">
+      <header className="w-full">
         <h1 className="text-3xl font-semibold text-gray-800">Receipt Preview</h1>
         <p className="text-gray-600">Review the generated receipt below.</p>
       </header>
 
-      <div className="w-full overflow-hidden rounded border border-gray-200 shadow-sm h-[75vh] max-h-[900px] max-w-4xl">
+      <div className="h-[80vh] w-full overflow-hidden rounded border border-gray-200 shadow-sm md:h-[82vh] lg:h-[84vh]">
         <iframe
           title="Filled Receipt"
           src={`/api/receipt-file?ts=${cacheBust}`}
@@ -105,7 +105,7 @@ export default function ReceiptPreviewClient({
         />
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex w-full justify-end gap-3">
         <button
           type="button"
           onClick={sendReceiptEmail}
