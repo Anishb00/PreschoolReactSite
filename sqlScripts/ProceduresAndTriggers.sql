@@ -168,6 +168,9 @@ BEGIN
 
     START TRANSACTION;
 
+    SET p_doctor_name = NULLIF(TRIM(p_doctor_name), '');
+    SET p_doctor_phone = NULLIF(TRIM(p_doctor_phone), '');
+
     CALL generate_unique_child_pin(v_child_pin);
 
     -- Parent 1: look up first
@@ -292,6 +295,9 @@ BEGIN
 
     START TRANSACTION;
 
+    SET p_doctor_name = NULLIF(TRIM(p_doctor_name), '');
+    SET p_doctor_phone = NULLIF(TRIM(p_doctor_phone), '');
+
     IF p_class IS NULL OR p_class = '' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'CLASS_REQUIRED';
     END IF;
@@ -381,6 +387,9 @@ BEGIN
     END;
 
     START TRANSACTION;
+
+    SET p_doctor_name = NULLIF(TRIM(p_doctor_name), '');
+    SET p_doctor_phone = NULLIF(TRIM(p_doctor_phone), '');
 
     IF p_class IS NULL OR p_class = '' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'CLASS_REQUIRED';

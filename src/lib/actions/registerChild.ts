@@ -35,9 +35,15 @@ export default async function registerChild(
     parentTwoPhone:   helpers.normalizeAndValidatePhone(formData,'parentTwoPhone',errorStatus,API_ERROR_CODES.P2_PHONE_INVALID,{required:false}),
     parentTwoEmail:   helpers.validateEmailAddress(formData, "parentTwoEmail",errorStatus,API_ERROR_CODES.P2_EMAIL_INVALID,{required:false}),
 
-
-  doctorName:  helpers.mustString(formData, "doctorName",errorStatus),
-  doctorPhone: helpers.normalizeAndValidatePhone(formData,'doctorPhone',errorStatus,API_ERROR_CODES.DOC_PHONE_INVALID,{required:true}),
+    doctorName: helpers.optionalString(formData, "doctorName") ?? "",
+    doctorPhone:
+      helpers.normalizeAndValidatePhone(
+        formData,
+        "doctorPhone",
+        errorStatus,
+        API_ERROR_CODES.DOC_PHONE_INVALID,
+        { required: false }
+      ) ?? "",
   };
 
   let resultingClass: string | null = null;

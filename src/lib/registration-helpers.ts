@@ -152,6 +152,8 @@ export function waitlistRecordMatches(
 ): boolean {
     const dbDob = toDateKey(row.DOB);
     const formDob = toDateKey(data.dob);
+    const normalizedDoctorName = data.doctorName.trim() === "" ? null : data.doctorName;
+    const normalizedDoctorPhone = data.doctorPhone.trim() === "" ? null : data.doctorPhone;
 
     const parent1Match =
         row.Parent1_Name === data.parentOneName &&
@@ -177,8 +179,8 @@ export function waitlistRecordMatches(
         row.Sex === data.sex &&
         row.Program === data.Program &&
         row.Class === "Pre-Register" &&
-        row.Doctor_name === data.doctorName &&
-        row.Doctor_phone === data.doctorPhone &&
+        row.Doctor_name === normalizedDoctorName &&
+        row.Doctor_phone === normalizedDoctorPhone &&
         parent1Match &&
         parent2Match
     );

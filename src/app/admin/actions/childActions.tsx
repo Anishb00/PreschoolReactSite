@@ -83,14 +83,15 @@ export async function createChild(formData: FormData) {
     ),
     pottyTrained: helpers.parseYesNoBoolean(formData, "pottyTrained", errorStatus),
     className: classValue,
-    doctorName: helpers.mustString(formData, "doctorName", errorStatus),
-    doctorPhone: helpers.normalizeAndValidatePhone(
-      formData,
-      "doctorPhone",
-      errorStatus,
-      "DOC_PHONE_INVALID",
-      { required: true }
-    ),
+    doctorName: helpers.optionalString(formData, "doctorName") ?? "",
+    doctorPhone:
+      helpers.normalizeAndValidatePhone(
+        formData,
+        "doctorPhone",
+        errorStatus,
+        "DOC_PHONE_INVALID",
+        { required: false }
+      ) ?? "",
     enrollDate,
     dropDate,
     checkoutTime,
@@ -243,14 +244,15 @@ export async function updateChild(formData: FormData) {
     ),
     pottyTrained: helpers.parseYesNoBoolean(formData, "pottyTrained", errorStatus),
     className: classValue,
-    doctorName: helpers.mustString(formData, "doctorName", errorStatus),
-    doctorPhone: helpers.normalizeAndValidatePhone(
-      formData,
-      "doctorPhone",
-      errorStatus,
-      "DOC_PHONE_INVALID",
-      { required: true }
-    ),
+    doctorName: helpers.optionalString(formData, "doctorName") ?? "",
+    doctorPhone:
+      helpers.normalizeAndValidatePhone(
+        formData,
+        "doctorPhone",
+        errorStatus,
+        "DOC_PHONE_INVALID",
+        { required: false }
+      ) ?? "",
     enrollDate,
     dropDate,
     checkoutTime,

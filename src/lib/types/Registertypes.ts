@@ -42,8 +42,8 @@ export type RegistrationData = {
   parentTwoPhone: string | null;     // digits-only or null
   parentTwoEmail: string | null;
 
-  doctorName: string;                // required
-  doctorPhone: string;               // digits-only
+  doctorName: string;                // optional (empty string allowed in form state)
+  doctorPhone: string;               // optional digits-only (or empty string in form state)
   pottyTrained: boolean;
 };
 

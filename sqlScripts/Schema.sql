@@ -22,7 +22,7 @@ CREATE TABLE Child (
   Program VARCHAR(30) NOT NULL,
   Class VARCHAR(20) CHECK (Class IN ('Waitlist','Pre-Register', 'Registered', 'Caterpillar', 'Chrysalis', 'Butterfly', 'Sunshine', 'Rainbow','Test','Dismissed')) DEFAULT NULL,
   Potty_trained BOOLEAN NOT NULL DEFAULT FALSE,
-  Doctor_name VARCHAR(100) NOT NULL,
+  Doctor_name VARCHAR(100) NULL,
   Doctor_phone VARCHAR(19) NULL,
   Enroll_date DATE DEFAULT NULL,
   Drop_date DATE DEFAULT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE Child (
   PRIMARY KEY (Child_ID),
   UNIQUE KEY UNIQUE_PIN (Child_Pin),
   CONSTRAINT DUPLICATE_CHILD UNIQUE (Child_name, DOB),
-  CONSTRAINT DOCTOR_PHONE_FORMAT CHECK (Doctor_phone REGEXP '^[0-9]{11}$')
+  CONSTRAINT DOCTOR_PHONE_FORMAT CHECK (Doctor_phone IS NULL OR Doctor_phone REGEXP '^[0-9]{11}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE Parent (
