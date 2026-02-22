@@ -106,6 +106,8 @@ type ChildrenTableProps = {
   initialClassFilter?: string;
   showCheckoutTime?: boolean;
   showRecordCount?: boolean;
+  compactShowSexColumn?: boolean;
+  compactParentContactColumn?: "email" | "phone";
 };
 
 function DeleteButton() {
@@ -130,11 +132,20 @@ export default function ChildrenTable({
   initialClassFilter = "enrolled",
   showCheckoutTime = true,
   showRecordCount = false,
+  compactShowSexColumn = true,
+  compactParentContactColumn = "email",
 }: ChildrenTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const actionColWidth = fullView ? "w-36" : "w-40";
   const actionColMinWidth = fullView ? "9rem" : "10rem";
+  const showSexColumn = fullView || compactShowSexColumn;
+  const compactPhoneContacts = !fullView && compactParentContactColumn === "phone";
+  const compactParent1ContactLabel = compactPhoneContacts ? "Parent 1 Phone" : "Parent 1 Email";
+  const compactParent2ContactLabel = compactPhoneContacts ? "Parent 2 Phone" : "Parent 2 Email";
+  const adminEmptyColSpan = fullView
+    ? (showCheckoutTime ? 21 : 20)
+    : 12 + (showCheckoutTime ? 1 : 0) + (showSexColumn ? 1 : 0);
   const [state, formAction] = React.useActionState(deleteChild, {
     children: initialChildren,
   });
@@ -219,11 +230,11 @@ export default function ChildrenTable({
             fullView ? child.doctorPhone : "",
             child.parent1Name,
             child.parent1Email,
-            fullView ? child.parent1Phone : "",
+            fullView || compactPhoneContacts ? child.parent1Phone : "",
             fullView ? child.parent1Address : "",
             child.parent2Name,
             child.parent2Email,
-            fullView ? child.parent2Phone : "",
+            fullView || compactPhoneContacts ? child.parent2Phone : "",
             fullView ? child.parent2Address : "",
           ]
         : [child.name];
@@ -653,7 +664,7 @@ export default function ChildrenTable({
                 </th>
                 <th className="p-3 text-left">Age</th>
                 <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-left">Sex</th>
+                {showSexColumn && <th className="p-3 text-left">Sex</th>}
                 {fullView && <th className="p-3 text-left">DOB</th>}
                 <th className="p-3 text-left">Program</th>
                 <th className="p-3 text-left min-w-[140px]">Class</th>
@@ -685,18 +696,22 @@ export default function ChildrenTable({
                 <th className="p-3 text-left">Parent 1</th>
                 {fullView && <th className="p-3 text-left">Parent 1 Phone</th>}
                 {fullView && <th className="p-3 text-left">Parent 1 Address</th>}
-                <th className="p-3 text-left">Parent 1 Email</th>
+                <th className="p-3 text-left">
+                  {fullView ? "Parent 1 Email" : compactParent1ContactLabel}
+                </th>
                 <th className="p-3 text-left">Parent 2</th>
                 {fullView && <th className="p-3 text-left">Parent 2 Phone</th>}
                 {fullView && <th className="p-3 text-left">Parent 2 Address</th>}
-                <th className="p-3 text-left">Parent 2 Email</th>
+                <th className="p-3 text-left">
+                  {fullView ? "Parent 2 Email" : compactParent2ContactLabel}
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredChildren.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={fullView ? (showCheckoutTime ? 21 : 20) : (showCheckoutTime ? 14 : 13)}
+                    colSpan={adminEmptyColSpan}
                     className="p-6 text-center text-gray-500"
                   >
                     No children found.
@@ -799,7 +814,7 @@ export default function ChildrenTable({
                           );
                         })()}
                       </td>
-                      <td className="p-3 text-gray-700">{child.sex}</td>
+                      {showSexColumn && <td className="p-3 text-gray-700">{child.sex}</td>}
                       {fullView && <td className="p-3 text-gray-700">{child.dob ?? ""}</td>}
                       <td className="p-3 text-gray-700">{child.program}</td>
                       <td className="p-3 text-gray-700 min-w-[140px]">
@@ -838,32 +853,38 @@ export default function ChildrenTable({
                       {fullView && <td className="p-3 text-gray-700">{child.parent1Address ?? ""}</td>}
                       <td
                         className={`p-3 text-gray-700 ${
-                          child.parent1Verified === false ? "bg-amber-50 text-amber-800" : ""
+                          !compactPhoneContacts && child.parent1Verified === false
+                            ? "bg-amber-50 text-amber-800"
+                            : ""
                         }`}
                         title={
-                          child.parent1Verified === false
+                          !compactPhoneContacts && child.parent1Verified === false
                             ? "Parent 1 email is not verified"
                             : undefined
                         }
                       >
-                        {child.parent1Email}
+                        {compactPhoneContacts ? child.parent1Phone ?? "" : child.parent1Email}
                       </td>
                       <td className="p-3 text-gray-700">{child.parent2Name}</td>
                       {fullView && <td className="p-3 text-gray-700">{child.parent2Phone ?? ""}</td>}
                       {fullView && <td className="p-3 text-gray-700">{child.parent2Address ?? ""}</td>}
                       <td
                         className={`p-3 text-gray-700 ${
-                          child.parent2Email && child.parent2Verified === false
+                          !compactPhoneContacts &&
+                          child.parent2Email &&
+                          child.parent2Verified === false
                             ? "bg-amber-50 text-amber-800"
                             : ""
                         }`}
                         title={
-                          child.parent2Email && child.parent2Verified === false
+                          !compactPhoneContacts &&
+                          child.parent2Email &&
+                          child.parent2Verified === false
                             ? "Parent 2 email is not verified"
                             : undefined
                         }
                       >
-                        {child.parent2Email}
+                        {compactPhoneContacts ? child.parent2Phone ?? "" : child.parent2Email}
                       </td>
                     </tr>
                   );

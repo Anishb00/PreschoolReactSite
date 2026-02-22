@@ -48,9 +48,11 @@ function mapChildRow(row: ChildWithParentsFullRow) {
     parent1Name: row.Parent1_Name ?? "",
     parent1Email: row.Parent1_Email ?? "",
     parent1Verified: row.Parent1_Verified ? Boolean(row.Parent1_Verified) : false,
+    parent1Phone: row.Parent1_Phone ?? "",
     parent2Name: row.Parent2_Name ?? "",
     parent2Email: row.Parent2_Email ?? "",
     parent2Verified: row.Parent2_Verified ? Boolean(row.Parent2_Verified) : false,
+    parent2Phone: row.Parent2_Phone ?? "",
   };
 }
 
@@ -140,6 +142,8 @@ export default async function Dashboard({
         deleteChild={deleteChild}
         isAdmin={isAdminUser}
         fullView={false}
+        compactShowSexColumn={false}
+        compactParentContactColumn="phone"
         showCheckoutTime
         showRecordCount
       />
