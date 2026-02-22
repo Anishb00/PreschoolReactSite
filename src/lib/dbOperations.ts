@@ -219,6 +219,12 @@ export async function addChildWithParentsFull(
   } catch (err) {
     const e = err as QueryError & { sqlMessage?: string };
     const violatedConstraint = getConstraintName(e.sqlMessage || "");
+    console.log("add_child_with_parents_full error:", e);
+    if (violatedConstraint === null) {
+      errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);
+      errorStatus.log(JSON.stringify(e));
+      return;
+    }
     if (violatedConstraint !== null) {
       if (!isAnyErrorCode(violatedConstraint)) {
         errorStatus.add(DB_ERROR_CODES.UNKNOWN_DB_ERROR);

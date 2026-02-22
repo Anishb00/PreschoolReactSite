@@ -99,6 +99,12 @@ export default async function ChildrenFullPage({
 
     await deleteChildById(childId, errorState);
     if (errorState.uncaughtErrors.size > 0) {
+      console.log("childrenFull deleteChild action failed", {
+        caughtErrors: Array.from(errorState.caughtErrors),
+        uncaughtErrors: Array.from(errorState.uncaughtErrors),
+        logs: errorState.logs,
+        childId,
+      });
       return {
         children: (
           await getChildrenWithParentsFull(errorState, {

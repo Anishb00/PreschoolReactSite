@@ -146,6 +146,14 @@ export async function createChild(formData: FormData) {
     }
   }
 
+  if (errorStatus.checkErrors() > 0) {
+    console.log("createChild action failed", {
+      caughtErrors: Array.from(errorStatus.caughtErrors),
+      uncaughtErrors: Array.from(errorStatus.uncaughtErrors),
+      logs: errorStatus.logs,
+    });
+  }
+
   if (errorStatus.uncaughtErrors.size > 0) {
     redirect("/admin/AddChild?status=error");
   }
@@ -289,6 +297,14 @@ export async function updateChild(formData: FormData) {
 
   if (errorStatus.checkErrors() === 0) {
     await updateChildAndParents(registrationData, errorStatus);
+  }
+
+  if (errorStatus.checkErrors() > 0) {
+    console.log("updateChild action failed", {
+      caughtErrors: Array.from(errorStatus.caughtErrors),
+      uncaughtErrors: Array.from(errorStatus.uncaughtErrors),
+      logs: errorStatus.logs,
+    });
   }
 
   if (errorStatus.uncaughtErrors.size > 0) {

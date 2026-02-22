@@ -97,6 +97,12 @@ export default async function Dashboard({
 
     await deleteChildById(childId, errorState);
     if (errorState.uncaughtErrors.size > 0) {
+      console.log("home deleteChild action failed", {
+        caughtErrors: Array.from(errorState.caughtErrors),
+        uncaughtErrors: Array.from(errorState.uncaughtErrors),
+        logs: errorState.logs,
+        childId,
+      });
       return {
         children: (
           await getChildrenWithParentsFull(errorState, {
