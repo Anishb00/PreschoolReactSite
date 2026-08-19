@@ -11,6 +11,8 @@ export default function Hero({ imagename }: { imagename: string }) {
       <Link href="/Register">
         <Button>
           Now accepting students for {String(new Date().getFullYear())}
+          <br />
+          Call at 408-621-1037
         </Button>
       </Link>
     </div>

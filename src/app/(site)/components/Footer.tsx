@@ -29,6 +29,12 @@ export default function Footer() {
             Milpitas, California 95035
           </p>
           <p>
+            Phone:{" "}
+            <a href="tel:+14086211037" className="text-blue-600">
+              408-621-1037
+            </a>
+          </p>
+          <p>
             Email:{" "}
             <a
               href="mailto:steppingstoneworld@gmail.com"
