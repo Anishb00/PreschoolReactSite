@@ -28,7 +28,8 @@ export async function sendSesEmail(
   subject: string,
   message: string,
   htmlBody?: string,
-  attachment?: Attachment
+  attachment?: Attachment,
+  replyTo?: string
 ) {
   if (!sesClient || !sesSourceEmail) {
     console.warn("SES email not configured: missing SES_SOURCE_EMAIL.");
@@ -86,6 +87,7 @@ export async function sendSesEmail(
   const command = new SendEmailCommand({
     FromEmailAddress: sesSourceEmail,
     Destination: { ToAddresses: recipients },
+    ReplyToAddresses: replyTo ? [replyTo] : undefined,
     Content: {
       Simple: {
         Subject: { Data: subject || "(no subject)" },

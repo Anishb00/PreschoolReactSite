@@ -86,6 +86,7 @@ export default function Navbar({ forceActive = false }: { forceActive?: boolean 
           <Link href="/Calendar" style={styleActive('Calendar')}>Calendar</Link>
           <Link href="/Events" style={styleActive('Events')}>Events</Link>
           <Link href="/Curriculum" style={styleActive('Curriculum')}>Curriculum</Link>
+          <Link href="/Contact" style={styleActive('Contact')}>Contact</Link>
         </nav>
 
         {/* "Schedule a Tour" button */}
@@ -117,6 +118,7 @@ export default function Navbar({ forceActive = false }: { forceActive?: boolean 
             <Link href="/Calendar" style={styleActive('Calendar')} onClick={() => setMenuOpen(false)}>Calendar</Link>
             <Link href="/Events" style={styleActive('Events')} onClick={() => setMenuOpen(false)}>Events</Link>
             <Link href="/Curriculum" style={styleActive('Curriculum')} onClick={() => setMenuOpen(false)}>Curriculum</Link>
+            <Link href="/Contact" style={styleActive('Contact')} onClick={() => setMenuOpen(false)}>Contact</Link>
             <Link href="/Register" style={styleActive('Register')} onClick={() => setMenuOpen(false)}>Admissions</Link>
           </nav>
         </div>

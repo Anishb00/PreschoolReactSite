@@ -68,6 +68,9 @@ export default function Footer() {
             <li>
                <Link href="/Register">Register Waitlist</Link>
             </li>
+            <li>
+               <Link href="/Contact">Contact</Link>
+            </li>
           </ul>
         </div>
       </div>
